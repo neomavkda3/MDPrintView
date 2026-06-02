@@ -1,8 +1,9 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+@MainActor
 @Observable
-final class MarkdownDocument: ReferenceFileDocument {
+final class MarkdownDocument: @preconcurrency ReferenceFileDocument {
     typealias Snapshot = String
 
     static var readableContentTypes: [UTType] { [.plainText] }

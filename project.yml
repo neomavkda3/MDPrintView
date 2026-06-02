@@ -46,3 +46,16 @@ targets:
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/mdview.app/Contents/MacOS/mdview
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  mdview:
+    build:
+      targets:
+        mdview: all
+        mdviewTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - mdviewTests
