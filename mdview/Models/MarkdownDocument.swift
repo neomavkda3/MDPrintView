@@ -1,13 +1,17 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+extension UTType {
+    static let markdown = UTType(importedAs: "net.daringfireball.markdown")
+}
+
 @MainActor
 @Observable
 final class MarkdownDocument: @preconcurrency ReferenceFileDocument {
     typealias Snapshot = String
 
-    static var readableContentTypes: [UTType] { [.plainText] }
-    static var writableContentTypes: [UTType] { [.plainText] }
+    static var readableContentTypes: [UTType] { [.markdown, .plainText] }
+    static var writableContentTypes: [UTType] { [.markdown, .plainText] }
 
     var text: String
 
