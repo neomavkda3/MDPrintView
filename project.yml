@@ -15,12 +15,20 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 
+packages:
+  Markdown:
+    url: https://github.com/apple/swift-markdown.git
+    from: "0.6.0"
+
 targets:
   mdview:
     type: application
     platform: macOS
     sources:
       - path: mdview
+    dependencies:
+      - package: Markdown
+        product: Markdown
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.mdview
