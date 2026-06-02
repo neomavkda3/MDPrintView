@@ -37,7 +37,8 @@ struct PreviewWebView: NSViewRepresentable {
 
     fileprivate static func inject(html: String, into webView: WKWebView) {
         let escaped = escape(html)
-        webView.evaluateJavaScript("setBody(`\(escaped)`);")
+        let js = "document.getElementById('content').innerHTML = `\(escaped)`;"
+        webView.evaluateJavaScript(js)
     }
 
     fileprivate static func escape(_ s: String) -> String {
