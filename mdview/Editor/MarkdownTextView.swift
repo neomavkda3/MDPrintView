@@ -26,6 +26,9 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.smartInsertDeleteEnabled = false
 
         textView.string = text
+        if let storage = textView.textStorage {
+            SyntaxHighlighter().apply(to: storage)
+        }
 
         return scrollView
     }
@@ -40,6 +43,7 @@ struct MarkdownTextView: NSViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, NSTextViewDelegate {
         let text: Binding<String>
+        private let highlighter = SyntaxHighlighter()
 
         init(text: Binding<String>) {
             self.text = text
@@ -48,6 +52,9 @@ struct MarkdownTextView: NSViewRepresentable {
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView else { return }
             text.wrappedValue = textView.string
+            if let storage = textView.textStorage {
+                highlighter.apply(to: storage)
+            }
         }
     }
 }
