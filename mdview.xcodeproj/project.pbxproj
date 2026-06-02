@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		019EFCE5B32EDAFF2F144689 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A75FD11B9CD88E182141F /* Assets.xcassets */; };
+		26DD0230CE11109907254DCF /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23767996CB7E02A3FF2E4288 /* MarkdownTextView.swift */; };
 		55CDD3611A6D1110A6D16196 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80429CD83E121D02FE4BB46 /* MarkdownRenderer.swift */; };
 		85BDB40EDFE19ABDCD489D5F /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */; };
 		8C955CAB5E1173CC725E8039 /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2020DAB8357938417C7E475 /* DocumentView.swift */; };
@@ -28,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		09CBF3BD75FE428062B69A99 /* mdviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mdviewApp.swift; sourceTree = "<group>"; };
+		23767996CB7E02A3FF2E4288 /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		3666D30AA351AC44487DD5A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		478881F269BE351E0ACC6701 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		531AA4C10000AC9DCD514526 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				531AA4C10000AC9DCD514526 /* .gitkeep */,
+				23767996CB7E02A3FF2E4288 /* MarkdownTextView.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -231,6 +234,7 @@
 				8C955CAB5E1173CC725E8039 /* DocumentView.swift in Sources */,
 				85BDB40EDFE19ABDCD489D5F /* MarkdownDocument.swift in Sources */,
 				55CDD3611A6D1110A6D16196 /* MarkdownRenderer.swift in Sources */,
+				26DD0230CE11109907254DCF /* MarkdownTextView.swift in Sources */,
 				AFF8E023BCA582476862D97E /* mdviewApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
