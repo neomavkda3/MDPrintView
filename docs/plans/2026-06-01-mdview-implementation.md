@@ -59,15 +59,14 @@ Weeks 2–5 will get their own detailed plans written at the start of each phase
 build/
 DerivedData/
 *.xcuserstate
-*.xcuserdatad/
 xcuserdata/
 *.xcscmblueprint
 *.xccheckout
+*.dSYM/
 
 # Swift Package Manager
 .swiftpm/
 .build/
-Package.resolved
 
 # macOS
 .DS_Store
