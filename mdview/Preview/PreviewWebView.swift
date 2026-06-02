@@ -3,6 +3,7 @@ import WebKit
 
 struct PreviewWebView: NSViewRepresentable {
     let html: String
+    let printController: PreviewPrintController
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -17,6 +18,7 @@ struct PreviewWebView: NSViewRepresentable {
         webView.navigationDelegate = context.coordinator
 
         context.coordinator.pendingHTML = html
+        printController.webView = webView
         loadTemplate(in: webView)
 
         return webView
