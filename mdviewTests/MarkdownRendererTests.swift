@@ -85,4 +85,57 @@ struct MarkdownRendererTests {
         #expect(html.contains("href=\"https://x.com?a=1&amp;b=2\""))
         #expect(html.contains("&lt;b&gt;label&lt;/b&gt;"))
     }
+
+    @Test("renders blockquote")
+    func rendersBlockquote() {
+        let html = MarkdownRenderer().renderHTML(from: "> quoted\n> text")
+        #expect(html.contains("<blockquote>"))
+        #expect(html.contains("</blockquote>"))
+        #expect(html.contains("quoted"))
+    }
+
+    @Test("renders horizontal rule")
+    func rendersThematicBreak() {
+        let html = MarkdownRenderer().renderHTML(from: "before\n\n---\n\nafter")
+        #expect(html.contains("<hr"))
+    }
+
+    @Test("renders ordered list")
+    func rendersOrderedList() {
+        let html = MarkdownRenderer().renderHTML(from: "1. first\n2. second")
+        #expect(html.contains("<ol>"))
+        #expect(html.contains("<li>"))
+        #expect(html.contains("first"))
+        #expect(html.contains("second"))
+    }
+
+    @Test("renders task list with checkboxes")
+    func rendersTaskList() {
+        let html = MarkdownRenderer().renderHTML(from: "- [ ] todo\n- [x] done")
+        #expect(html.contains("type=\"checkbox\""))
+        #expect(html.contains("checked"))
+        #expect(html.contains("todo"))
+        #expect(html.contains("done"))
+    }
+
+    @Test("renders simple table")
+    func rendersTable() {
+        let source = """
+        | h1 | h2 |
+        | -- | -- |
+        | a  | b  |
+        """
+        let html = MarkdownRenderer().renderHTML(from: source)
+        #expect(html.contains("<table>"))
+        #expect(html.contains("<thead>"))
+        #expect(html.contains("<th>h1</th>"))
+        #expect(html.contains("<td>a</td>"))
+    }
+
+    @Test("escapes block-level raw HTML")
+    func escapesHTMLBlock() {
+        let html = MarkdownRenderer().renderHTML(from: "<div>raw</div>")
+        #expect(html.contains("&lt;div&gt;raw&lt;/div&gt;"))
+        #expect(!html.contains("<div>raw</div>"))
+    }
 }
