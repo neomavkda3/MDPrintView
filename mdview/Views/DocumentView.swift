@@ -2,17 +2,22 @@ import SwiftUI
 
 struct DocumentView: View {
     @Bindable var document: MarkdownDocument
-
-    private static let renderer = MarkdownRenderer()
+    @State private var render = RenderState()
 
     var body: some View {
         HSplitView {
             MarkdownTextView(text: $document.text)
                 .frame(minWidth: 320)
 
-            PreviewWebView(html: Self.renderer.renderHTML(from: document.text))
+            PreviewWebView(html: render.html)
                 .frame(minWidth: 320)
         }
         .frame(minWidth: 720, minHeight: 480)
+        .onAppear {
+            render.renderNow(document.text)
+        }
+        .onChange(of: document.text) { _, newValue in
+            render.schedule(newValue)
+        }
     }
 }
