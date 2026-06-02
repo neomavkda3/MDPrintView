@@ -138,4 +138,18 @@ struct MarkdownRendererTests {
         #expect(html.contains("&lt;div&gt;raw&lt;/div&gt;"))
         #expect(!html.contains("<div>raw</div>"))
     }
+
+    @Test("renders image")
+    func rendersImage() {
+        let html = MarkdownRenderer().renderHTML(from: "![alt text](https://example.com/x.png)")
+        #expect(html.contains("<img src=\"https://example.com/x.png\""))
+        #expect(html.contains("alt=\"alt text\""))
+    }
+
+    @Test("escapes image src and alt")
+    func escapesImage() {
+        let html = MarkdownRenderer().renderHTML(from: "![\"injection<>](https://x.com/?a=1&b=2)")
+        #expect(html.contains("&amp;b=2"))
+        #expect(html.contains("&quot;injection&lt;&gt;"))
+    }
 }
