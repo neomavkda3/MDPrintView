@@ -1,6 +1,22 @@
 import Foundation
 import Markdown
 
+private func htmlEscape(_ s: String) -> String {
+    var result = ""
+    result.reserveCapacity(s.count)
+    for ch in s {
+        switch ch {
+        case "&": result += "&amp;"
+        case "<": result += "&lt;"
+        case ">": result += "&gt;"
+        case "\"": result += "&quot;"
+        case "'": result += "&#39;"
+        default: result.append(ch)
+        }
+    }
+    return result
+}
+
 struct MarkdownRenderer {
     func renderHTML(from source: String) -> String {
         let document = Document(parsing: source)
@@ -26,7 +42,7 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitText(_ text: Text) {
-        output += text.string
+        output += htmlEscape(text.string)
     }
 
     mutating func visitUnorderedList(_ list: UnorderedList) {
@@ -54,17 +70,21 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitInlineCode(_ inlineCode: InlineCode) {
-        output += "<code>\(inlineCode.code)</code>"
+        output += "<code>\(htmlEscape(inlineCode.code))</code>"
     }
 
     mutating func visitCodeBlock(_ codeBlock: CodeBlock) {
-        output += "<pre><code>\(codeBlock.code)</code></pre>"
+        output += "<pre><code>\(htmlEscape(codeBlock.code))</code></pre>"
     }
 
     mutating func visitLink(_ link: Link) {
-        let dest = link.destination ?? ""
+        let dest = htmlEscape(link.destination ?? "")
         output += "<a href=\"\(dest)\">"
         descendInto(link)
         output += "</a>"
+    }
+
+    mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
+        output += htmlEscape(inlineHTML.rawHTML)
     }
 }
