@@ -149,7 +149,10 @@ struct MarkdownRendererTests {
     @Test("escapes image src and alt")
     func escapesImage() {
         let html = MarkdownRenderer().renderHTML(from: "![\"injection<>](https://x.com/?a=1&b=2)")
+        // src must escape `&` in the URL
         #expect(html.contains("&amp;b=2"))
-        #expect(html.contains("&quot;injection&lt;&gt;"))
+        // alt must escape `<` and `>`; swift-markdown applies smart-quote conversion
+        // to the literal `"`, which then passes through unescaped in `alt=`.
+        #expect(html.contains("alt=\"\u{201C}injection&lt;&gt;\""))
     }
 }

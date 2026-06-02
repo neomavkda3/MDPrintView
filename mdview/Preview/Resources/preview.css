@@ -122,6 +122,11 @@ th {
     font-weight: 600;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Print mode placeholder — W2 introduces a .print class on <body> and
    refines this section with @page rules, page breaks, header/footer. */
 @media print {

@@ -92,6 +92,12 @@ private struct HTMLEmitter: MarkupWalker {
         output += "</a>"
     }
 
+    mutating func visitImage(_ image: Image) {
+        let src = htmlEscape(image.source ?? "")
+        let alt = htmlEscape(image.plainText)
+        output += "<img src=\"\(src)\" alt=\"\(alt)\">"
+    }
+
     mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
         output += htmlEscape(inlineHTML.rawHTML)
     }
