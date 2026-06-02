@@ -58,4 +58,31 @@ struct MarkdownRendererTests {
         let html = MarkdownRenderer().renderHTML(from: "[a](https://b)")
         #expect(html.contains("<a href=\"https://b\">a</a>"))
     }
+
+    @Test("escapes < > & in plain text")
+    func escapesPlainText() {
+        let html = MarkdownRenderer().renderHTML(from: "a < b & c > d")
+        #expect(html.contains("a &lt; b &amp; c &gt; d"))
+        #expect(!html.contains("<b>") && !html.contains("> d"))
+    }
+
+    @Test("escapes HTML inside inline code")
+    func escapesInlineCode() {
+        let html = MarkdownRenderer().renderHTML(from: "`<body>`")
+        #expect(html.contains("<code>&lt;body&gt;</code>"))
+    }
+
+    @Test("escapes HTML inside code block")
+    func escapesCodeBlock() {
+        let html = MarkdownRenderer().renderHTML(from: "```\n<script>x</script>\n```")
+        #expect(html.contains("&lt;script&gt;x&lt;/script&gt;"))
+        #expect(!html.contains("<script>x</script>"))
+    }
+
+    @Test("escapes link href and label")
+    func escapesLink() {
+        let html = MarkdownRenderer().renderHTML(from: "[<b>label</b>](https://x.com?a=1&b=2)")
+        #expect(html.contains("href=\"https://x.com?a=1&amp;b=2\""))
+        #expect(html.contains("&lt;b&gt;label&lt;/b&gt;"))
+    }
 }
