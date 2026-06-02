@@ -28,6 +28,7 @@ struct MarkdownRenderer {
 
 private struct HTMLEmitter: MarkupWalker {
     var output: String = ""
+    private var inTableHead: Bool = false
 
     mutating func visitHeading(_ heading: Heading) {
         output += "<h\(heading.level)>"
@@ -52,9 +53,16 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitListItem(_ item: ListItem) {
-        output += "<li>"
-        descendInto(item)
-        output += "</li>"
+        if let checkbox = item.checkbox {
+            let attr = checkbox == .checked ? " checked" : ""
+            output += "<li><input type=\"checkbox\" disabled\(attr)>"
+            descendInto(item)
+            output += "</li>"
+        } else {
+            output += "<li>"
+            descendInto(item)
+            output += "</li>"
+        }
     }
 
     mutating func visitEmphasis(_ emphasis: Emphasis) {
@@ -86,5 +94,63 @@ private struct HTMLEmitter: MarkupWalker {
 
     mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
         output += htmlEscape(inlineHTML.rawHTML)
+    }
+
+    mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
+        output += "<blockquote>"
+        descendInto(blockQuote)
+        output += "</blockquote>"
+    }
+
+    mutating func visitThematicBreak(_ thematicBreak: ThematicBreak) {
+        output += "<hr>"
+    }
+
+    mutating func visitOrderedList(_ list: OrderedList) {
+        output += "<ol>"
+        descendInto(list)
+        output += "</ol>"
+    }
+
+    mutating func visitTable(_ table: Table) {
+        output += "<table>"
+        descendInto(table)
+        output += "</table>"
+    }
+
+    mutating func visitTableHead(_ head: Table.Head) {
+        inTableHead = true
+        output += "<thead><tr>"
+        descendInto(head)
+        output += "</tr></thead>"
+        inTableHead = false
+    }
+
+    mutating func visitTableBody(_ body: Table.Body) {
+        output += "<tbody>"
+        descendInto(body)
+        output += "</tbody>"
+    }
+
+    mutating func visitTableRow(_ row: Table.Row) {
+        output += "<tr>"
+        descendInto(row)
+        output += "</tr>"
+    }
+
+    mutating func visitTableCell(_ cell: Table.Cell) {
+        if inTableHead {
+            output += "<th>"
+            descendInto(cell)
+            output += "</th>"
+        } else {
+            output += "<td>"
+            descendInto(cell)
+            output += "</td>"
+        }
+    }
+
+    mutating func visitHTMLBlock(_ htmlBlock: HTMLBlock) {
+        output += htmlEscape(htmlBlock.rawHTML)
     }
 }
