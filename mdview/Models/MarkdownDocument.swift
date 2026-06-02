@@ -5,9 +5,8 @@ extension UTType {
     static let markdown = UTType(importedAs: "net.daringfireball.markdown")
 }
 
-@MainActor
 @Observable
-final class MarkdownDocument: @preconcurrency ReferenceFileDocument {
+final class MarkdownDocument: ReferenceFileDocument {
     typealias Snapshot = String
 
     static var readableContentTypes: [UTType] { [.markdown, .plainText] }
