@@ -6,6 +6,7 @@ struct DocumentView: View {
     @State private var printController = PreviewPrintController()
     @State private var editor = EditorController()
     @State private var outline: [OutlineNode] = []
+    @State private var previewMode: PreviewMode = .screen
 
     var body: some View {
         NavigationSplitView {
@@ -16,8 +17,18 @@ struct DocumentView: View {
                 MarkdownTextView(text: $document.text, controller: editor)
                     .frame(minWidth: 320)
 
-                PreviewWebView(html: render.html, printController: printController)
-                    .frame(minWidth: 320)
+                VStack(spacing: 0) {
+                    Picker("", selection: $previewMode) {
+                        ForEach(PreviewMode.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+
+                    PreviewWebView(html: render.html, mode: previewMode, printController: printController)
+                }
+                .frame(minWidth: 320)
             }
             .frame(minWidth: 720, minHeight: 480)
         }

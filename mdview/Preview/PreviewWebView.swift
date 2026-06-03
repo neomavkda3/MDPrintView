@@ -1,8 +1,23 @@
 import SwiftUI
 import WebKit
 
+enum PreviewMode: String, CaseIterable, Identifiable {
+    case screen
+    case print
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .screen: return "Screen"
+        case .print: return "Print"
+        }
+    }
+}
+
 struct PreviewWebView: NSViewRepresentable {
     let html: String
+    let mode: PreviewMode
     let printController: PreviewPrintController
 
     func makeCoordinator() -> Coordinator {
@@ -18,6 +33,7 @@ struct PreviewWebView: NSViewRepresentable {
         webView.navigationDelegate = context.coordinator
 
         context.coordinator.pendingHTML = html
+        context.coordinator.pendingMode = mode
         printController.webView = webView
         loadTemplate(in: webView)
 
@@ -26,9 +42,10 @@ struct PreviewWebView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         if context.coordinator.templateReady {
-            inject(html: html, into: webView)
+            Self.inject(html: html, mode: mode, into: webView)
         } else {
             context.coordinator.pendingHTML = html
+            context.coordinator.pendingMode = mode
         }
     }
 
@@ -37,9 +54,13 @@ struct PreviewWebView: NSViewRepresentable {
         webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
     }
 
-    fileprivate static func inject(html: String, into webView: WKWebView) {
+    fileprivate static func inject(html: String, mode: PreviewMode, into webView: WKWebView) {
         let escaped = escape(html)
-        let js = "document.getElementById('content').innerHTML = `\(escaped)`;"
+        let cls = mode.rawValue
+        let js = """
+        document.body.className = '\(cls)';
+        document.getElementById('content').innerHTML = `\(escaped)`;
+        """
         webView.evaluateJavaScript(js)
     }
 
@@ -50,18 +71,15 @@ struct PreviewWebView: NSViewRepresentable {
             .replacingOccurrences(of: "$", with: "\\$")
     }
 
-    private func inject(html: String, into webView: WKWebView) {
-        Self.inject(html: html, into: webView)
-    }
-
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         var pendingHTML: String = ""
+        var pendingMode: PreviewMode = .screen
         var templateReady: Bool = false
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             templateReady = true
-            PreviewWebView.inject(html: pendingHTML, into: webView)
+            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, into: webView)
         }
     }
 }
