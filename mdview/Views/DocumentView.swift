@@ -18,13 +18,18 @@ struct DocumentView: View {
                     .frame(minWidth: 320)
 
                 VStack(spacing: 0) {
-                    Picker("", selection: $previewMode) {
-                        ForEach(PreviewMode.allCases) { Text($0.label).tag($0) }
+                    HStack {
+                        Spacer(minLength: 0)
+                        Picker("", selection: $previewMode) {
+                            ForEach(PreviewMode.allCases) { Text($0.label).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .frame(maxWidth: 200)
+                        Spacer(minLength: 0)
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
+                    .background(.bar)
 
                     PreviewWebView(html: render.html, mode: previewMode, printController: printController)
                 }
