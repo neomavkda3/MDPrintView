@@ -3,6 +3,7 @@ import AppKit
 
 struct MarkdownTextView: NSViewRepresentable {
     @Binding var text: String
+    let controller: EditorController
 
     func makeCoordinator() -> Coordinator {
         Coordinator(text: $text)
@@ -26,6 +27,7 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.smartInsertDeleteEnabled = false
 
         textView.string = text
+        controller.textView = textView
         if let storage = textView.textStorage {
             SyntaxHighlighter().apply(to: storage)
         }
@@ -37,6 +39,9 @@ struct MarkdownTextView: NSViewRepresentable {
         guard let textView = scrollView.documentView as? NSTextView else { return }
         if textView.string != text {
             textView.string = text
+            if let storage = textView.textStorage {
+                SyntaxHighlighter().apply(to: storage)
+            }
         }
     }
 

@@ -4,10 +4,11 @@ struct DocumentView: View {
     @Bindable var document: MarkdownDocument
     @State private var render = RenderState()
     @State private var printController = PreviewPrintController()
+    @State private var editor = EditorController()
 
     var body: some View {
         HSplitView {
-            MarkdownTextView(text: $document.text)
+            MarkdownTextView(text: $document.text, controller: editor)
                 .frame(minWidth: 320)
 
             PreviewWebView(html: render.html, printController: printController)
@@ -21,5 +22,6 @@ struct DocumentView: View {
             render.schedule(newValue)
         }
         .focusedSceneValue(\.printPreview, printController.printPreview)
+        .toolbar { EditorToolbar(controller: editor) }
     }
 }
