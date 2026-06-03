@@ -127,17 +127,70 @@ img {
     height: auto;
 }
 
-/* Print mode placeholder — W2 introduces a .print class on <body> and
-   refines this section with @page rules, page breaks, header/footer. */
+@page {
+    size: 8.5in 11in;
+    margin: 0.75in;
+}
+
 @media print {
     body {
         color: #000;
         background: #fff;
+        font-size: 11pt;
+        line-height: 1.5;
     }
     main#content {
         max-width: none;
         margin: 0;
         padding: 0;
     }
-    a { color: #000; }
+    a {
+        color: #000;
+        text-decoration: underline;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        break-after: avoid;
+        break-inside: avoid;
+    }
+    h1 { border-bottom: 1px solid #000; }
+    h2 { border-bottom: 1px solid #444; }
+    pre, blockquote, table, img {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    pre {
+        border: 1px solid #ccc;
+        background: #fafafa;
+    }
+    code {
+        background: #f0f0f0;
+        border-radius: 2px;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #888;
+    }
+    p, li {
+        orphans: 3;
+        widows: 3;
+    }
+}
+
+/* Simulated print preview (W2.D3 will toggle .print on <body> from Swift). */
+body.print {
+    background: #f5f5f5;
+    color: #000;
+    font-size: 11pt;
+}
+
+body.print main#content {
+    background: #fff;
+    max-width: 6.5in;
+    margin: 1in auto;
+    padding: 0.75in;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
