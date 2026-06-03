@@ -30,6 +30,7 @@ struct DocumentView: View {
             outline = Outline.extract(from: newValue)
         }
         .focusedSceneValue(\.printPreview, printController.printPreview)
+        .focusedSceneValue(\.exportPDF, printController.exportPDF)
         .toolbar { EditorToolbar(controller: editor) }
     }
 }
