@@ -127,6 +127,18 @@ img {
     height: auto;
 }
 
+/* Mermaid diagrams */
+code.language-mermaid {
+    display: block;
+}
+
+.mermaid, code.language-mermaid svg {
+    text-align: center;
+    background: transparent;
+    padding: 1em 0;
+    max-width: 100%;
+}
+
 @page {
     size: 8.5in 11in;
     margin: 0.75in;

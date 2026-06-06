@@ -2,9 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self';">
+    <!-- CSP allows 'unsafe-inline' for script + style because Mermaid generates
+         inline <style> and <script> elements when rendering diagrams. img-src
+         allows data: for Mermaid's inline SVG icons. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <title>mdview preview</title>
     <link rel="stylesheet" href="preview.css">
+    <script src="mermaid.min.js"></script>
 </head>
 <body class="screen">
     <main id="content"></main>

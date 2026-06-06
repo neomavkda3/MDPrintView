@@ -82,7 +82,13 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitCodeBlock(_ codeBlock: CodeBlock) {
-        output += "<pre><code>\(htmlEscape(codeBlock.code))</code></pre>"
+        let escapedCode = htmlEscape(codeBlock.code)
+        if let lang = codeBlock.language, !lang.isEmpty {
+            let escapedLang = htmlEscape(lang)
+            output += "<pre><code class=\"language-\(escapedLang)\">\(escapedCode)</code></pre>"
+        } else {
+            output += "<pre><code>\(escapedCode)</code></pre>"
+        }
     }
 
     mutating func visitLink(_ link: Link) {

@@ -53,6 +53,19 @@ struct MarkdownRendererTests {
         #expect(html.contains("x"))
     }
 
+    @Test("code block with language gets class attribute")
+    func rendersCodeBlockWithLanguage() {
+        let html = MarkdownRenderer().renderHTML(from: "```swift\nlet x = 1\n```")
+        #expect(html.contains("<code class=\"language-swift\">"))
+        #expect(html.contains("let x = 1"))
+    }
+
+    @Test("mermaid code block gets language-mermaid class")
+    func rendersMermaidBlock() {
+        let html = MarkdownRenderer().renderHTML(from: "```mermaid\ngraph TD\n  A --> B\n```")
+        #expect(html.contains("<code class=\"language-mermaid\">"))
+    }
+
     @Test("renders link")
     func rendersLink() {
         let html = MarkdownRenderer().renderHTML(from: "[a](https://b)")

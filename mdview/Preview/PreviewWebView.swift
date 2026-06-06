@@ -60,6 +60,12 @@ struct PreviewWebView: NSViewRepresentable {
         let js = """
         document.body.className = '\(cls)';
         document.getElementById('content').innerHTML = `\(escaped)`;
+        if (window.mermaid) {
+            try {
+                window.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: document.body.classList.contains('dark') ? 'dark' : 'default' });
+                window.mermaid.run({ querySelector: 'code.language-mermaid' });
+            } catch(e) { console.error('Mermaid render failed:', e); }
+        }
         """
         webView.evaluateJavaScript(js)
     }
