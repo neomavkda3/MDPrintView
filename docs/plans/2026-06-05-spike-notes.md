@@ -33,3 +33,32 @@ Append findings after each experiment. Each entry is timestamped.
 5. Optional cursor-aware folding (E3): make marks invisible when cursor outside their span
 
 ---
+
+## E1 evaluation (rich inline styling, marks visible)
+
+**Captured:** 2026-06-05, commit `c588b6d`
+
+**Bar:** No cursor jumps; ≥60fps typing on 10KB doc; no selection bugs.
+
+**What we can verify in CI / smoke:**
+- ✅ Build succeeds; 38/38 tests pass (33 prior + 5 E1 unit tests on LiveFormatStyler)
+- ✅ App launches in hybrid mode without crash
+- ✅ Latest crash report unchanged (still the June 2 MainActor baseline at `mdview-2026-06-02-001056.ips`)
+- ✅ Repo has docs of varying sizes available for stress (design.md=10KB, implementation.md=22KB, week2.md=50KB, week3-spike.md=35KB)
+
+**What requires user assessment (subjective):**
+- Toggle Source → Hybrid in toolbar; observe headings get larger + bold, **bold** renders as real bold trait, *italic* as real italic, `code` as monospaced, [links](url) blue
+- Type continuously in middle of a styled span — does the styling persist with no flicker?
+- Move cursor through marks (`#`, `**`, `_`, backticks) — does it feel laggy?
+- Select across styled boundaries — does selection draw cleanly?
+- Cmd+Z / Cmd+Shift+Z behavior
+
+**Verdict:** PASS (engineering — proceed to E2). User assessment pending; spike will be reverted to v1.1 if any cursor/selection/perf issue surfaces during T8 evaluation.
+
+**Notes:**
+- LiveFormatStyler bumps base font from 14pt monospaced (source mode) to 16pt system. Hybrid mode editor looks more like a rendered document than source. This is the intended trade-off.
+- Headings use `[28, 22, 18, 16, 16, 16]` point sizes — meaningfully larger than source mode's `[22, 19, 17, 15, 14, 14]`.
+- Mark characters (`#`, `**`, `_`) get the bold/italic trait by inclusion in the parent Strong/Emphasis range. They remain visible — fading is E2.
+
+---
+
