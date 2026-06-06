@@ -60,6 +60,19 @@ struct PreviewWebView: NSViewRepresentable {
         let js = """
         document.body.className = '\(cls)';
         document.getElementById('content').innerHTML = `\(escaped)`;
+        if (window.renderMathInElement) {
+            try {
+                window.renderMathInElement(document.getElementById('content'), {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\\\(', right: '\\\\)', display: false },
+                        { left: '\\\\[', right: '\\\\]', display: true }
+                    ],
+                    throwOnError: false
+                });
+            } catch(e) { console.error('KaTeX render failed:', e); }
+        }
         if (window.mermaid) {
             try {
                 window.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: document.body.classList.contains('dark') ? 'dark' : 'default' });
