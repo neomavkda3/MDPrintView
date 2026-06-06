@@ -12,6 +12,7 @@
 		21FEC6FA2D596F52DFAA1DE8 /* OutlineSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467B34DF7B7A3093A31C99D6 /* OutlineSidebar.swift */; };
 		234E4BB0E2FD3A651DDFF497 /* RenderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D21390F9CF3014BA80F728 /* RenderState.swift */; };
 		26DD0230CE11109907254DCF /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23767996CB7E02A3FF2E4288 /* MarkdownTextView.swift */; };
+		2D0B75C4A44ED36252FF1AED /* MermaidEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0076591B923C901271BC2F7 /* MermaidEditorSheet.swift */; };
 		3B3E2FC734C49EF488DC2F06 /* Outline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9B703DEC735D4A3AB3EA45 /* Outline.swift */; };
 		55CDD3611A6D1110A6D16196 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80429CD83E121D02FE4BB46 /* MarkdownRenderer.swift */; };
 		5AA1BA57536C19B9D962CDC4 /* MermaidBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67BE9654F9D139F959272345 /* MermaidBlock.swift */; };
@@ -72,6 +73,7 @@
 		86B6299154C1BA633138762C /* mdviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mdviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F26FE2FACDE90625FEF454B /* katex.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = katex.min.js; sourceTree = "<group>"; };
 		9B0F469F638875D07A6FE71B /* OutlineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineTests.swift; sourceTree = "<group>"; };
+		A0076591B923C901271BC2F7 /* MermaidEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidEditorSheet.swift; sourceTree = "<group>"; };
 		A6732EFF1DA549F172F01DC3 /* preview.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = preview.html; sourceTree = "<group>"; };
 		C0A70A6C0BB5BE7E9139309F /* EditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorController.swift; sourceTree = "<group>"; };
 		C2020DAB8357938417C7E475 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				59D55F78D443E12F9E4B7F4A /* LiveFormatStyler.swift */,
 				23767996CB7E02A3FF2E4288 /* MarkdownTextView.swift */,
 				67BE9654F9D139F959272345 /* MermaidBlock.swift */,
+				A0076591B923C901271BC2F7 /* MermaidEditorSheet.swift */,
 				FE9B703DEC735D4A3AB3EA45 /* Outline.swift */,
 				7E2DF1E07B76D529CBD86139 /* SyntaxHighlighter.swift */,
 			);
@@ -316,6 +319,7 @@
 				55CDD3611A6D1110A6D16196 /* MarkdownRenderer.swift in Sources */,
 				26DD0230CE11109907254DCF /* MarkdownTextView.swift in Sources */,
 				5AA1BA57536C19B9D962CDC4 /* MermaidBlock.swift in Sources */,
+				2D0B75C4A44ED36252FF1AED /* MermaidEditorSheet.swift in Sources */,
 				3B3E2FC734C49EF488DC2F06 /* Outline.swift in Sources */,
 				21FEC6FA2D596F52DFAA1DE8 /* OutlineSidebar.swift in Sources */,
 				A2051A84104D352A31D236ED /* PreviewPrintController.swift in Sources */,

@@ -49,5 +49,15 @@ struct DocumentView: View {
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
         .toolbar { EditorToolbar(controller: editor, mode: $editorMode) }
+        .sheet(item: Binding(
+            get: { editor.editingMermaidBlock },
+            set: { editor.editingMermaidBlock = $0 }
+        )) { block in
+            MermaidEditorSheet(
+                initialSource: block.code,
+                onApply: { newCode in editor.applyMermaidEdit(newCode) },
+                onCancel: { editor.cancelMermaidEdit() }
+            )
+        }
     }
 }

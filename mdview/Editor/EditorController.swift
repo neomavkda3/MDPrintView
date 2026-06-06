@@ -6,6 +6,42 @@ import SwiftUI
 final class EditorController {
     weak var textView: NSTextView?
 
+    /// When non-nil, DocumentView presents the Mermaid editor sheet for this block.
+    var editingMermaidBlock: MermaidBlock?
+
+    /// Open the modal Mermaid editor. If the cursor sits inside an existing
+    /// fenced ` ```mermaid ` block, edit that block. Otherwise insert a skeleton
+    /// at the cursor first, then open the editor for it.
+    func openMermaidEditor() {
+        guard let textView, let storage = textView.textStorage else { return }
+        let source = storage.string
+        let cursor = textView.selectedRange().location
+        if let existing = MermaidBlock.containing(cursor: cursor, in: source) {
+            editingMermaidBlock = existing
+            return
+        }
+        // Insert skeleton, then re-find to get the proper fullRange.
+        insertMermaid()
+        let updated = storage.string
+        // Cursor is now inside the inserted skeleton at the placeholder
+        let newCursor = textView.selectedRange().location
+        if let inserted = MermaidBlock.containing(cursor: newCursor, in: updated) {
+            editingMermaidBlock = inserted
+        }
+    }
+
+    func applyMermaidEdit(_ newCode: String) {
+        guard let textView, let storage = textView.textStorage, let block = editingMermaidBlock else { return }
+        let replacement = "```mermaid\n\(newCode)\n```"
+        storage.replaceCharacters(in: block.fullRange, with: replacement)
+        textView.didChangeText()
+        editingMermaidBlock = nil
+    }
+
+    func cancelMermaidEdit() {
+        editingMermaidBlock = nil
+    }
+
     /// Wrap the current selection (or insert at cursor) with `prefix` and `suffix`.
     /// If selection is empty, inserts `placeholder` between them and reselects the placeholder.
     func wrap(prefix: String, suffix: String, placeholder: String = "") {

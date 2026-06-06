@@ -55,9 +55,9 @@ struct EditorToolbar: ToolbarContent {
             Button { controller.insertLink() } label: { Image(systemName: "link") }
                 .keyboardShortcut("k", modifiers: .command)
                 .help("Link")
-            Button { controller.insertMermaid() } label: { Image(systemName: "chart.xyaxis.line") }
+            Button { controller.openMermaidEditor() } label: { Image(systemName: "chart.xyaxis.line") }
                 .keyboardShortcut("m", modifiers: [.command, .shift])
-                .help("Mermaid diagram")
+                .help("Edit Mermaid diagram (inserts skeleton if none at cursor)")
         }
     }
 }
