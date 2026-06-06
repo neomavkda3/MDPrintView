@@ -2,8 +2,17 @@ import SwiftUI
 
 struct EditorToolbar: ToolbarContent {
     let controller: EditorController
+    @Binding var mode: EditorMode
 
     var body: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            Picker("Mode", selection: $mode) {
+                ForEach(EditorMode.allCases) { Text($0.label).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .help("Editor mode")
+        }
+
         ToolbarItemGroup(placement: .principal) {
             Button { controller.toggleBold() } label: { Image(systemName: "bold") }
                 .keyboardShortcut("b", modifiers: .command)

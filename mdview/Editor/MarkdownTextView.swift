@@ -4,9 +4,10 @@ import AppKit
 struct MarkdownTextView: NSViewRepresentable {
     @Binding var text: String
     let controller: EditorController
+    let mode: EditorMode
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text)
+        Coordinator(text: $text, mode: mode)
     }
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -29,7 +30,7 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.string = text
         controller.textView = textView
         if let storage = textView.textStorage {
-            SyntaxHighlighter().apply(to: storage)
+            context.coordinator.applyStyling(to: storage)
         }
 
         return scrollView
@@ -37,29 +38,40 @@ struct MarkdownTextView: NSViewRepresentable {
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         guard let textView = scrollView.documentView as? NSTextView else { return }
+        let modeChanged = context.coordinator.mode != mode
+        context.coordinator.mode = mode
         if textView.string != text {
             textView.string = text
             if let storage = textView.textStorage {
-                SyntaxHighlighter().apply(to: storage)
+                context.coordinator.applyStyling(to: storage)
             }
+        } else if modeChanged, let storage = textView.textStorage {
+            context.coordinator.applyStyling(to: storage)
         }
     }
 
     @MainActor
     final class Coordinator: NSObject, NSTextViewDelegate {
         let text: Binding<String>
-        private let highlighter = SyntaxHighlighter()
+        var mode: EditorMode
+        private let sourceHighlighter = SyntaxHighlighter()
 
-        init(text: Binding<String>) {
+        init(text: Binding<String>, mode: EditorMode) {
             self.text = text
+            self.mode = mode
         }
 
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView else { return }
             text.wrappedValue = textView.string
             if let storage = textView.textStorage {
-                highlighter.apply(to: storage)
+                applyStyling(to: storage)
             }
+        }
+
+        func applyStyling(to storage: NSTextStorage) {
+            // Hybrid currently falls back to SyntaxHighlighter; W3.T2/T3 swap to LiveFormatStyler.
+            sourceHighlighter.apply(to: storage)
         }
     }
 }

@@ -7,6 +7,7 @@ struct DocumentView: View {
     @State private var editor = EditorController()
     @State private var outline: [OutlineNode] = []
     @State private var previewMode: PreviewMode = .screen
+    @State private var editorMode: EditorMode = .source
 
     var body: some View {
         NavigationSplitView {
@@ -14,7 +15,7 @@ struct DocumentView: View {
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } detail: {
             HSplitView {
-                MarkdownTextView(text: $document.text, controller: editor)
+                MarkdownTextView(text: $document.text, controller: editor, mode: editorMode)
                     .frame(minWidth: 320)
 
                 VStack(spacing: 0) {
@@ -47,6 +48,6 @@ struct DocumentView: View {
         }
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
-        .toolbar { EditorToolbar(controller: editor) }
+        .toolbar { EditorToolbar(controller: editor, mode: $editorMode) }
     }
 }
