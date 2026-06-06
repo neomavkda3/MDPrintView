@@ -81,6 +81,6 @@ This is a meaningful partial-fulfillment. The Typora experience proper depends o
 ## Approvals
 
 - Spike controller (Claude): decision recorded
-- Project owner (Chris Magsisi): pending review
+- Project owner (Chris Magsisi): **ratified 2026-06-06** — "I accept rich"
 
-Once Chris ratifies (or amends), the decision is final and Week 4 work (Mermaid editing, KaTeX, accessibility) proceeds.
+Decision is final. Week 4 work (Mermaid editing, KaTeX, accessibility) proceeds.
