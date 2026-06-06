@@ -89,3 +89,54 @@ struct LiveFormatStylerE2Tests {
         #expect((leadingMark[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
     }
 }
+
+@Suite("LiveFormatStyler — E3 (cursor-aware fold)", .serialized)
+@MainActor
+struct LiveFormatStylerE3Tests {
+
+    private func isHidden(_ color: NSColor?) -> Bool {
+        guard let color else { return false }
+        if color == .clear { return true }
+        return color.alphaComponent == 0
+    }
+
+    @Test("bold marks are hidden when cursor outside span")
+    func boldHiddenOutside() {
+        let storage = NSTextStorage(string: "before **bold** after")
+        LiveFormatStyler().apply(to: storage, cursorAt: 0)
+        let leadingMark = storage.attributes(at: 7, effectiveRange: nil)
+        #expect(isHidden(leadingMark[.foregroundColor] as? NSColor))
+    }
+
+    @Test("bold marks are revealed when cursor inside span")
+    func boldRevealedInside() {
+        let storage = NSTextStorage(string: "before **bold** after")
+        LiveFormatStyler().apply(to: storage, cursorAt: 11) // inside "bold"
+        let leadingMark = storage.attributes(at: 7, effectiveRange: nil)
+        #expect(!isHidden(leadingMark[.foregroundColor] as? NSColor))
+    }
+
+    @Test("cursor at mark boundary reveals the mark")
+    func cursorAtMarkBoundaryReveals() {
+        let storage = NSTextStorage(string: "**bold**")
+        LiveFormatStyler().apply(to: storage, cursorAt: 2) // right after the leading **
+        let leadingMark = storage.attributes(at: 0, effectiveRange: nil)
+        #expect(!isHidden(leadingMark[.foregroundColor] as? NSColor))
+    }
+
+    @Test("heading mark hidden when cursor far away")
+    func headingMarkHiddenOutside() {
+        let storage = NSTextStorage(string: "# Heading\n\nbody text here\n")
+        LiveFormatStyler().apply(to: storage, cursorAt: 16) // inside body
+        let mark = storage.attributes(at: 0, effectiveRange: nil)
+        #expect(isHidden(mark[.foregroundColor] as? NSColor))
+    }
+
+    @Test("apply with no cursor falls back to E2 behavior (marks visible faded)")
+    func noCursorFallsBackToE2() {
+        let storage = NSTextStorage(string: "**bold**")
+        LiveFormatStyler().apply(to: storage) // no cursorAt — same as old apply
+        let mark = storage.attributes(at: 0, effectiveRange: nil)
+        #expect((mark[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
+    }
+}
