@@ -66,14 +66,22 @@ struct MarkdownTextView: NSViewRepresentable {
             guard let textView = notification.object as? NSTextView else { return }
             text.wrappedValue = textView.string
             if let storage = textView.textStorage {
-                applyStyling(to: storage)
+                applyStyling(to: storage, cursorAt: textView.selectedRange().location)
             }
         }
 
-        func applyStyling(to storage: NSTextStorage) {
+        func textViewDidChangeSelection(_ notification: Notification) {
+            guard mode == .hybrid,
+                  let textView = notification.object as? NSTextView,
+                  let storage = textView.textStorage else { return }
+            // Attribute-only changes don't fire selection changes, so no re-entry risk.
+            liveFormatStyler.apply(to: storage, cursorAt: textView.selectedRange().location)
+        }
+
+        func applyStyling(to storage: NSTextStorage, cursorAt cursor: Int? = nil) {
             switch mode {
             case .source: sourceHighlighter.apply(to: storage)
-            case .hybrid: liveFormatStyler.apply(to: storage)
+            case .hybrid: liveFormatStyler.apply(to: storage, cursorAt: cursor)
             }
         }
     }

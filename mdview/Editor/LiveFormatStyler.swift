@@ -6,7 +6,7 @@ struct LiveFormatStyler {
     private let baseFontSize: CGFloat = 16
     private let headingSizes: [CGFloat] = [28, 22, 18, 16, 16, 16]
 
-    func apply(to storage: NSTextStorage) {
+    func apply(to storage: NSTextStorage, cursorAt cursor: Int? = nil) {
         let source = storage.string
         let document = Document(parsing: source)
         let fullRange = NSRange(location: 0, length: storage.length)
@@ -20,7 +20,7 @@ struct LiveFormatStyler {
         storage.addAttribute(.foregroundColor, value: NSColor.textColor, range: fullRange)
 
         for markup in document.children {
-            apply(markup, to: storage, source: source)
+            apply(markup, to: storage, source: source, cursor: cursor)
         }
     }
 
@@ -51,37 +51,37 @@ struct LiveFormatStyler {
         NSFont.monospacedSystemFont(ofSize: baseFontSize - 1, weight: .regular)
     }
 
-    private func apply(_ markup: Markup, to storage: NSTextStorage, source: String) {
+    private func apply(_ markup: Markup, to storage: NSTextStorage, source: String, cursor: Int?) {
         if let range = nsRange(for: markup, in: source) {
+            let insideCursor = cursorIsInside(cursor, range: range)
             switch markup {
             case let heading as Heading:
                 storage.addAttribute(.font, value: headingFont(level: heading.level), range: range)
-                // Fade leading "# " (or "## ", etc.) — `level` hashes + 1 space.
                 let markLen = heading.level + 1
                 if range.length >= markLen {
                     let markRange = NSRange(location: range.location, length: markLen)
-                    storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: markRange)
+                    storage.addAttribute(.foregroundColor, value: markColor(insideCursor: insideCursor, cursorProvided: cursor != nil), range: markRange)
                 }
             case is Strong:
                 storage.enumerateAttribute(.font, in: range) { value, subRange, _ in
                     let font = (value as? NSFont) ?? bodyFont()
                     storage.addAttribute(.font, value: boldVariant(of: font), range: subRange)
                 }
-                fadeDelimiters(in: storage, range: range, delimiterLength: 2)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 2, insideCursor: insideCursor, cursorProvided: cursor != nil)
             case is Emphasis:
                 storage.enumerateAttribute(.font, in: range) { value, subRange, _ in
                     let font = (value as? NSFont) ?? bodyFont()
                     storage.addAttribute(.font, value: italicVariant(of: font), range: subRange)
                 }
-                fadeDelimiters(in: storage, range: range, delimiterLength: 1)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 1, insideCursor: insideCursor, cursorProvided: cursor != nil)
             case is InlineCode:
                 storage.addAttribute(.font, value: monoFont(), range: range)
                 storage.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: range)
-                fadeDelimiters(in: storage, range: range, delimiterLength: 1)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 1, insideCursor: insideCursor, cursorProvided: cursor != nil)
             case is CodeBlock:
                 storage.addAttribute(.font, value: monoFont(), range: range)
                 storage.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: range)
-                fadeDelimiters(in: storage, range: range, delimiterLength: 3)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 3, insideCursor: insideCursor, cursorProvided: cursor != nil)
             case is Link:
                 storage.addAttribute(.foregroundColor, value: NSColor.linkColor, range: range)
             default:
@@ -90,16 +90,31 @@ struct LiveFormatStyler {
         }
 
         for child in markup.children {
-            apply(child, to: storage, source: source)
+            apply(child, to: storage, source: source, cursor: cursor)
         }
     }
 
-    private func fadeDelimiters(in storage: NSTextStorage, range: NSRange, delimiterLength: Int) {
+    private func cursorIsInside(_ cursor: Int?, range: NSRange) -> Bool {
+        guard let cursor else { return false }
+        return cursor >= range.location && cursor <= range.location + range.length
+    }
+
+    /// Color for syntax marks. When a cursor is provided AND it's outside the span,
+    /// marks hide (clear). Otherwise marks fade to tertiary (E2 behavior).
+    private func markColor(insideCursor: Bool, cursorProvided: Bool) -> NSColor {
+        if cursorProvided && !insideCursor {
+            return .clear
+        }
+        return .tertiaryLabelColor
+    }
+
+    private func fadeDelimiters(in storage: NSTextStorage, range: NSRange, delimiterLength: Int, insideCursor: Bool, cursorProvided: Bool) {
         guard range.length >= delimiterLength * 2 else { return }
         let leading = NSRange(location: range.location, length: delimiterLength)
         let trailing = NSRange(location: range.location + range.length - delimiterLength, length: delimiterLength)
-        storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: leading)
-        storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: trailing)
+        let color = markColor(insideCursor: insideCursor, cursorProvided: cursorProvided)
+        storage.addAttribute(.foregroundColor, value: color, range: leading)
+        storage.addAttribute(.foregroundColor, value: color, range: trailing)
     }
 
     private func nsRange(for markup: Markup, in source: String) -> NSRange? {
