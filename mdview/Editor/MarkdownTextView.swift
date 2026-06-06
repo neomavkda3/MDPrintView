@@ -55,6 +55,7 @@ struct MarkdownTextView: NSViewRepresentable {
         let text: Binding<String>
         var mode: EditorMode
         private let sourceHighlighter = SyntaxHighlighter()
+        private let liveFormatStyler = LiveFormatStyler()
 
         init(text: Binding<String>, mode: EditorMode) {
             self.text = text
@@ -70,8 +71,10 @@ struct MarkdownTextView: NSViewRepresentable {
         }
 
         func applyStyling(to storage: NSTextStorage) {
-            // Hybrid currently falls back to SyntaxHighlighter; W3.T2/T3 swap to LiveFormatStyler.
-            sourceHighlighter.apply(to: storage)
+            switch mode {
+            case .source: sourceHighlighter.apply(to: storage)
+            case .hybrid: liveFormatStyler.apply(to: storage)
+            }
         }
     }
 }
