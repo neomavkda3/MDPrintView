@@ -23,6 +23,7 @@
 		81848D36D576F412BFB3042A /* EditorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D370B88158720B6205D4D2C /* EditorMode.swift */; };
 		85BDB40EDFE19ABDCD489D5F /* MarkdownDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */; };
 		8C955CAB5E1173CC725E8039 /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2020DAB8357938417C7E475 /* DocumentView.swift */; };
+		A0EAD07C025A06DC03D53990 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62DAEB910655A1F44D8B8B4 /* AppSettings.swift */; };
 		A118C5F6E0A4E7A41474467A /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 712863A6F7188A9DC81BA6BB /* Markdown */; };
 		A2051A84104D352A31D236ED /* PreviewPrintController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1AB4ECF9D62B81FAF4F7FE /* PreviewPrintController.swift */; };
 		AA5FB4E763EC5DC62800ACB1 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = 2F5ED47018C3F88FE67D6F06 /* preview.css */; };
@@ -74,6 +75,7 @@
 		8F26FE2FACDE90625FEF454B /* katex.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = katex.min.js; sourceTree = "<group>"; };
 		9B0F469F638875D07A6FE71B /* OutlineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineTests.swift; sourceTree = "<group>"; };
 		A0076591B923C901271BC2F7 /* MermaidEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidEditorSheet.swift; sourceTree = "<group>"; };
+		A62DAEB910655A1F44D8B8B4 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A6732EFF1DA549F172F01DC3 /* preview.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = preview.html; sourceTree = "<group>"; };
 		C0A70A6C0BB5BE7E9139309F /* EditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorController.swift; sourceTree = "<group>"; };
 		C2020DAB8357938417C7E475 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 		6E1A020E37483015A6138FFA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				A62DAEB910655A1F44D8B8B4 /* AppSettings.swift */,
 				60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */,
 			);
 			path = Models;
@@ -310,6 +313,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0EAD07C025A06DC03D53990 /* AppSettings.swift in Sources */,
 				8C955CAB5E1173CC725E8039 /* DocumentView.swift in Sources */,
 				D63C26FE54AA771ECE4DA075 /* EditorController.swift in Sources */,
 				81848D36D576F412BFB3042A /* EditorMode.swift in Sources */,
