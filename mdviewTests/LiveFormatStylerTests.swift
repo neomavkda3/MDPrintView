@@ -58,3 +58,34 @@ struct LiveFormatStylerE1Tests {
         #expect(found == .linkColor)
     }
 }
+
+@Suite("LiveFormatStyler — E2 (faded marks)", .serialized)
+@MainActor
+struct LiveFormatStylerE2Tests {
+
+    @Test("heading marker # is faded")
+    func headingMarkFaded() {
+        let storage = NSTextStorage(string: "# Heading\n")
+        LiveFormatStyler().apply(to: storage)
+        let attrs = storage.attributes(at: 0, effectiveRange: nil)
+        #expect((attrs[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
+    }
+
+    @Test("bold marker ** is faded on both sides")
+    func boldMarksFaded() {
+        let storage = NSTextStorage(string: "**bold**")
+        LiveFormatStyler().apply(to: storage)
+        let leadingMark = storage.attributes(at: 0, effectiveRange: nil)
+        #expect((leadingMark[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
+        let trailingMark = storage.attributes(at: 7, effectiveRange: nil)
+        #expect((trailingMark[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
+    }
+
+    @Test("italic marker * is faded")
+    func italicMarksFaded() {
+        let storage = NSTextStorage(string: "*em*")
+        LiveFormatStyler().apply(to: storage)
+        let leadingMark = storage.attributes(at: 0, effectiveRange: nil)
+        #expect((leadingMark[.foregroundColor] as? NSColor) == .tertiaryLabelColor)
+    }
+}
