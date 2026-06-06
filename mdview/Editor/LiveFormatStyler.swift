@@ -56,19 +56,32 @@ struct LiveFormatStyler {
             switch markup {
             case let heading as Heading:
                 storage.addAttribute(.font, value: headingFont(level: heading.level), range: range)
+                // Fade leading "# " (or "## ", etc.) — `level` hashes + 1 space.
+                let markLen = heading.level + 1
+                if range.length >= markLen {
+                    let markRange = NSRange(location: range.location, length: markLen)
+                    storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: markRange)
+                }
             case is Strong:
                 storage.enumerateAttribute(.font, in: range) { value, subRange, _ in
                     let font = (value as? NSFont) ?? bodyFont()
                     storage.addAttribute(.font, value: boldVariant(of: font), range: subRange)
                 }
+                fadeDelimiters(in: storage, range: range, delimiterLength: 2)
             case is Emphasis:
                 storage.enumerateAttribute(.font, in: range) { value, subRange, _ in
                     let font = (value as? NSFont) ?? bodyFont()
                     storage.addAttribute(.font, value: italicVariant(of: font), range: subRange)
                 }
-            case is InlineCode, is CodeBlock:
+                fadeDelimiters(in: storage, range: range, delimiterLength: 1)
+            case is InlineCode:
                 storage.addAttribute(.font, value: monoFont(), range: range)
                 storage.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: range)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 1)
+            case is CodeBlock:
+                storage.addAttribute(.font, value: monoFont(), range: range)
+                storage.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: range)
+                fadeDelimiters(in: storage, range: range, delimiterLength: 3)
             case is Link:
                 storage.addAttribute(.foregroundColor, value: NSColor.linkColor, range: range)
             default:
@@ -79,6 +92,14 @@ struct LiveFormatStyler {
         for child in markup.children {
             apply(child, to: storage, source: source)
         }
+    }
+
+    private func fadeDelimiters(in storage: NSTextStorage, range: NSRange, delimiterLength: Int) {
+        guard range.length >= delimiterLength * 2 else { return }
+        let leading = NSRange(location: range.location, length: delimiterLength)
+        let trailing = NSRange(location: range.location + range.length - delimiterLength, length: delimiterLength)
+        storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: leading)
+        storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: trailing)
     }
 
     private func nsRange(for markup: Markup, in source: String) -> NSRange? {
