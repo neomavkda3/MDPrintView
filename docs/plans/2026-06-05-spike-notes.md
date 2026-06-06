@@ -86,4 +86,39 @@ Append findings after each experiment. Each entry is timestamped.
 
 ---
 
+## E3 evaluation (cursor-aware folding)
+
+**Captured:** 2026-06-05, commit `41d85d1`
+
+**Bar:** E2 bars + selection across folds selects expected source range; undo intact; ≥60fps cursor movement; no cursor-positioning glitches.
+
+**What we can verify:**
+- ✅ 46/46 tests pass (41 prior + 5 E3: bold/heading hide-when-outside, reveal-when-inside, cursor-at-boundary, no-cursor-falls-back-to-E2)
+- ✅ Implementation: `apply(to:cursorAt:)` overload + `markColor(insideCursor:cursorProvided:)` helper. When cursor provided AND outside a span → `.clear`. Otherwise tertiary.
+- ✅ `textViewDidChangeSelection` delegate method observes cursor moves; re-applies styler with new cursor location. Attribute-only changes don't fire `textViewDidChangeSelection` recursively (verified by NSTextStorage docs — no re-entry risk).
+- ✅ Build clean, smoke test ALIVE, no new crash report
+
+**Known design compromise (documented in plan):**
+- `.clear` color hides marks visually BUT they still occupy horizontal space ("ghost space"). The cursor moves through invisible positions one keystroke at a time. This is a deliberate trade-off — fully zero-width hiding would require custom `NSTextLayoutFragment` (significantly more complex, deferred to v1.1 polish).
+- Net effect: hybrid mode "looks rendered" when cursor is far away from formatting; marks pop in when cursor approaches. Ghost space means horizontal spacing isn't quite WYSIWYG.
+
+**What requires user assessment (the actual gate):**
+- Cursor smoothly enters/exits styled span (no jumps, no skips)
+- Selection across folded marks draws cleanly and selects expected source range
+- Backspace at the boundary of a folded mark
+- Typing inside a styled span
+- Undo restores both content AND mark visibility
+- Perceptual feel on 10KB doc — is the cursor lag <16ms (≥60fps)?
+- Does the ghost space look ugly enough to disqualify the experience?
+
+**Verdict:** PASS (engineering — proceed to E4 stress test). Caveat: the ghost-space compromise is a known limitation. If user assessment in T10 decision finds it disqualifying, we have a clean fallback path to ship the "Rich" mode (E1+E2 — same code minus the cursor observation in `textViewDidChangeSelection`, plus revert the `cursorAt` default to omit fold/reveal).
+
+**Risk-prone areas to evaluate during T10 decision:**
+- Performance: the `apply` walk traverses the entire AST on every cursor move. On 50KB docs with hundreds of styled spans, this might be visibly slow. Mitigation if needed: scope re-application to the markup near the cursor; debounce. Both deferrable.
+- Cursor position correctness near mark boundaries (the test `cursorAtMarkBoundaryReveals` passes, but real-world cursor + selection drawing is more nuanced).
+- Selection drag across a fold boundary may select fewer characters than the user expects (because hidden marks shift visual column count).
+
+---
+
+
 
