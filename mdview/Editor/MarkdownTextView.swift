@@ -66,22 +66,20 @@ struct MarkdownTextView: NSViewRepresentable {
             guard let textView = notification.object as? NSTextView else { return }
             text.wrappedValue = textView.string
             if let storage = textView.textStorage {
-                applyStyling(to: storage, cursorAt: textView.selectedRange().location)
+                applyStyling(to: storage)
             }
         }
 
-        func textViewDidChangeSelection(_ notification: Notification) {
-            guard mode == .hybrid,
-                  let textView = notification.object as? NSTextView,
-                  let storage = textView.textStorage else { return }
-            // Attribute-only changes don't fire selection changes, so no re-entry risk.
-            liveFormatStyler.apply(to: storage, cursorAt: textView.selectedRange().location)
-        }
+        // E3 cursor-aware fold/reveal is DEFERRED to v1.1. Spike T9 measured
+        // `LiveFormatStyler.apply` at ~8s on a 50KB doc; wiring it to every
+        // cursor move would freeze the editor. Hybrid mode ships as "Rich"
+        // (E1+E2): rich inline styling with faded-but-visible marks.
+        // See docs/plans/2026-06-05-hybrid-mode-decision.md.
 
-        func applyStyling(to storage: NSTextStorage, cursorAt cursor: Int? = nil) {
+        func applyStyling(to storage: NSTextStorage) {
             switch mode {
             case .source: sourceHighlighter.apply(to: storage)
-            case .hybrid: liveFormatStyler.apply(to: storage, cursorAt: cursor)
+            case .hybrid: liveFormatStyler.apply(to: storage) // no cursorAt → E2 behavior
             }
         }
     }
