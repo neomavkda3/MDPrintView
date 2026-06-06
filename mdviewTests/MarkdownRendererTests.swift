@@ -66,6 +66,15 @@ struct MarkdownRendererTests {
         #expect(html.contains("<code class=\"language-mermaid\">"))
     }
 
+    @Test("preserves math delimiters in output (KaTeX scans this)")
+    func preservesMathDelimiters() {
+        let inline = MarkdownRenderer().renderHTML(from: "Some $x = 1$ math.")
+        #expect(inline.contains("$x = 1$"))
+
+        let block = MarkdownRenderer().renderHTML(from: "$$x = 1$$")
+        #expect(block.contains("$$x = 1$$"))
+    }
+
     @Test("renders link")
     func rendersLink() {
         let html = MarkdownRenderer().renderHTML(from: "[a](https://b)")
