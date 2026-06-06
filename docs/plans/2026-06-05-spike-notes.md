@@ -62,3 +62,28 @@ Append findings after each experiment. Each entry is timestamped.
 
 ---
 
+## E2 evaluation (faded marks)
+
+**Captured:** 2026-06-05, commit `9b91a27`
+
+**Bar:** E1 bar + marks are visually distinct from content text.
+
+**What we can verify:**
+- ✅ 41/41 tests pass (38 prior + 3 E2: heading `#`, strong `**`, emphasis `*` all fade to tertiary)
+- ✅ Implementation: `fadeDelimiters(in:range:delimiterLength:)` helper handles Strong (2), Emphasis (1), InlineCode (1), CodeBlock (3). Heading fades the `# ` prefix.
+- ✅ Build clean, no concurrency warnings
+
+**What requires user assessment:**
+- Compare W2 source mode vs E2 hybrid mode side-by-side: do faded marks improve readability?
+- Visual check on real doc with mixed content (headings + bold + lists + code blocks)
+- Eye-strain check on long docs
+
+**Verdict:** PASS (engineering — proceed to E3). Per gating rubric, this is the natural "Rich mode" stopping point if E3 turns out unworkable in T8. The implementation is shippable as-is should we revert E3.
+
+**Notes:**
+- The CodeBlock case fades the 3-char fence delimiters. swift-markdown's `CodeBlock.range` may or may not include the fences — if E2 visual review shows the wrong characters getting faded, this is the place to look.
+- All faded marks use `NSColor.tertiaryLabelColor` which adapts light/dark mode automatically.
+
+---
+
+
