@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DocumentView: View {
     @Bindable var document: MarkdownDocument
+    @Environment(AppSettings.self) private var settings
     @State private var render = RenderState()
     @State private var printController = PreviewPrintController()
     @State private var editor = EditorController()
@@ -15,7 +16,7 @@ struct DocumentView: View {
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } detail: {
             HSplitView {
-                MarkdownTextView(text: $document.text, controller: editor, mode: editorMode)
+                MarkdownTextView(text: $document.text, controller: editor, mode: editorMode, editorFontSize: CGFloat(settings.editorFontSize))
                     .frame(minWidth: 320)
 
                 VStack(spacing: 0) {

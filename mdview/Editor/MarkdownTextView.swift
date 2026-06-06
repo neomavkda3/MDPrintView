@@ -5,9 +5,10 @@ struct MarkdownTextView: NSViewRepresentable {
     @Binding var text: String
     let controller: EditorController
     let mode: EditorMode
+    let editorFontSize: CGFloat
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, mode: mode)
+        Coordinator(text: $text, mode: mode, fontSize: editorFontSize)
     }
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -19,7 +20,7 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.delegate = context.coordinator
         textView.isRichText = false
         textView.allowsUndo = true
-        textView.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+        textView.font = .monospacedSystemFont(ofSize: editorFontSize, weight: .regular)
         textView.textContainerInset = NSSize(width: 12, height: 12)
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
@@ -39,13 +40,15 @@ struct MarkdownTextView: NSViewRepresentable {
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         guard let textView = scrollView.documentView as? NSTextView else { return }
         let modeChanged = context.coordinator.mode != mode
+        let fontSizeChanged = context.coordinator.fontSize != editorFontSize
         context.coordinator.mode = mode
+        context.coordinator.fontSize = editorFontSize
         if textView.string != text {
             textView.string = text
             if let storage = textView.textStorage {
                 context.coordinator.applyStyling(to: storage)
             }
-        } else if modeChanged, let storage = textView.textStorage {
+        } else if (modeChanged || fontSizeChanged), let storage = textView.textStorage {
             context.coordinator.applyStyling(to: storage)
         }
     }
@@ -54,12 +57,12 @@ struct MarkdownTextView: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextViewDelegate {
         let text: Binding<String>
         var mode: EditorMode
-        private let sourceHighlighter = SyntaxHighlighter()
-        private let liveFormatStyler = LiveFormatStyler()
+        var fontSize: CGFloat
 
-        init(text: Binding<String>, mode: EditorMode) {
+        init(text: Binding<String>, mode: EditorMode, fontSize: CGFloat) {
             self.text = text
             self.mode = mode
+            self.fontSize = fontSize
         }
 
         func textDidChange(_ notification: Notification) {
@@ -78,8 +81,8 @@ struct MarkdownTextView: NSViewRepresentable {
 
         func applyStyling(to storage: NSTextStorage) {
             switch mode {
-            case .source: sourceHighlighter.apply(to: storage)
-            case .hybrid: liveFormatStyler.apply(to: storage) // no cursorAt → E2 behavior
+            case .source: SyntaxHighlighter(baseFontSize: fontSize).apply(to: storage)
+            case .hybrid: LiveFormatStyler().apply(to: storage) // no cursorAt → E2 behavior
             }
         }
     }

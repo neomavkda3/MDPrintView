@@ -46,4 +46,14 @@ struct SyntaxHighlighterTests {
         let font = attrs[.font] as? NSFont
         #expect(font?.pointSize == 14)
     }
+
+    @Test("custom base font size scales heading sizes")
+    func customBaseSize() {
+        let storage = NSTextStorage(string: "# Heading\n")
+        SyntaxHighlighter(baseFontSize: 18).apply(to: storage)
+        let attrs = storage.attributes(at: 0, effectiveRange: nil)
+        let font = attrs[.font] as? NSFont
+        // h1 at base 18 = 18 + 8 = 26
+        #expect((font?.pointSize ?? 0) >= 24)
+    }
 }

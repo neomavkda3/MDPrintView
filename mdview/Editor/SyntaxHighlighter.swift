@@ -3,10 +3,16 @@ import Markdown
 
 @MainActor
 struct SyntaxHighlighter {
-    private let baseFontSize: CGFloat = 14
+    let baseFontSize: CGFloat
 
-    /// Heading sizes by level (level 1 → index 0). Anything above level 6 falls back to baseFontSize.
-    private let headingSizes: [CGFloat] = [22, 19, 17, 15, 14, 14]
+    init(baseFontSize: CGFloat = 14) {
+        self.baseFontSize = baseFontSize
+    }
+
+    /// Heading sizes derived from base: h1=+8, h2=+5, h3=+3, h4=+1, h5/h6=base.
+    private var headingSizes: [CGFloat] {
+        [baseFontSize + 8, baseFontSize + 5, baseFontSize + 3, baseFontSize + 1, baseFontSize, baseFontSize]
+    }
 
     func apply(to storage: NSTextStorage) {
         let source = storage.string
