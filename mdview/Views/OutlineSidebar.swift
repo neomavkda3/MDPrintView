@@ -14,9 +14,13 @@ struct OutlineSidebar: View {
                     Text(node.title)
                         .font(.system(size: max(11, 14 - CGFloat(node.level - 1))))
                         .lineLimit(2)
+                        .accessibilityLabel("Heading: \(node.title)")
+                        .accessibilityHint("Level \(node.level)")
                 }
             }
             .listStyle(.sidebar)
+            .accessibilityLabel("Document outline")
+            .accessibilityIdentifier("sidebar.outline")
         }
     }
 }
