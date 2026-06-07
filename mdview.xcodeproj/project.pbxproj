@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		004F71288CD73E5F8F338D59 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DFA8783A724A9A92995469B2 /* PrivacyInfo.xcprivacy */; };
 		019EFCE5B32EDAFF2F144689 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A75FD11B9CD88E182141F /* Assets.xcassets */; };
 		04CCC66BF3434E63DB83E94B /* LiveFormatStylerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F831BE78E5657E0AEE9988ED /* LiveFormatStylerTests.swift */; };
 		21FEC6FA2D596F52DFAA1DE8 /* OutlineSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467B34DF7B7A3093A31C99D6 /* OutlineSidebar.swift */; };
@@ -83,6 +84,7 @@
 		C9F594A5C54D11939394A4B0 /* mermaid.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = mermaid.min.js; sourceTree = "<group>"; };
 		D31969E0481ED75F0462CD01 /* katex.min.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = katex.min.css; sourceTree = "<group>"; };
 		DE5D57C3B42A29D67FA92A43 /* mdview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mdview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFA8783A724A9A92995469B2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E80429CD83E121D02FE4BB46 /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
 		EB2EE34BC89FCF7975E29303 /* MermaidBlockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidBlockTests.swift; sourceTree = "<group>"; };
 		F831BE78E5657E0AEE9988ED /* LiveFormatStylerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveFormatStylerTests.swift; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 				3666D30AA351AC44487DD5A4 /* Info.plist */,
 				56B59AB47E1A602A9DEDA390 /* mdview.entitlements */,
 				09CBF3BD75FE428062B69A99 /* mdviewApp.swift */,
+				DFA8783A724A9A92995469B2 /* PrivacyInfo.xcprivacy */,
 			);
 			path = mdview;
 			sourceTree = "<group>";
@@ -299,6 +302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				019EFCE5B32EDAFF2F144689 /* Assets.xcassets in Resources */,
+				004F71288CD73E5F8F338D59 /* PrivacyInfo.xcprivacy in Resources */,
 				CE67FFBE5CBB1E0D21DC1EAE /* auto-render.min.js in Resources */,
 				B018359869600D24BFA5A775 /* katex.min.css in Resources */,
 				B577DB33B0A7B83E3F28106B /* katex.min.js in Resources */,
