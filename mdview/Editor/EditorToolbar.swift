@@ -47,41 +47,37 @@ struct EditorToolbar: ToolbarContent {
             .accessibilityLabel("Heading level")
             .accessibilityIdentifier("toolbar.heading")
 
-            Divider()
-
-            Button { controller.insertBullet() } label: { Image(systemName: "list.bullet") }
-                .help("Bullet list")
-                .accessibilityLabel("Bullet list")
-                .accessibilityIdentifier("toolbar.bulletList")
-            Button { controller.insertNumbered() } label: { Image(systemName: "list.number") }
-                .help("Numbered list")
-                .accessibilityLabel("Numbered list")
-                .accessibilityIdentifier("toolbar.numberedList")
-            Button { controller.insertTask() } label: { Image(systemName: "checklist") }
-                .help("Task list")
-                .accessibilityLabel("Task list")
-                .accessibilityIdentifier("toolbar.taskList")
-
-            Divider()
-
-            Button { controller.toggleInlineCode() } label: { Image(systemName: "chevron.left.forwardslash.chevron.right") }
-                .help("Inline code")
-                .accessibilityLabel("Inline code")
-                .accessibilityIdentifier("toolbar.inlineCode")
-            Button { controller.insertCodeBlock() } label: { Image(systemName: "curlybraces") }
-                .help("Code block")
-                .accessibilityLabel("Code block")
-                .accessibilityIdentifier("toolbar.codeBlock")
             Button { controller.insertLink() } label: { Image(systemName: "link") }
                 .keyboardShortcut("k", modifiers: .command)
-                .help("Link")
+                .help("Insert link")
                 .accessibilityLabel("Insert link")
                 .accessibilityIdentifier("toolbar.link")
-            Button { controller.openMermaidEditor() } label: { Image(systemName: "chart.xyaxis.line") }
-                .keyboardShortcut("m", modifiers: [.command, .shift])
-                .help("Edit Mermaid diagram (inserts skeleton if none at cursor)")
-                .accessibilityLabel("Edit Mermaid diagram")
-                .accessibilityIdentifier("toolbar.mermaid")
+
+            Divider()
+
+            Menu {
+                Button("Bullet list") { controller.insertBullet() }
+                Button("Numbered list") { controller.insertNumbered() }
+                Button("Task list") { controller.insertTask() }
+            } label: {
+                Image(systemName: "list.bullet.indent")
+            }
+            .help("Lists")
+            .accessibilityLabel("Lists")
+            .accessibilityIdentifier("toolbar.lists")
+
+            Menu {
+                Button("Inline code") { controller.toggleInlineCode() }
+                Button("Code block") { controller.insertCodeBlock() }
+                Divider()
+                Button("Mermaid diagram…") { controller.openMermaidEditor() }
+                    .keyboardShortcut("m", modifiers: [.command, .shift])
+            } label: {
+                Image(systemName: "chevron.left.forwardslash.chevron.right")
+            }
+            .help("Code & diagrams")
+            .accessibilityLabel("Code and diagrams")
+            .accessibilityIdentifier("toolbar.code")
         }
     }
 }
