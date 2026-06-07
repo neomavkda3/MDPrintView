@@ -15,9 +15,28 @@ enum PreviewMode: String, CaseIterable, Identifiable {
     }
 }
 
+enum PreviewTheme: String, CaseIterable, Identifiable {
+    case original
+    case sepia
+    case quiet
+    case focus
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .original: return "Original"
+        case .sepia: return "Sepia"
+        case .quiet: return "Quiet"
+        case .focus: return "Focus"
+        }
+    }
+}
+
 struct PreviewWebView: NSViewRepresentable {
     let html: String
     let mode: PreviewMode
+    let theme: PreviewTheme
     let printController: PreviewPrintController
 
     func makeCoordinator() -> Coordinator {
@@ -34,6 +53,7 @@ struct PreviewWebView: NSViewRepresentable {
 
         context.coordinator.pendingHTML = html
         context.coordinator.pendingMode = mode
+        context.coordinator.pendingTheme = theme
         printController.webView = webView
         loadTemplate(in: webView)
 
@@ -42,10 +62,11 @@ struct PreviewWebView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         if context.coordinator.templateReady {
-            Self.inject(html: html, mode: mode, into: webView)
+            Self.inject(html: html, mode: mode, theme: theme, into: webView)
         } else {
             context.coordinator.pendingHTML = html
             context.coordinator.pendingMode = mode
+            context.coordinator.pendingTheme = theme
         }
     }
 
@@ -54,9 +75,9 @@ struct PreviewWebView: NSViewRepresentable {
         webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
     }
 
-    fileprivate static func inject(html: String, mode: PreviewMode, into webView: WKWebView) {
+    fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme, into webView: WKWebView) {
         let escaped = escape(html)
-        let cls = mode.rawValue
+        let cls = "\(mode.rawValue) theme-\(theme.rawValue)"
         let js = """
         document.body.className = '\(cls)';
         document.getElementById('content').innerHTML = `\(escaped)`;
@@ -75,7 +96,7 @@ struct PreviewWebView: NSViewRepresentable {
         }
         if (window.mermaid) {
             try {
-                window.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: document.body.classList.contains('dark') ? 'dark' : 'default' });
+                window.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: document.body.classList.contains('theme-focus') ? 'dark' : 'default' });
                 window.mermaid.run({ querySelector: 'code.language-mermaid' });
             } catch(e) { console.error('Mermaid render failed:', e); }
         }
@@ -94,11 +115,12 @@ struct PreviewWebView: NSViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate {
         var pendingHTML: String = ""
         var pendingMode: PreviewMode = .screen
+        var pendingTheme: PreviewTheme = .original
         var templateReady: Bool = false
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             templateReady = true
-            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, into: webView)
+            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme, into: webView)
         }
     }
 }

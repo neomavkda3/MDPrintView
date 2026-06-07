@@ -206,3 +206,53 @@ body.print main#content {
     padding: 0.75in;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
+/* Reading themes — applied via body class swap in PreviewWebView.inject.
+   theme-original inherits the system color-scheme rules (no overrides). */
+
+body.theme-sepia {
+    color: #5b4636;
+    background: #f4ecd8;
+}
+body.theme-sepia code,
+body.theme-sepia pre {
+    background: rgba(91, 70, 54, 0.08);
+    color: #5b4636;
+}
+body.theme-sepia a {
+    color: #826144;
+}
+body.theme-sepia h1,
+body.theme-sepia h2 {
+    border-bottom-color: rgba(91, 70, 54, 0.25);
+}
+
+body.theme-quiet {
+    color: #2e2e2e;
+    background: #f5f5f0;
+}
+body.theme-quiet code,
+body.theme-quiet pre {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+body.theme-focus {
+    color: #e6e6e6;
+    background: #1a1a1c;
+}
+body.theme-focus code,
+body.theme-focus pre {
+    background: rgba(255, 255, 255, 0.06);
+    color: #d7d7d7;
+}
+body.theme-focus a {
+    color: #6cb8ff;
+}
+body.theme-focus h1,
+body.theme-focus h2 {
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+body.theme-focus blockquote {
+    color: rgba(255, 255, 255, 0.6);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}

@@ -8,6 +8,7 @@ struct DocumentView: View {
     @State private var editor = EditorController()
     @State private var outline: [OutlineNode] = []
     @State private var previewMode: PreviewMode = .screen
+    @State private var previewTheme: PreviewTheme = .original
     @State private var editorMode: EditorMode = .source
 
     var body: some View {
@@ -28,12 +29,26 @@ struct DocumentView: View {
                         .pickerStyle(.segmented)
                         .labelsHidden()
                         .frame(maxWidth: 200)
+
+                        Menu {
+                            Picker("Theme", selection: $previewTheme) {
+                                ForEach(PreviewTheme.allCases) { Text($0.label).tag($0) }
+                            }
+                        } label: {
+                            Image(systemName: "paintpalette")
+                        }
+                        .menuStyle(.borderlessButton)
+                        .frame(width: 36)
+                        .help("Reading theme")
+                        .accessibilityLabel("Reading theme")
+                        .accessibilityIdentifier("preview.theme")
+
                         Spacer(minLength: 0)
                     }
                     .padding(.vertical, 6)
                     .background(.bar)
 
-                    PreviewWebView(html: render.html, mode: previewMode, printController: printController)
+                    PreviewWebView(html: render.html, mode: previewMode, theme: previewTheme, printController: printController)
                 }
                 .frame(minWidth: 320)
             }
