@@ -63,6 +63,7 @@
 		3D1AB4ECF9D62B81FAF4F7FE /* PreviewPrintController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPrintController.swift; sourceTree = "<group>"; };
 		467B34DF7B7A3093A31C99D6 /* OutlineSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineSidebar.swift; sourceTree = "<group>"; };
 		5147405945C5E8466BB5AA7B /* SyntaxHighlighterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxHighlighterTests.swift; sourceTree = "<group>"; };
+		56B59AB47E1A602A9DEDA390 /* mdview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mdview.entitlements; sourceTree = "<group>"; };
 		59D55F78D443E12F9E4B7F4A /* LiveFormatStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveFormatStyler.swift; sourceTree = "<group>"; };
 		60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
 		67BE9654F9D139F959272345 /* MermaidBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidBlock.swift; sourceTree = "<group>"; };
@@ -198,6 +199,7 @@
 				C227742324F6A23F8F89F91D /* Views */,
 				6A9A75FD11B9CD88E182141F /* Assets.xcassets */,
 				3666D30AA351AC44487DD5A4 /* Info.plist */,
+				56B59AB47E1A602A9DEDA390 /* mdview.entitlements */,
 				09CBF3BD75FE428062B69A99 /* mdviewApp.swift */,
 			);
 			path = mdview;
@@ -523,6 +525,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = mdview/mdview.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -544,6 +547,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = mdview/mdview.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;

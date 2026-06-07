@@ -39,6 +39,7 @@ targets:
         DEVELOPMENT_TEAM: ""
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: mdview/mdview.entitlements
 
   mdviewTests:
     type: bundle.unit-test
