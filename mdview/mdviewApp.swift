@@ -58,6 +58,9 @@ private struct SettingsView: View {
                         .monospacedDigit()
                         .frame(width: 50, alignment: .trailing)
                 }
+                Picker("Font family", selection: $settings.editorFontFamily) {
+                    ForEach(EditorFontFamily.allCases) { Text($0.label).tag($0) }
+                }
             }
             Section("Print") {
                 Picker("Page size", selection: $settings.defaultPageSize) {

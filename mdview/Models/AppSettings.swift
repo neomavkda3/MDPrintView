@@ -1,4 +1,32 @@
 import SwiftUI
+import AppKit
+
+enum EditorFontFamily: String, CaseIterable, Identifiable {
+    case systemMono
+    case systemSerif
+    case systemSans
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .systemMono: return "System Mono"
+        case .systemSerif: return "New York (Serif)"
+        case .systemSans: return "SF Pro (Sans)"
+        }
+    }
+
+    func nsFont(size: CGFloat) -> NSFont {
+        switch self {
+        case .systemMono:
+            return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        case .systemSerif:
+            return NSFont(name: "NewYork", size: size) ?? NSFont.systemFont(ofSize: size)
+        case .systemSans:
+            return NSFont.systemFont(ofSize: size)
+        }
+    }
+}
 
 @MainActor
 @Observable
@@ -9,6 +37,19 @@ final class AppSettings {
     var editorFontSize: Double {
         get { access(keyPath: \.editorFontSize); return storedEditorFontSize }
         set { withMutation(keyPath: \.editorFontSize) { storedEditorFontSize = newValue } }
+    }
+
+    @ObservationIgnored
+    @AppStorage("editorFontFamily") private var storedEditorFontFamily: String = EditorFontFamily.systemMono.rawValue
+
+    var editorFontFamily: EditorFontFamily {
+        get {
+            access(keyPath: \.editorFontFamily)
+            return EditorFontFamily(rawValue: storedEditorFontFamily) ?? .systemMono
+        }
+        set {
+            withMutation(keyPath: \.editorFontFamily) { storedEditorFontFamily = newValue.rawValue }
+        }
     }
 
     @ObservationIgnored

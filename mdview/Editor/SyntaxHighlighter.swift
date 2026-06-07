@@ -4,9 +4,11 @@ import Markdown
 @MainActor
 struct SyntaxHighlighter {
     let baseFontSize: CGFloat
+    let fontFamily: EditorFontFamily
 
-    init(baseFontSize: CGFloat = 14) {
+    init(baseFontSize: CGFloat = 14, fontFamily: EditorFontFamily = .systemMono) {
         self.baseFontSize = baseFontSize
+        self.fontFamily = fontFamily
     }
 
     /// Heading sizes derived from base: h1=+8, h2=+5, h3=+3, h4=+1, h5/h6=base.
@@ -25,7 +27,7 @@ struct SyntaxHighlighter {
         // Reset to defaults so re-applies are idempotent.
         storage.removeAttribute(.font, range: fullRange)
         storage.removeAttribute(.foregroundColor, range: fullRange)
-        storage.addAttribute(.font, value: NSFont.monospacedSystemFont(ofSize: baseFontSize, weight: .regular), range: fullRange)
+        storage.addAttribute(.font, value: fontFamily.nsFont(size: baseFontSize), range: fullRange)
         storage.addAttribute(.foregroundColor, value: NSColor.textColor, range: fullRange)
 
         for markup in document.children {
@@ -33,12 +35,19 @@ struct SyntaxHighlighter {
         }
     }
 
+    private func bold(_ font: NSFont) -> NSFont {
+        var traits = font.fontDescriptor.symbolicTraits
+        traits.insert(.bold)
+        let desc = font.fontDescriptor.withSymbolicTraits(traits)
+        return NSFont(descriptor: desc, size: font.pointSize) ?? font
+    }
+
     private func apply(_ markup: Markup, to storage: NSTextStorage, source: String) {
         if let range = nsRange(for: markup, in: source) {
             switch markup {
             case let heading as Heading:
                 let sizeIndex = max(0, min(heading.level - 1, headingSizes.count - 1))
-                let font = NSFont.monospacedSystemFont(ofSize: headingSizes[sizeIndex], weight: .bold)
+                let font = bold(fontFamily.nsFont(size: headingSizes[sizeIndex]))
                 storage.addAttribute(.font, value: font, range: range)
             case is InlineCode, is CodeBlock:
                 storage.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: range)

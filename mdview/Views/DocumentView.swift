@@ -17,7 +17,7 @@ struct DocumentView: View {
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } detail: {
             HSplitView {
-                MarkdownTextView(text: $document.text, controller: editor, mode: editorMode, editorFontSize: CGFloat(settings.editorFontSize))
+                MarkdownTextView(text: $document.text, controller: editor, mode: editorMode, editorFontSize: CGFloat(settings.editorFontSize), editorFontFamily: settings.editorFontFamily)
                     .frame(minWidth: 320)
 
                 VStack(spacing: 0) {

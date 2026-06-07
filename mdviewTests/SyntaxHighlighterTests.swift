@@ -56,4 +56,12 @@ struct SyntaxHighlighterTests {
         // h1 at base 18 = 18 + 8 = 26
         #expect((font?.pointSize ?? 0) >= 24)
     }
+
+    @Test("system sans font family yields a non-monospaced base font")
+    func customFontFamilySans() {
+        let storage = NSTextStorage(string: "hello\n")
+        SyntaxHighlighter(baseFontSize: 14, fontFamily: .systemSans).apply(to: storage)
+        let font = storage.attributes(at: 0, effectiveRange: nil)[.font] as? NSFont
+        #expect(font?.fontDescriptor.symbolicTraits.contains(.monoSpace) == false)
+    }
 }
