@@ -49,6 +49,11 @@ struct PreviewWebView: NSViewRepresentable {
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
+        // Enable right-click Inspect Element in Debug builds for diagnosing
+        // preview-pane render issues.
+        #if DEBUG
+        webView.setValue(true, forKey: "inspectable")
+        #endif
         webView.navigationDelegate = context.coordinator
 
         context.coordinator.pendingHTML = html
@@ -78,9 +83,21 @@ struct PreviewWebView: NSViewRepresentable {
     fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme, into webView: WKWebView) {
         let escaped = escape(html)
         let cls = "\(mode.rawValue) theme-\(theme.rawValue)"
-        let js = """
-        document.body.className = '\(cls)';
-        document.getElementById('content').innerHTML = `\(escaped)`;
+
+        // Step 1: setBody and class swap. Each statement wrapped in its own
+        // try/catch so a failure in either doesn't block the other or block
+        // the subsequent KaTeX/Mermaid passes.
+        let setBodyJS = """
+        try { document.body.className = '\(cls)'; } catch(e) { console.error('class swap failed:', e); }
+        try { document.getElementById('content').innerHTML = `\(escaped)`; } catch(e) { console.error('innerHTML failed:', e, 'first 200 chars:', `\(escaped)`.slice(0, 200)); }
+        """
+        webView.evaluateJavaScript(setBodyJS) { _, error in
+            if let error { print("[mdview] setBody evaluateJavaScript error:", error) }
+        }
+
+        // Step 2: math + diagram rendering. Independent — even if both fail,
+        // the rendered HTML from Step 1 is already on screen.
+        let renderJS = """
         if (window.renderMathInElement) {
             try {
                 window.renderMathInElement(document.getElementById('content'), {
@@ -101,7 +118,9 @@ struct PreviewWebView: NSViewRepresentable {
             } catch(e) { console.error('Mermaid render failed:', e); }
         }
         """
-        webView.evaluateJavaScript(js)
+        webView.evaluateJavaScript(renderJS) { _, error in
+            if let error { print("[mdview] render evaluateJavaScript error:", error) }
+        }
     }
 
     fileprivate static func escape(_ s: String) -> String {
