@@ -76,7 +76,11 @@ struct PreviewWebView: NSViewRepresentable {
     }
 
     private func loadTemplate(in webView: WKWebView) {
-        guard let url = Bundle.main.url(forResource: "preview", withExtension: "html") else { return }
+        guard let url = Bundle.main.url(forResource: "preview", withExtension: "html") else {
+            print("[mdview.preview] FAIL: preview.html not in Bundle.main — resources not bundled?")
+            return
+        }
+        print("[mdview.preview] loading template at:", url.path)
         webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
     }
 
@@ -138,8 +142,26 @@ struct PreviewWebView: NSViewRepresentable {
         var templateReady: Bool = false
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            print("[mdview.preview] template loaded — URL=\(webView.url?.absoluteString ?? "nil")")
             templateReady = true
+            // Confirm the template structure we expect actually exists before we
+            // hand HTML to it. If `#content` is missing, log instead of failing
+            // silently — saves users from staring at an empty preview.
+            webView.evaluateJavaScript("!!document.getElementById('content')") { result, error in
+                if let error {
+                    print("[mdview.preview] DOM probe failed:", error)
+                }
+                print("[mdview.preview] #content element present:", result ?? "nil")
+            }
             PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme, into: webView)
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("[mdview.preview] navigation failed:", error)
+        }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("[mdview.preview] provisional navigation failed:", error)
         }
     }
 }
