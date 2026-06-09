@@ -128,6 +128,10 @@ struct PreviewWebView: NSViewRepresentable {
                 window.mermaid.run({ querySelector: 'code.language-mermaid' });
             } catch(e) { console.error('Mermaid render failed:', e); }
         }
+        // Terminate with a bridgeable value so evaluateJavaScript's completion
+        // handler doesn't report WKErrorDomain Code=5 ("unsupported type") on
+        // mermaid.run()'s Promise return value.
+        null;
         """
         webView.evaluateJavaScript(renderJS) { _, error in
             if let error { print("[mdview] render evaluateJavaScript error:", error) }

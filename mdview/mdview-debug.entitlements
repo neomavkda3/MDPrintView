@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Debug builds intentionally OMIT com.apple.security.app-sandbox.
+         On macOS 26, ad-hoc-signed sandboxed apps fail to spawn WKWebView's
+         WebContent helper process, breaking the preview pane. Release archives
+         for the Mac App Store use mdview.entitlements (with sandbox) and are
+         signed with the team's distribution identity — those work correctly. -->
+</dict>
+</plist>

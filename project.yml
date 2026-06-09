@@ -39,7 +39,16 @@ targets:
         DEVELOPMENT_TEAM: ""
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         ENABLE_HARDENED_RUNTIME: YES
-        CODE_SIGN_ENTITLEMENTS: mdview/mdview.entitlements
+      configs:
+        Debug:
+          # Debug uses entitlements WITHOUT app-sandbox because ad-hoc-signed
+          # sandboxed apps fail to spawn the WKWebView WebContent helper on
+          # macOS 26, leaving the preview pane empty.
+          CODE_SIGN_ENTITLEMENTS: mdview/mdview-debug.entitlements
+        Release:
+          # Release (App Store archive) keeps full sandbox + user-selected
+          # files + bookmarks entitlements.
+          CODE_SIGN_ENTITLEMENTS: mdview/mdview.entitlements
 
   mdviewTests:
     type: bundle.unit-test
