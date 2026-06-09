@@ -3,8 +3,21 @@ import SwiftUI
 struct EditorToolbar: ToolbarContent {
     let controller: EditorController
     @Binding var mode: EditorMode
+    @Binding var layoutMode: LayoutMode
 
     var body: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            Picker("Layout", selection: $layoutMode) {
+                ForEach(LayoutMode.allCases) { mode in
+                    Image(systemName: mode.systemImage).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .help("Layout: editor / split / preview")
+            .accessibilityLabel("Layout")
+            .accessibilityIdentifier("toolbar.layout")
+        }
+
         ToolbarItem(placement: .navigation) {
             Picker("Mode", selection: $mode) {
                 ForEach(EditorMode.allCases) { Text($0.label).tag($0) }
@@ -13,6 +26,7 @@ struct EditorToolbar: ToolbarContent {
             .help("Editor mode")
             .accessibilityLabel("Editor mode")
             .accessibilityIdentifier("toolbar.mode")
+            .disabled(layoutMode == .previewOnly)
         }
 
         ToolbarItemGroup(placement: .principal) {

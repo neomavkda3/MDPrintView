@@ -39,6 +39,7 @@
 		D4FD11C6127A92E520738A58 /* preview.html in Resources */ = {isa = PBXBuildFile; fileRef = A6732EFF1DA549F172F01DC3 /* preview.html */; };
 		D63C26FE54AA771ECE4DA075 /* EditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A70A6C0BB5BE7E9139309F /* EditorController.swift */; };
 		E0B900D37B57CBC47A253D6B /* EditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC55A016C509BB7D9C8B057 /* EditorToolbar.swift */; };
+		FDDA5E158DE42E4E9B211DC1 /* LayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C0F168D824A0B2A58346E7 /* LayoutMode.swift */; };
 		FFEB1BEE3290BFF7F46DF993 /* PreviewWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143DD77C2829082500384E4D /* PreviewWebView.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,6 +68,7 @@
 		56B59AB47E1A602A9DEDA390 /* mdview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mdview.entitlements; sourceTree = "<group>"; };
 		59D55F78D443E12F9E4B7F4A /* LiveFormatStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveFormatStyler.swift; sourceTree = "<group>"; };
 		60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocument.swift; sourceTree = "<group>"; };
+		64C0F168D824A0B2A58346E7 /* LayoutMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutMode.swift; sourceTree = "<group>"; };
 		67BE9654F9D139F959272345 /* MermaidBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MermaidBlock.swift; sourceTree = "<group>"; };
 		697AD543F5FD46152146A2B6 /* MarkdownRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRendererTests.swift; sourceTree = "<group>"; };
 		6A4A19F15CDF7F6F9E23DCD8 /* EditorControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorControllerTests.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				C2020DAB8357938417C7E475 /* DocumentView.swift */,
+				64C0F168D824A0B2A58346E7 /* LayoutMode.swift */,
 				467B34DF7B7A3093A31C99D6 /* OutlineSidebar.swift */,
 			);
 			path = Views;
@@ -326,6 +329,7 @@
 				D63C26FE54AA771ECE4DA075 /* EditorController.swift in Sources */,
 				81848D36D576F412BFB3042A /* EditorMode.swift in Sources */,
 				E0B900D37B57CBC47A253D6B /* EditorToolbar.swift in Sources */,
+				FDDA5E158DE42E4E9B211DC1 /* LayoutMode.swift in Sources */,
 				BCCB4D182D2756B964F23068 /* LiveFormatStyler.swift in Sources */,
 				85BDB40EDFE19ABDCD489D5F /* MarkdownDocument.swift in Sources */,
 				55CDD3611A6D1110A6D16196 /* MarkdownRenderer.swift in Sources */,
