@@ -65,6 +65,19 @@ final class AppSettings {
         }
     }
 
+    @ObservationIgnored
+    @AppStorage("defaultLayoutMode") private var storedLayoutMode: String = LayoutMode.split.rawValue
+
+    var defaultLayoutMode: LayoutMode {
+        get {
+            access(keyPath: \.defaultLayoutMode)
+            return LayoutMode(rawValue: storedLayoutMode) ?? .split
+        }
+        set {
+            withMutation(keyPath: \.defaultLayoutMode) { storedLayoutMode = newValue.rawValue }
+        }
+    }
+
     enum PageSize: String, CaseIterable, Identifiable {
         case letter
         case a4

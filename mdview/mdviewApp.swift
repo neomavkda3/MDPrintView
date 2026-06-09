@@ -14,6 +14,7 @@ struct MdviewApp: App {
                 PrintMenuItem()
                 ExportPDFMenuItem()
             }
+            LayoutCommands(settings: settings)
         }
 
         Settings {
@@ -40,6 +41,29 @@ private struct ExportPDFMenuItem: View {
         Button("Export as PDF…") { exportAction?() }
             .keyboardShortcut("e", modifiers: [.command, .shift])
             .disabled(exportAction == nil)
+    }
+}
+
+private struct LayoutCommands: Commands {
+    let settings: AppSettings
+
+    var body: some Commands {
+        CommandMenu("View") {
+            Button("Editor Only") {
+                settings.defaultLayoutMode = .editorOnly
+            }
+            .keyboardShortcut("1", modifiers: [.command, .option])
+
+            Button("Split Editor & Preview") {
+                settings.defaultLayoutMode = .split
+            }
+            .keyboardShortcut("2", modifiers: [.command, .option])
+
+            Button("Preview Only") {
+                settings.defaultLayoutMode = .previewOnly
+            }
+            .keyboardShortcut("3", modifiers: [.command, .option])
+        }
     }
 }
 

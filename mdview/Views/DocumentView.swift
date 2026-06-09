@@ -10,15 +10,16 @@ struct DocumentView: View {
     @State private var previewMode: PreviewMode = .screen
     @State private var previewTheme: PreviewTheme = .original
     @State private var editorMode: EditorMode = .source
-    @State private var layoutMode: LayoutMode = .split
 
     var body: some View {
+        @Bindable var settings = settings
+
         NavigationSplitView {
             OutlineSidebar(nodes: outline)
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } detail: {
             HSplitView {
-                if layoutMode.showsEditor {
+                if settings.defaultLayoutMode.showsEditor {
                     MarkdownTextView(
                         text: $document.text,
                         controller: editor,
@@ -29,7 +30,7 @@ struct DocumentView: View {
                     .frame(minWidth: 320)
                 }
 
-                if layoutMode.showsPreview {
+                if settings.defaultLayoutMode.showsPreview {
                     VStack(spacing: 0) {
                         HStack {
                             Spacer(minLength: 0)
@@ -81,7 +82,7 @@ struct DocumentView: View {
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
         .toolbar {
-            EditorToolbar(controller: editor, mode: $editorMode, layoutMode: $layoutMode)
+            EditorToolbar(controller: editor, mode: $editorMode, layoutMode: $settings.defaultLayoutMode)
         }
         .sheet(item: Binding(
             get: { editor.editingMermaidBlock },
