@@ -50,9 +50,11 @@ struct PreviewWebView: NSViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
         // Enable right-click Inspect Element in Debug builds for diagnosing
-        // preview-pane render issues.
+        // preview-pane render issues. Public property since macOS 13.3.
         #if DEBUG
-        webView.setValue(true, forKey: "inspectable")
+        if #available(macOS 13.3, *) {
+            webView.isInspectable = true
+        }
         #endif
         webView.navigationDelegate = context.coordinator
 
@@ -81,7 +83,12 @@ struct PreviewWebView: NSViewRepresentable {
             return
         }
         print("[mdview.preview] loading template at:", url.path)
-        webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        let navigation = webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        if navigation == nil {
+            print("[mdview.preview] FAIL: loadFileURL returned nil — load not initiated")
+        } else {
+            print("[mdview.preview] loadFileURL returned non-nil navigation; waiting for delegate callback")
+        }
     }
 
     fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme, into webView: WKWebView) {
@@ -140,6 +147,14 @@ struct PreviewWebView: NSViewRepresentable {
         var pendingMode: PreviewMode = .screen
         var pendingTheme: PreviewTheme = .original
         var templateReady: Bool = false
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            print("[mdview.preview] didStartProvisionalNavigation — URL=\(webView.url?.absoluteString ?? "nil")")
+        }
+
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            print("[mdview.preview] didCommit — URL=\(webView.url?.absoluteString ?? "nil")")
+        }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             print("[mdview.preview] template loaded — URL=\(webView.url?.absoluteString ?? "nil")")
