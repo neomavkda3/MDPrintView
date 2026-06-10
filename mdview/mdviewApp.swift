@@ -1,8 +1,18 @@
 import SwiftUI
+import AppKit
 
 @main
 struct MdviewApp: App {
     @State private var settings = AppSettings()
+
+    init() {
+        // Cluster all document windows as tabs of a single mdview window
+        // by default. Per-window `tabbingMode = .preferred` (set via
+        // WindowAccessor inside DocumentView) overrides the user's system
+        // tabbing preference so new docs land as tabs even when the system
+        // pref is "Manually" or "In Full Screen".
+        NSWindow.allowsAutomaticWindowTabbing = true
+    }
 
     var body: some Scene {
         DocumentGroup(newDocument: { MarkdownDocument() }) { file in
@@ -91,8 +101,21 @@ private struct SettingsView: View {
                     ForEach(AppSettings.PageSize.allCases) { Text($0.label).tag($0) }
                 }
             }
+            Section("File handling") {
+                Toggle("Ask to set mdview as default for Markdown files", isOn: Binding(
+                    get: { !settings.suppressDefaultAppPrompt },
+                    set: { newValue in
+                        settings.suppressDefaultAppPrompt = !newValue
+                        if newValue {
+                            // User re-enabled the prompt; clear the session
+                            // dedup so the next opened doc re-prompts.
+                            DefaultAppCoordinator.resetForCurrentSession()
+                        }
+                    }
+                ))
+            }
         }
         .padding()
-        .frame(width: 440, height: 260)
+        .frame(width: 460, height: 300)
     }
 }

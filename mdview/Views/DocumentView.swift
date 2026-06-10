@@ -71,6 +71,14 @@ struct DocumentView: View {
             }
             .frame(minWidth: 480, minHeight: 480)
         }
+        .background(WindowAccessor { window in
+            // Force tabbing so additional documents open as tabs of the
+            // existing mdview window instead of separate windows.
+            window.tabbingMode = .preferred
+            // First time we see a doc window, offer to set mdview as the
+            // default Markdown handler if it isn't already.
+            DefaultAppCoordinator.checkAndPrompt(in: window, settings: settings)
+        })
         .onAppear {
             render.renderNow(document.text)
             outline = Outline.extract(from: document.text)

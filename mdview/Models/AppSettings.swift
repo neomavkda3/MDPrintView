@@ -78,6 +78,14 @@ final class AppSettings {
         }
     }
 
+    @ObservationIgnored
+    @AppStorage("suppressDefaultAppPrompt") private var storedSuppressDefaultAppPrompt: Bool = false
+
+    var suppressDefaultAppPrompt: Bool {
+        get { access(keyPath: \.suppressDefaultAppPrompt); return storedSuppressDefaultAppPrompt }
+        set { withMutation(keyPath: \.suppressDefaultAppPrompt) { storedSuppressDefaultAppPrompt = newValue } }
+    }
+
     enum PageSize: String, CaseIterable, Identifiable {
         case letter
         case a4
