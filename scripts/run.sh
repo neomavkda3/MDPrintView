@@ -7,7 +7,9 @@
 #   ./scripts/run.sh --logs           # launch attached to terminal so print() output streams here
 #
 # Kills any running mdview first.
-set -euo pipefail
+# -u (nounset) is intentionally OFF because macOS bash 3.2 errors out on
+# empty array expansions like "${ARGS[@]}" even though they're well-formed.
+set -eo pipefail
 
 cd "$(dirname "$0")/.."
 
@@ -31,7 +33,15 @@ sleep 0.3
 
 if [ "$LOGS" -eq 1 ]; then
     # Attached run — print() output lands in this terminal.
-    "$APP/Contents/MacOS/mdview" "${ARGS[@]}"
+    if [ ${#ARGS[@]} -gt 0 ]; then
+        "$APP/Contents/MacOS/mdview" "${ARGS[@]}"
+    else
+        "$APP/Contents/MacOS/mdview"
+    fi
 else
-    open "$APP" "${ARGS[@]}"
+    if [ ${#ARGS[@]} -gt 0 ]; then
+        open "$APP" "${ARGS[@]}"
+    else
+        open "$APP"
+    fi
 fi
