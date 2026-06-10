@@ -3,6 +3,7 @@ import AppKit
 
 @main
 struct MdviewApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var settings = AppSettings()
 
     init() {
@@ -112,6 +113,10 @@ private struct SettingsView: View {
                             DefaultAppCoordinator.resetForCurrentSession()
                         }
                     }
+                ))
+                Toggle("Show welcome window when mdview launches", isOn: Binding(
+                    get: { !settings.suppressWelcomeOnLaunch },
+                    set: { settings.suppressWelcomeOnLaunch = !$0 }
                 ))
             }
         }

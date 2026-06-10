@@ -86,6 +86,14 @@ final class AppSettings {
         set { withMutation(keyPath: \.suppressDefaultAppPrompt) { storedSuppressDefaultAppPrompt = newValue } }
     }
 
+    @ObservationIgnored
+    @AppStorage("suppressWelcomeOnLaunch") private var storedSuppressWelcomeOnLaunch: Bool = false
+
+    var suppressWelcomeOnLaunch: Bool {
+        get { access(keyPath: \.suppressWelcomeOnLaunch); return storedSuppressWelcomeOnLaunch }
+        set { withMutation(keyPath: \.suppressWelcomeOnLaunch) { storedSuppressWelcomeOnLaunch = newValue } }
+    }
+
     enum PageSize: String, CaseIterable, Identifiable {
         case letter
         case a4
