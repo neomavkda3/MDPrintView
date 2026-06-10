@@ -5,44 +5,58 @@ struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
 
     var body: some View {
-        VStack(spacing: 18) {
-            Image(nsImage: NSApp.applicationIconImage)
+        VStack(spacing: 24) {
+            // App icon — pulled via NSWorkspace from the bundle path so we
+            // always get the most current AppIcon (NSApp.applicationIconImage
+            // can be stale during Debug rebuilds due to icon cache).
+            Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
                 .resizable()
-                .frame(width: 96, height: 96)
+                .interpolation(.high)
+                .frame(width: 144, height: 144)
 
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Text("Welcome to mdview")
-                    .font(.system(size: 22, weight: .semibold))
-                Text("Native macOS markdown editor with print-quality typography")
-                    .font(.subheadline)
+                    .font(.system(size: 28, weight: .semibold))
+                Text("A native macOS markdown editor with print-quality typography")
+                    .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Button(action: createNewDocument) {
-                    HStack {
+                    HStack(spacing: 10) {
                         Image(systemName: "doc.text")
+                            .font(.system(size: 16, weight: .medium))
                         Text("New Document")
+                            .font(.system(size: 14, weight: .medium))
                         Spacer()
-                        Text("⌘N").foregroundStyle(.secondary).monospaced()
+                        Text("⌘N")
+                            .font(.system(size: 12))
+                            .monospaced()
+                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .keyboardShortcut("n", modifiers: .command)
 
                 Button(action: openDocumentPanel) {
-                    HStack {
+                    HStack(spacing: 10) {
                         Image(systemName: "folder")
+                            .font(.system(size: 16, weight: .medium))
                         Text("Open Document…")
+                            .font(.system(size: 14, weight: .medium))
                         Spacer()
-                        Text("⌘O").foregroundStyle(.secondary).monospaced()
+                        Text("⌘O")
+                            .font(.system(size: 12))
+                            .monospaced()
+                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, 6)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
@@ -51,21 +65,26 @@ struct WelcomeView: View {
 
             if !recentURLs.isEmpty {
                 Divider()
+                    .padding(.vertical, 2)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Recent")
-                        .font(.headline)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("RECENT")
+                        .font(.system(size: 11, weight: .semibold))
+                        .tracking(0.8)
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 2)
 
                     ForEach(recentURLs.prefix(5), id: \.self) { url in
                         Button { openURL(url) } label: {
-                            HStack(spacing: 10) {
+                            HStack(spacing: 12) {
                                 Image(systemName: "doc")
+                                    .font(.system(size: 16))
                                     .foregroundStyle(.tertiary)
-                                VStack(alignment: .leading, spacing: 1) {
+                                    .frame(width: 24)
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(url.lastPathComponent)
                                         .font(.system(size: 13))
+                                        .lineLimit(1)
                                     Text(url.deletingLastPathComponent().path)
                                         .font(.system(size: 11))
                                         .foregroundStyle(.tertiary)
@@ -74,6 +93,8 @@ struct WelcomeView: View {
                                 }
                                 Spacer()
                             }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -82,7 +103,7 @@ struct WelcomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
 
             Toggle("Show this window when mdview launches", isOn: Binding(
                 get: { !suppressOnLaunch },
@@ -92,8 +113,8 @@ struct WelcomeView: View {
             .controlSize(.small)
             .foregroundStyle(.secondary)
         }
-        .padding(24)
-        .frame(width: 440, height: recentURLs.isEmpty ? 360 : 500)
+        .padding(32)
+        .frame(width: 560, height: recentURLs.isEmpty ? 520 : 680)
     }
 
     private var recentURLs: [URL] {

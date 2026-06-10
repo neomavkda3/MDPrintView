@@ -19,24 +19,43 @@ let size = NSSize(width: 1024, height: 1024)
 let image = NSImage(size: size)
 image.lockFocus()
 
+// Background: rounded squircle with a soft vertical gradient that hints at
+// "paper" — light at the top, slightly warmer at the bottom.
 let bgRect = NSRect(origin: .zero, size: size)
-NSColor(srgbRed: 0.96, green: 0.97, blue: 0.99, alpha: 1.0).setFill()
-NSBezierPath(roundedRect: bgRect, xRadius: 180, yRadius: 180).fill()
+let squircle = NSBezierPath(roundedRect: bgRect, xRadius: 180, yRadius: 180)
+squircle.addClip()
 
-NSColor(srgbRed: 0.85, green: 0.86, blue: 0.88, alpha: 1.0).setStroke()
-let stroke = NSBezierPath(roundedRect: bgRect.insetBy(dx: 2, dy: 2), xRadius: 178, yRadius: 178)
-stroke.lineWidth = 4
+let gradient = NSGradient(colors: [
+    NSColor(srgbRed: 0.99, green: 0.99, blue: 1.00, alpha: 1.0),  // near-white
+    NSColor(srgbRed: 0.94, green: 0.95, blue: 0.97, alpha: 1.0)   // cool grey
+])
+gradient?.draw(in: bgRect, angle: 270)
+
+// Subtle inner stroke for definition.
+NSColor(srgbRed: 0.82, green: 0.84, blue: 0.88, alpha: 1.0).setStroke()
+let stroke = NSBezierPath(roundedRect: bgRect.insetBy(dx: 4, dy: 4), xRadius: 176, yRadius: 176)
+stroke.lineWidth = 8
 stroke.stroke()
 
+// Accent bar — left margin, the SwiftUI-blue we use for links throughout the app.
+// Reads as a "document margin" hint at small sizes.
+let accentColor = NSColor(srgbRed: 0.16, green: 0.38, blue: 0.88, alpha: 1.0)
+accentColor.setFill()
+let accentBar = NSBezierPath(roundedRect: NSRect(x: 175, y: 220, width: 20, height: 580), xRadius: 10, yRadius: 10)
+accentBar.fill()
+
+// "md" wordmark — heavy weight, properly centered, dark navy ink.
+let inkColor = NSColor(srgbRed: 0.10, green: 0.14, blue: 0.24, alpha: 1.0)
 let text = "md" as NSString
 let attrs: [NSAttributedString.Key: Any] = [
-    .font: NSFont.systemFont(ofSize: 460, weight: .heavy),
-    .foregroundColor: NSColor(srgbRed: 0.16, green: 0.38, blue: 0.88, alpha: 1.0)
+    .font: NSFont.systemFont(ofSize: 540, weight: .heavy),
+    .foregroundColor: inkColor,
+    .kern: -18 as NSNumber
 ]
 let textSize = text.size(withAttributes: attrs)
 let point = NSPoint(
-    x: (size.width - textSize.width) / 2,
-    y: (size.height - textSize.height) / 2 - 20
+    x: (size.width - textSize.width) / 2 + 30,  // shift right of the accent bar
+    y: (size.height - textSize.height) / 2 - 40
 )
 text.draw(at: point, withAttributes: attrs)
 
