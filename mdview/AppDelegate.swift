@@ -70,9 +70,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if suppressed { return }
         if docCount > 0 { return }
-        // Don't double-open if a welcome window is already visible.
-        if let existing = welcomeWindowController, existing.window?.isVisible == true {
-            existing.window?.makeKeyAndOrderFront(nil)
+
+        // Already have a window — bring it to front + activate the app.
+        if let existing = welcomeWindowController, let window = existing.window {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
             return
         }
 
@@ -87,7 +89,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.tabbingMode = .disallowed
 
         let controller = NSWindowController(window: window)
-        controller.showWindow(nil)
         welcomeWindowController = controller
+
+        // Activate the app FIRST, then make the welcome key. During launch,
+        // NSApp may not yet be the foreground app — without explicit activate
+        // the window is created but stays behind whatever app the user came
+        // from.
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        print("[mdview.app] welcome shown — key=\(window.isKeyWindow) visible=\(window.isVisible)")
     }
 }
