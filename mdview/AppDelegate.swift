@@ -5,23 +5,37 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var welcomeWindowController: NSWindowController?
 
-    // Suppress the default behavior of opening the Open panel ("looks like
-    // Finder") when launching with no document. We show the welcome window
-    // instead — or, if the user opened a .md from Finder/dock, the doc
-    // window takes precedence.
+    // === Suppressing the launch Open panel ===
+    //
+    // SwiftUI's macOS DocumentGroup falls back to showing an Open panel
+    // ("looks like Finder") on launch when there's no document. To prevent
+    // that fallback we must *handle* the untitled-file open ourselves —
+    // not just refuse it.
+    //
+    //   Step 1: applicationShouldOpenUntitledFile → true  (yes, ask me)
+    //   Step 2: applicationOpenUntitledFile      → true  (I handled it)
+    //
+    // Returning true from step 2 tells AppKit "done, don't fall through to
+    // your default behavior." Our handling is "show the welcome window, or
+    // do nothing if the user suppressed it" — never create an untitled doc,
+    // never open a panel.
+
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        false
+        true
     }
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        // Defer until Cocoa has processed any file-open args.
+    func applicationOpenUntitledFile(_ sender: NSApplication) -> Bool {
+        // Defer to next runloop so any file arguments Cocoa is about to
+        // process have a chance to land in NSDocumentController.documents
+        // before we decide whether to show the welcome window.
         DispatchQueue.main.async { [weak self] in
             self?.showWelcomeIfAppropriate()
         }
+        return true
     }
 
     // If the user clicks the dock icon while no windows are visible, show
-    // the welcome window again (same call as launch).
+    // the welcome window again.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag {
             showWelcomeIfAppropriate()
