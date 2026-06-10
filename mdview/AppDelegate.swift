@@ -21,34 +21,55 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // never open a panel.
 
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        true
+        print("[mdview.app] applicationShouldOpenUntitledFile — returning true")
+        return true
     }
 
     func applicationOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        // Defer to next runloop so any file arguments Cocoa is about to
-        // process have a chance to land in NSDocumentController.documents
-        // before we decide whether to show the welcome window.
+        print("[mdview.app] applicationOpenUntitledFile — returning true (handled)")
         DispatchQueue.main.async { [weak self] in
             self?.showWelcomeIfAppropriate()
         }
         return true
     }
 
-    // If the user clicks the dock icon while no windows are visible, show
-    // the welcome window again.
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        print("[mdview.app] applicationWillFinishLaunching")
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        print("[mdview.app] applicationDidFinishLaunching — docs=\(NSDocumentController.shared.documents.count)")
+        DispatchQueue.main.async { [weak self] in
+            self?.showWelcomeIfAppropriate()
+        }
+    }
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        print("[mdview.app] application:open:urls — \(urls)")
+    }
+
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        print("[mdview.app] applicationShouldHandleReopen — hasVisibleWindows=\(flag)")
         if !flag {
             showWelcomeIfAppropriate()
         }
         return true
     }
 
+    // Required on macOS 14+ to silence the secure restorable state warning.
+    // Returning true means our restorable state encoders adopt NSSecureCoding —
+    // we don't actually encode anything, so this is a formality.
+    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+        true
+    }
+
     private func showWelcomeIfAppropriate() {
-        // Honor the user's suppress preference. AppDelegate reads UserDefaults
-        // directly because @AppStorage in AppSettings persists to the same store.
-        if UserDefaults.standard.bool(forKey: "suppressWelcomeOnLaunch") { return }
-        // Skip if any document is open (e.g. user opened a .md from Finder).
-        if !NSDocumentController.shared.documents.isEmpty { return }
+        let suppressed = UserDefaults.standard.bool(forKey: "suppressWelcomeOnLaunch")
+        let docCount = NSDocumentController.shared.documents.count
+        print("[mdview.app] showWelcomeIfAppropriate — suppressed=\(suppressed) docs=\(docCount)")
+
+        if suppressed { return }
+        if docCount > 0 { return }
         // Don't double-open if a welcome window is already visible.
         if let existing = welcomeWindowController, existing.window?.isVisible == true {
             existing.window?.makeKeyAndOrderFront(nil)
