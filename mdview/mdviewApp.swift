@@ -120,7 +120,13 @@ private struct SettingsView: View {
                         .frame(width: 50, alignment: .trailing)
                 }
                 Picker("Font family", selection: $settings.editorFontFamily) {
-                    ForEach(EditorFontFamily.allCases) { Text($0.label).tag($0) }
+                    ForEach(EditorFontFamily.Category.allCases) { category in
+                        Section(category.rawValue) {
+                            ForEach(EditorFontFamily.allCases.filter { $0.category == category }) {
+                                Text($0.label).tag($0)
+                            }
+                        }
+                    }
                 }
             }
             Section("Print") {
