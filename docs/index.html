@@ -255,9 +255,26 @@
       font-size: 12.5px;
     }
 
+    /* Top nav bar */
+    .topbar {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 20px 24px 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 22px;
+      font-size: 14px;
+    }
+    .topbar a {
+      color: var(--fg-soft);
+      font-weight: 500;
+    }
+    .topbar a:hover { color: var(--fg); text-decoration: none; }
+
     /* Responsive tweaks */
     @media (max-width: 600px) {
-      .hero { padding: 72px 24px 56px; }
+      .topbar { padding: 16px 20px 0; gap: 16px; font-size: 13.5px; }
+      .hero { padding: 56px 24px 56px; }
       .hero h1 { font-size: 36px; }
       .hero .tagline { font-size: 17px; }
       section { padding: 44px 0; }
@@ -266,6 +283,12 @@
   </style>
 </head>
 <body>
+  <nav class="topbar">
+    <a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>
+    <a href="https://github.com/neomavkda3/MDPrintView/releases">Releases</a>
+    <a href="https://github.com/sponsors/neomavkda3">Sponsor</a>
+  </nav>
+
   <header class="hero">
     <img
       class="icon"
