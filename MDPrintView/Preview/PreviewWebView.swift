@@ -111,12 +111,20 @@ struct PreviewWebView: NSViewRepresentable {
         let renderJS = """
         if (window.renderMathInElement) {
             try {
+                // Intentionally NO single-dollar inline delimiter —
+                // KaTeX auto-pairing of `$...$` aggressively eats
+                // currency like "$4.8B in 2025 ... $13.2B" and
+                // collapses the text inside (math mode strips
+                // whitespace).
+                //
+                // Inline math instead uses backslash-paren as the LaTeX
+                // standard. Display math still uses `$$ ... $$` or
+                // backslash-bracket.
                 window.renderMathInElement(document.getElementById('content'), {
                     delimiters: [
                         { left: '$$', right: '$$', display: true },
-                        { left: '$', right: '$', display: false },
-                        { left: '\\\\(', right: '\\\\)', display: false },
-                        { left: '\\\\[', right: '\\\\]', display: true }
+                        { left: '\\\\[', right: '\\\\]', display: true },
+                        { left: '\\\\(', right: '\\\\)', display: false }
                     ],
                     throwOnError: false
                 });
