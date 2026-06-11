@@ -57,7 +57,7 @@ $$
 e^{i\pi} + 1 = 0
 $$
 
-Inline math like \(\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^N (x_i - \mu)^2}\) flows naturally in the paragraph.
+Inline math like \\(\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^N (x_i - \mu)^2}\\) flows naturally in the paragraph.
 
 ### Tables that survive page breaks
 
