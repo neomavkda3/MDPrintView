@@ -9,72 +9,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     //
     // SwiftUI's macOS DocumentGroup falls back to showing an Open panel
     // ("looks like Finder") on launch when there's no document. To prevent
-    // that fallback we must *handle* the untitled-file open ourselves —
-    // not just refuse it.
+    // that fallback we *handle* the untitled-file open ourselves.
     //
     //   Step 1: applicationShouldOpenUntitledFile → true  (yes, ask me)
     //   Step 2: applicationOpenUntitledFile      → true  (I handled it)
     //
-    // Returning true from step 2 tells AppKit "done, don't fall through to
-    // your default behavior." Our handling is "show the welcome window, or
-    // do nothing if the user suppressed it" — never create an untitled doc,
-    // never open a panel.
+    // In practice macOS may not always call these (DocumentGroup sometimes
+    // bypasses them), so applicationDidFinishLaunching is the load-bearing
+    // hook — it always fires and is where we actually open the welcome.
 
     func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        print("[mdview.app] applicationShouldOpenUntitledFile — returning true")
-        return true
+        true
     }
 
     func applicationOpenUntitledFile(_ sender: NSApplication) -> Bool {
-        print("[mdview.app] applicationOpenUntitledFile — returning true (handled)")
-        DispatchQueue.main.async { [weak self] in
-            self?.showWelcomeIfAppropriate()
-        }
-        return true
-    }
-
-    func applicationWillFinishLaunching(_ notification: Notification) {
-        print("[mdview.app] applicationWillFinishLaunching")
+        // Returning true means "handled" — AppKit won't fall through to its
+        // default panel. The actual welcome opens in applicationDidFinishLaunching.
+        true
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        print("[mdview.app] applicationDidFinishLaunching — docs=\(NSDocumentController.shared.documents.count)")
+        // Defer to the next runloop so any file arguments Cocoa is about to
+        // process have a chance to land in NSDocumentController.documents
+        // before we decide whether to show the welcome window.
         DispatchQueue.main.async { [weak self] in
             self?.showWelcomeIfAppropriate()
         }
     }
 
-    func application(_ application: NSApplication, open urls: [URL]) {
-        print("[mdview.app] application:open:urls — \(urls)")
-    }
-
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        print("[mdview.app] applicationShouldHandleReopen — hasVisibleWindows=\(flag)")
+        // Dock-icon click with no visible windows → re-show welcome.
         if !flag {
             showWelcomeIfAppropriate()
         }
         return true
     }
 
-    // Required on macOS 14+ to silence the secure restorable state warning.
-    // Returning true means our restorable state encoders adopt NSSecureCoding —
-    // we don't actually encode anything, so this is a formality.
+    // Silences the macOS 14+ secure restorable state warning. We don't
+    // encode any restorable state ourselves, so this is a formality.
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         true
     }
 
     private func showWelcomeIfAppropriate() {
-        let suppressed = UserDefaults.standard.bool(forKey: "suppressWelcomeOnLaunch")
-        let docCount = NSDocumentController.shared.documents.count
-        print("[mdview.app] showWelcomeIfAppropriate — suppressed=\(suppressed) docs=\(docCount)")
-
-        if suppressed { return }
-        if docCount > 0 { return }
+        if UserDefaults.standard.bool(forKey: "suppressWelcomeOnLaunch") { return }
+        if !NSDocumentController.shared.documents.isEmpty { return }
 
         // Already have a window — bring it to front + activate the app.
         if let existing = welcomeWindowController, let window = existing.window {
-            window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
             return
         }
 
@@ -91,12 +75,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let controller = NSWindowController(window: window)
         welcomeWindowController = controller
 
-        // Activate the app FIRST, then make the welcome key. During launch,
-        // NSApp may not yet be the foreground app — without explicit activate
+        // Activate the app FIRST, then make the welcome key. During launch
+        // NSApp isn't yet the foreground app — without explicit activate,
         // the window is created but stays behind whatever app the user came
         // from.
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
-        print("[mdview.app] welcome shown — key=\(window.isKeyWindow) visible=\(window.isVisible)")
     }
 }
