@@ -5,6 +5,11 @@ struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
     @Environment(\.dismissWindow) private var dismissWindow
 
+    // Held in @State (rather than computed from NSDocumentController each
+    // body call) so we can refresh it on .onAppear — otherwise the list
+    // stays frozen at whatever it was when the Window scene first rendered.
+    @State private var recentURLs: [URL] = []
+
     var body: some View {
         VStack(spacing: 24) {
             // App icon — pulled via NSWorkspace from the bundle path so we
@@ -64,17 +69,32 @@ struct WelcomeView: View {
                 .keyboardShortcut("o", modifiers: .command)
             }
 
-            if !recentURLs.isEmpty {
-                Divider()
-                    .padding(.vertical, 2)
+            Divider()
+                .padding(.vertical, 2)
 
-                VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
                     Text("RECENT")
                         .font(.system(size: 11, weight: .semibold))
                         .tracking(0.8)
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 2)
+                    Spacer()
+                    if !recentURLs.isEmpty {
+                        Button("Clear", action: clearRecents)
+                            .buttonStyle(.plain)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.bottom, 2)
 
+                if recentURLs.isEmpty {
+                    Text("Documents you open will show up here.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.tertiary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 8)
+                } else {
                     ForEach(recentURLs.prefix(5), id: \.self) { url in
                         Button { openURL(url) } label: {
                             HStack(spacing: 12) {
@@ -101,8 +121,8 @@ struct WelcomeView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: 8)
 
@@ -115,11 +135,17 @@ struct WelcomeView: View {
             .foregroundStyle(.secondary)
         }
         .padding(32)
-        .frame(width: 560, height: recentURLs.isEmpty ? 520 : 680)
+        .frame(width: 560, height: recentURLs.isEmpty ? 580 : 680)
+        .onAppear(perform: refreshRecents)
     }
 
-    private var recentURLs: [URL] {
-        NSDocumentController.shared.recentDocumentURLs
+    private func refreshRecents() {
+        recentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
+
+    private func clearRecents() {
+        NSDocumentController.shared.clearRecentDocuments(nil)
+        refreshRecents()
     }
 
     private func createNewDocument() {
