@@ -2,7 +2,7 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
     <channel>
         <title>MDPrintView</title>
-        <link>https://mdprintview.app/appcast.xml</link>
+        <link>https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
         <!--

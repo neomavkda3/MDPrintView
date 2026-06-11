@@ -55,9 +55,16 @@
     <string>Copyright © 2026 Chris Magsisi. All rights reserved.</string>
     <!-- Sparkle 2 auto-update configuration (OSS Developer-ID build).
          The MAS build will either drop these keys or use a separate
-         Info.plist entirely. -->
+         Info.plist entirely.
+
+         SUFeedURL uses raw.githubusercontent.com — the same pattern
+         Maccy uses to ship to thousands of users. HTTPS via GitHub's
+         CDN, no domain to register, no DNS to maintain. If we ever
+         want a custom domain later we can change this and ship a
+         release; existing users on the old URL keep getting the same
+         updates because both URLs serve the same file. -->
     <key>SUFeedURL</key>
-    <string>https://mdprintview.app/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/appcast.xml</string>
     <key>SUPublicEDKey</key>
     <string>508nuOOQ/fhmDnz2tp0ylc9teOPR15h9+Zr4e3HHhsc=</string>
     <key>SUEnableAutomaticChecks</key>
