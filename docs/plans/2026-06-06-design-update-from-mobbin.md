@@ -142,7 +142,7 @@ Both are pure CSS/SwiftUI; no architectural change. Sidebar stays on the left to
 
 **Why this matters for MDPrintView:** macOS's NSDocument architecture already gives us **Versions** (Time Machine for documents) via `File → Revert to → Browse All Versions…`. The default Apple chrome for this is fine. We get this for free — no implementation.
 
-**Proposed change:** Add a brief note in our README + App Store description that MDPrintView supports macOS Versions out of the box. Don't build a custom diff UI.
+**Proposed change:** Add a brief note in our README + product description that MDPrintView supports macOS Versions out of the box. Don't build a custom diff UI.
 
 **Scope:** v1.0 — documentation only.
 
@@ -165,16 +165,16 @@ Both are pure CSS/SwiftUI; no architectural change. Sidebar stays on the left to
 | B. Editor font family picker in Settings | **v1.0 — pre-submission** | small | low |
 | C. Toolbar consolidation (Lists menu + Code menu) | **v1.0 — pre-submission** | small | low |
 | D. Outline level dot + current-section indicator | v1.1 | medium | low |
-| E. Mention macOS Versions in App Store copy | v1.0 — pre-submission | trivial | none |
+| E. Mention macOS Versions in marketing copy | v1.0 — pre-submission | trivial | none |
 
-Net v1.0 work: A + B + C + E. Roughly 1 day of focused effort, well before MAS submission. They genuinely level up the product perceived-quality before screenshots are captured for the store listing.
+Net v1.0 work: A + B + C + E. Roughly 1 day of focused effort, well before release. They genuinely level up the product perceived-quality before screenshots are captured for the store listing.
 
 ---
 
 ## Recommendation
 
 Do **A + B + C + E** before Week 5 submission. They:
-1. Show meaningfully on App Store screenshots (sepia theme, font picker, cleaner toolbar)
+1. Show meaningfully on marketing screenshots (sepia theme, font picker, cleaner toolbar)
 2. Don't require new test infrastructure
 3. Don't touch the renderer or sandbox model — low risk
 4. Take roughly a day combined

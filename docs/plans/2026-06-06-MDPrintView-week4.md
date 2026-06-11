@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to execute this plan task-by-task.
 
-**Goal:** Add Mermaid diagram rendering, LaTeX math rendering, Settings scene, and accessibility pass — bringing MDPrintView to feature-complete for App Store submission prep in Week 5.
+**Goal:** Add Mermaid diagram rendering, LaTeX math rendering, Settings scene, and accessibility pass — bringing MDPrintView to feature-complete for release prep in Week 5.
 
 **Architecture:** Bundle Mermaid + KaTeX as local JS/CSS assets (no remote loads — preserves the CSP `default-src 'none'` posture). Preview-side rendering happens after the SetBody DOM swap. Editor-side mermaid UX detects the cursor inside a fenced ` ```mermaid ` block via swift-markdown parsing, exposes an "Edit Diagram" command, opens a modal split-pane sheet (NSTextView source + WKWebView live render). Settings scene uses `@AppStorage`-backed `AppSettings` for font size, theme, page size. Accessibility pass adds VoiceOver labels, outline navigation, and dynamic-type-aware font scaling.
 
@@ -1094,7 +1094,7 @@ After all 9 tasks:
 - ✅ Vendored asset SHA-256s and licenses recorded
 - ✅ 54+ tests passing
 
-This is the **feature-complete** milestone for v1. Week 5 is purely submission readiness: privacy manifest, signing, notarization, screenshots, App Store Connect metadata.
+This is the **feature-complete** milestone for v1. Week 5 is purely submission readiness: privacy manifest, signing, notarization, screenshots, release metadata.
 
 ---
 

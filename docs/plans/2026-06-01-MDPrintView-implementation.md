@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build MDPrintView — a native macOS markdown editor + viewer with source/hybrid editing modes and print-quality preview — for Mac App Store distribution on macOS 26.
+**Goal:** Build MDPrintView — a native macOS markdown editor + viewer with source/hybrid editing modes and print-quality preview — on macOS 26.
 
 **Architecture:** SwiftUI `DocumentGroup` shell wrapping a TextKit 2 `NSTextView` editor and a `WKWebView` preview. Markdown parsed and rendered to HTML in Swift (`swift-markdown`); preview is a sandboxed WebView with bundled JS/CSS (Mermaid, KaTeX, DOMPurify). Strict view/view-model/data separation.
 
@@ -24,7 +24,7 @@
 - Layout: `axiom-swiftui-layout`
 - Visual style: `axiom-liquid-glass`, `axiom-hig`
 - Sandbox / file access: `axiom-storage`
-- Privacy / MAS: `axiom-privacy-ux`, `axiom-app-store-connect-ref`
+- Privacy: `axiom-privacy-ux`, `axiom-app-store-connect-ref`
 - Tests: `axiom-swift-testing`
 - Accessibility pass: `axiom-ios-accessibility`
 
@@ -38,7 +38,7 @@
 | **2** | Syntax highlighting, formatting toolbar, outline sidebar, Liquid Glass styling, print-mode CSS, WebView print dialog, PDF export. |
 | **3** | Hybrid-mode TextKit 2 spike. Gate: ship in v1 or defer to v1.1. |
 | **4** | Mermaid editor (inline skeleton + in-margin preview + expand sheet), KaTeX, settings, accessibility pass. |
-| **5** | Privacy manifest, signing/notarization dry-run, MAS internal testing, screenshots, App Store Connect metadata. |
+| **5** | Privacy manifest, signing/notarization dry-run, internal testing, screenshots, release metadata. |
 
 Weeks 2–5 will get their own detailed plans written at the start of each phase. Estimates assume focused part-time work, not 40-hour weeks.
 
@@ -88,7 +88,7 @@ ExportOptions.plist
 
 Native macOS markdown editor + viewer with print-quality typography.
 
-Target: macOS 26+. Distribution: Mac App Store.
+Target: macOS 26+. Distribution: notarized DMG.
 
 See `docs/plans/2026-06-01-MDPrintView-design.md` for the design.
 ```
@@ -123,7 +123,7 @@ Run: `open -a Xcode`
 |---|---|
 | Product Name | `MDPrintView` |
 | Team | (your team, or "None" for now) |
-| Organization Identifier | `net.cmagsisi` (placeholder — to be confirmed before MAS) |
+| Organization Identifier | `net.cmagsisi` (placeholder — historical placeholder) |
 | Bundle Identifier | (auto: `net.cmagsisi.MDPrintView`) |
 | Interface | **SwiftUI** |
 | Language | **Swift** |
@@ -717,14 +717,14 @@ Goal: prove cursor-aware syntax-folding is feasible in TextKit 2 on real docs.
 
 ---
 
-# Week 5 — MAS submission readiness
+# Week 5 — Release readiness
 
 1. `PrivacyInfo.xcprivacy` with no tracking, no data collection, declared Required Reasons.
 2. Sandbox entitlements: `app-sandbox`, `files.user-selected.read-write`, `files.bookmarks.app-scope`.
 3. **No network entitlement** — verify build runs offline.
-4. App Icon + marketing screenshots (5 required for MAS).
+4. App Icon + marketing screenshots (5 required).
 5. Sign with Apple Developer ID, notarize, validate via `xcrun stapler validate`.
-6. App Store Connect listing: name, description, keywords, support URL, privacy policy URL.
+6. Release metadata: title, description, support URL, privacy policy URL.
 7. Submit for review.
 
 ---

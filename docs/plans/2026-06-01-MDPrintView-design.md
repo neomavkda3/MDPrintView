@@ -6,7 +6,7 @@
 
 ## Summary
 
-`MDPrintView` is a native macOS markdown editor + viewer with print-quality typography. Inspired by MacDown's editor+preview pattern and MDPrintViewer's print-ready rendering, rewritten ground-up in SwiftUI/AppKit for Mac App Store distribution on macOS 26.
+`MDPrintView` is a native macOS markdown editor + viewer with print-quality typography. Inspired by MacDown's editor+preview pattern and MDPrintViewer's print-ready rendering, rewritten ground-up in SwiftUI/AppKit on macOS 26.
 
 The app ships two editor modes (source+preview and Typora-style hybrid live-format), an outline sidebar, an integrated Mermaid diagram editing experience, and a screen/print preview toggle so users see exactly what their printed output will look like while they edit.
 
@@ -15,7 +15,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 - Edit `.md`/`.markdown`/`.mdown`/`.txt` files with adjustable text size and a markdown formatting toolbar.
 - Render Mermaid diagrams inline with an integrated editing experience.
 - Provide a "print preview" view mode while editing that shows page breaks, margins, and print typography.
-- Ship to Mac App Store with full sandbox, privacy manifest, and signed/notarized build.
+- Ship as a Developer-ID-signed and notarized build with privacy manifest.
 
 ## Non-goals (v1)
 
@@ -26,7 +26,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 
 ## Constraints
 
-- **Distribution:** Mac App Store.
+- **Distribution:** notarized DMG via GitHub Releases.
 - **Minimum OS:** macOS 26.
 - **Language/UI:** Swift, SwiftUI shell with AppKit (`NSViewRepresentable`) where SwiftUI doesn't reach.
 - **Editor mode coverage:** both source+preview and hybrid Typora-style, day one.
@@ -104,7 +104,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 - **Keyboard shortcuts:** `Cmd+B/I/U`, `Cmd+1/2/3`, `Cmd+K` (link), `Cmd+Shift+M` (mermaid), `Cmd+Opt+S` (source/hybrid), `Cmd+Opt+P` (screen/print), `Cmd+P` (print), `Cmd+Shift+E` (export PDF).
 - **Accessibility:** all controls labeled, VoiceOver outline navigation. `axiom-ios-accessibility` patterns apply to macOS.
 
-## E. App Store readiness, sandbox, privacy, testing
+## E. Release readiness, sandbox, privacy, testing
 
 ### Sandbox & entitlements
 
@@ -135,7 +135,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 2. **Week 2** — Syntax highlighting, formatting toolbar, outline sidebar, Liquid Glass styling, print-mode CSS, WebView print dialog, PDF export.
 3. **Week 3** — Hybrid-mode spike. **Gate:** ship in v1 or defer.
 4. **Week 4** — Mermaid editor (inline skeleton + in-margin preview + expand sheet), KaTeX, settings, accessibility pass.
-5. **Week 5** — Privacy manifest, signing/notarization dry-run, MAS internal testing, screenshots, App Store Connect metadata.
+5. **Week 5** — Privacy manifest, signing/notarization dry-run, internal testing, screenshots, release metadata.
 
 ### Skills queued for implementation
 

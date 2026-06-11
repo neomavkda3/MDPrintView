@@ -210,7 +210,7 @@ The following are intentionally absent in v1.0. If you notice them, that's expec
 When everything above is checked OR you've explicitly documented a bug:
 
 - [ ] Replace placeholder app icon with real artwork
-- [ ] Run `scripts/archive.sh` with your `DEVELOPMENT_TEAM` env var → produces `build/Export-MAS/MDPrintView.pkg`
+- [ ] Run `scripts/archive.sh` with your `DEVELOPMENT_TEAM` env var → produces `build/Export/MDPrintView.dmg`
 - [ ] Walk `docs/plans/2026-06-06-pre-submission-checklist.md` engineering section
 - [ ] Paste copy from `docs/plans/2026-06-06-app-store-listing.md` into ASC
 - [ ] Host privacy policy (from `docs/plans/2026-06-06-privacy-policy.md`) at a public URL
