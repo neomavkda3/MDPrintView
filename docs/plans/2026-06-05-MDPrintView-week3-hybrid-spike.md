@@ -72,7 +72,7 @@ Spike does NOT need to land a polished UI in this week — just the technical an
 
 Run:
 ```
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)
 open "$APP_PATH" docs/plans/2026-06-01-MDPrintView-design.md
 ```
@@ -88,7 +88,7 @@ Open the design doc. Note in a scratch file what's currently true (so we can com
 
 **Step 2: Commit the baseline note**
 
-Create `/Users/cmagsisi/Dev/MDPrintView/docs/plans/2026-06-05-spike-notes.md` with these baseline observations. Each subsequent experiment will append a section.
+Create `~/MDPrintView/docs/plans/2026-06-05-spike-notes.md` with these baseline observations. Each subsequent experiment will append a section.
 
 ```bash
 git add docs/plans/2026-06-05-spike-notes.md

@@ -214,7 +214,7 @@ And pass `theme: previewTheme` into the `PreviewWebView(...)` constructor.
 **Step 5: Build, test, smoke**
 
 ```bash
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 xcodegen generate 2>&1 | tail -1
 xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug build 2>&1 | tail -3
 xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -3

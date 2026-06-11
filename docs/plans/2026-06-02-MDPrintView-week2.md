@@ -92,7 +92,7 @@ func escapesLink() {
 **Step 2: Run — verify failures**
 
 ```
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -30
 ```
 

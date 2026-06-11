@@ -66,9 +66,9 @@ Download `mermaid.min.js` (v11.x, latest stable) from the mermaid-js project's n
 Bash:
 ```bash
 curl -fSL "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" \
-  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
-shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
-ls -lh /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
+  -o ~/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
+shasum -a 256 ~/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
+ls -lh ~/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
 ```
 
 Expect: file is in the ~2.5MB range. Capture SHA-256 to the vendored-assets doc.
@@ -176,7 +176,7 @@ func rendersMermaidBlock() {
 
 Run tests:
 ```
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 xcodegen generate
 xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -5
 ```
@@ -274,13 +274,13 @@ git commit -m "docs: record vendored Mermaid asset (source, version, SHA-256, li
 
 ```bash
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" \
-  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.js
+  -o ~/MDPrintView/MDPrintView/Preview/Resources/katex.min.js
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css" \
-  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.css
+  -o ~/MDPrintView/MDPrintView/Preview/Resources/katex.min.css
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" \
-  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
-shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.{js,css}
-shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
+  -o ~/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
+shasum -a 256 ~/MDPrintView/MDPrintView/Preview/Resources/katex.min.{js,css}
+shasum -a 256 ~/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
 ```
 
 Append the three hashes to `2026-06-06-vendored-assets.md`.

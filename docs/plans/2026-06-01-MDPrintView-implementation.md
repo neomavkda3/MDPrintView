@@ -49,8 +49,8 @@ Weeks 2–5 will get their own detailed plans written at the start of each phase
 ## Task 1: Initialize git repo and project metadata
 
 **Files:**
-- Create: `/Users/cmagsisi/Dev/MDPrintView/.gitignore`
-- Create: `/Users/cmagsisi/Dev/MDPrintView/README.md`
+- Create: `~/MDPrintView/.gitignore`
+- Create: `~/MDPrintView/README.md`
 
 **Step 1: Create `.gitignore` with Xcode + Swift defaults**
 
@@ -97,7 +97,7 @@ See `docs/plans/2026-06-01-MDPrintView-design.md` for the design.
 
 Run:
 ```bash
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 git init -b main
 git add .gitignore README.md docs/
 git commit -m "init: project skeleton, design docs, gitignore"
@@ -135,7 +135,7 @@ Run: `open -a Xcode`
 
 **Step 4: Save into the project directory**
 
-Save location: `/Users/cmagsisi/Dev/MDPrintView`
+Save location: `~/MDPrintView`
 **Important:** uncheck "Create Git repository" in the save dialog — we already have one.
 
 The resulting tree should be:
@@ -162,7 +162,7 @@ In Xcode: project → MDPrintView target → General → Minimum Deployments →
 **Step 7: Commit**
 
 ```bash
-cd /Users/cmagsisi/Dev/MDPrintView
+cd ~/MDPrintView
 git add .
 git commit -m "feat: create Xcode SwiftUI Document App project (macOS 26 target)"
 ```
@@ -179,7 +179,7 @@ git commit -m "feat: create Xcode SwiftUI Document App project (macOS 26 target)
 **Step 1: Create empty directory placeholders** (Xcode groups follow folder structure; SwiftUI Document template ships a flat layout we want to organize before code grows).
 
 ```bash
-cd /Users/cmagsisi/Dev/MDPrintView/MDPrintView
+cd ~/MDPrintView/MDPrintView
 mkdir -p Rendering Editor Preview Models Views
 ```
 
@@ -210,7 +210,7 @@ Add to target: `MDPrintView`.
 
 Run:
 ```bash
-xcodebuild -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -list 2>&1 | head -20
+xcodebuild -project ~/MDPrintView/MDPrintView.xcodeproj -list 2>&1 | head -20
 ```
 
 Expected: lists target `MDPrintView` and scheme `MDPrintView`. No package resolution errors.
@@ -252,7 +252,7 @@ struct MarkdownRendererTests {
 
 Run:
 ```bash
-xcodebuild test -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -30
+xcodebuild test -project ~/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -30
 ```
 
 Expected: compile error — `MarkdownRenderer` does not exist.
@@ -311,7 +311,7 @@ private struct HTMLEmitter: MarkupWalker {
 
 Run:
 ```bash
-xcodebuild test -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -10
+xcodebuild test -project ~/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -10
 ```
 
 Expected: `Test Suite 'MarkdownRendererTests' passed`.
