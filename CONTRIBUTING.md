@@ -59,7 +59,7 @@ Deeper detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Releasing (maintainer-only)
 
-Releases are automated via GitHub Actions on tag push. See [`docs/RELEASING.md`](docs/RELEASING.md) (added alongside the CI workflow).
+Releases are automated via GitHub Actions on tag push. See [`docs/RELEASING.md`](docs/RELEASING.md) for the full process, secret management, and key rotation.
 
 ### Sparkle EdDSA key — first-time setup
 

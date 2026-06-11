@@ -40,11 +40,11 @@ MDPrintView is a markdown editor that takes printing seriously. Three pane modes
 
 Grab the latest `.dmg` from [Releases](https://github.com/neomavkda3/MDPrintView/releases) and drag MDPrintView to `/Applications`.
 
-The app self-updates via Sparkle — checks on launch and via **MDPrintView → Check for Updates…**.
+The DMG is signed with a Developer ID Application certificate and notarized by Apple, so Gatekeeper accepts it without any "unidentified developer" warnings. The app self-updates via Sparkle — checks on launch (daily) and on demand via **MDPrintView → Check for Updates…**.
 
 ### Homebrew Cask
 
-Coming after v1.0:
+Planned after a few stable point releases, once the install flow has real-world miles:
 
 ```sh
 brew install --cask mdprintview
@@ -52,7 +52,7 @@ brew install --cask mdprintview
 
 ### Mac App Store
 
-Coming alongside v1.0 as a paid SKU — same app, "support development" pricing. Use the free OSS build above if you'd rather not pay.
+Planned as a paid SKU — same app, "support development" pricing. Use the free OSS build above if you'd rather not pay. No ETA yet.
 
 ## Build from source
 
