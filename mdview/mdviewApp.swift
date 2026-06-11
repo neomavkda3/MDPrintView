@@ -16,10 +16,30 @@ struct MdviewApp: App {
     }
 
     var body: some Scene {
+        // === Launch flow ===
+        //
+        // On macOS 15+, SwiftUI's `DocumentGroup` presents its own document-
+        // browser scene by default on launch — what looked like the "Finder
+        // file viewer" you kept seeing. We don't want that; we want a
+        // welcome window.
+        //
+        // The native SwiftUI way: make the Welcome `Window` the default
+        // launch scene with `.defaultLaunchBehavior(.presented)`, and mark
+        // `DocumentGroup` as `.suppressed` so it only opens windows in
+        // response to actual file opens (Cmd+O, file-double-click, etc.).
+        Window("Welcome to mdview", id: "welcome") {
+            WelcomeView()
+                .environment(settings)
+        }
+        .windowResizability(.contentSize)
+        .restorationBehavior(.disabled)
+        .defaultLaunchBehavior(.presented)
+
         DocumentGroup(newDocument: { MarkdownDocument() }) { file in
             DocumentView(document: file.document)
                 .environment(settings)
         }
+        .defaultLaunchBehavior(.suppressed)
         .commands {
             CommandGroup(replacing: .printItem) {
                 PrintMenuItem()

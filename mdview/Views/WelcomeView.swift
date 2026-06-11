@@ -3,6 +3,7 @@ import AppKit
 
 struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
+    @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
         VStack(spacing: 24) {
@@ -147,8 +148,6 @@ struct WelcomeView: View {
     }
 
     private func closeWelcome() {
-        if let window = NSApp.windows.first(where: { $0.identifier?.rawValue == "mdview.welcome" }) {
-            window.close()
-        }
+        dismissWindow(id: "welcome")
     }
 }
