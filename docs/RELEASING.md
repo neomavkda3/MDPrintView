@@ -60,9 +60,10 @@ If you lose the Sparkle key **without** a backup, all existing installs of MDPri
 
 ## Local release dry-run (no tag push)
 
-`scripts/release.sh` mirrors the CI pipeline for verification:
+`scripts/release.sh` mirrors the CI pipeline for verification. Replace the placeholders below with your own credentials from App Store Connect:
 
 ```sh
+# Replace XXXXXXXXXX with your 10-char ASC Key ID, and the UUID with your Issuer ID.
 export ASC_API_KEY_P8=~/Downloads/AuthKey_XXXXXXXXXX.p8
 export ASC_KEY_ID=XXXXXXXXXX
 export ASC_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

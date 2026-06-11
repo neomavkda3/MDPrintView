@@ -73,7 +73,6 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 | Hero screenshot / GIF in README | First-impression matters for OSS discovery | v0.2.0 |
 | `WelcomeViewModel` extraction | Architecture audit flagged business logic in view body | v0.2.0 |
 | `@Environment` injection for PinnedDocuments + FontPickerCoordinator | Move off singletons for testability | v0.2.0 |
-| Mac App Store SKU (paid, "support development") | Same codebase, separate `Release-MAS` config (sandboxed, no Sparkle) | Indefinite — wait for some traction |
 
 ## Indefinitely deferred
 
@@ -91,7 +90,7 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ## Distribution history snapshots
 
-- **2026-06-11 — v0.1.0**: first public OSS release. Distribution pivoted from MAS-first to OSS-first based on realistic revenue research; MAS SKU retained as a planned secondary channel. Repo public at github.com/neomavkda3/MDPrintView. GPL-3.0 selected to block third-party MAS clones while leaving dual-licensing options open for our own MAS build.
+- **2026-06-11 — v0.1.0**: first public OSS release. Repo at github.com/neomavkda3/MDPrintView. GPL-3.0.
 
 ## Debugging notes (in case they recur)
 

@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to execute this plan task-by-task.
 
-**Goal:** Land four small design improvements informed by Mobbin research before MAS submission — preview themes, editor font picker, toolbar consolidation, and App Store copy update.
+**Goal:** Land three small design improvements informed by Mobbin research — preview themes, editor font picker, and toolbar consolidation.
 
-**Architecture:** No new architecture. Themes are body-class CSS swaps on the WebView. Font family extends the existing `AppSettings` + `SyntaxHighlighter` pattern. Toolbar consolidation collapses three-button groups into menu buttons (same pattern we already use for headings). App Store copy is a docs edit.
+**Architecture:** No new architecture. Themes are body-class CSS swaps on the WebView. Font family extends the existing `AppSettings` + `SyntaxHighlighter` pattern. Toolbar consolidation collapses three-button groups into menu buttons (same pattern we already use for headings).
 
 **Tech Stack:**
 - SwiftUI Picker + Form (Settings)
@@ -14,7 +14,6 @@
 
 **Reference docs:**
 - Source proposal: `docs/plans/2026-06-06-design-update-from-mobbin.md`
-- App Store listing: `docs/plans/2026-06-06-app-store-listing.md` (Task D updates this)
 
 **Axiom skills to invoke:** None required — these are SwiftUI/CSS edits within established patterns.
 
@@ -27,7 +26,6 @@
 | **A** | Preview themes (Original / Sepia / Quiet / Focus) | ~2 hours |
 | **B** | Editor font family picker | ~1 hour |
 | **C** | Toolbar consolidation (Lists + Code menus) | ~30 min |
-| **D** | App Store listing copy update (mention Versions) | ~10 min |
 
 Total: ~3.5 hours of focused work.
 
@@ -493,39 +491,14 @@ git commit -m "feat: consolidate toolbar — Lists and Code groups become menu b
 
 ---
 
-## Task D: App Store listing copy update
-
-**Files:**
-- Modify: `docs/plans/2026-06-06-app-store-listing.md`
-
-**Step 1: Add a bullet about Versions support**
-
-In the `WORKS WITH` section of the description, add:
-
-```
-• Time Machine for documents — every save creates a new version macOS keeps, browsable via File → Revert to → Browse All Versions…
-```
-
-**Step 2: Commit**
-
-```bash
-git add docs/plans/2026-06-06-app-store-listing.md
-git commit -m "docs: App Store description mentions macOS Versions support"
-```
-
----
-
 ## Polish milestone
 
-After all 4 tasks:
+After all 3 tasks:
 - ✅ Preview themes (4 presets — Original / Sepia / Quiet / Focus)
 - ✅ Editor font family picker (System Mono / NY Serif / SF Pro Sans)
 - ✅ Toolbar reduced from 13 to 9 visible chips (7 buttons + 2 menus, still bold/italic/strike/heading menu/link/lists menu/code menu)
-- ✅ App Store copy reflects macOS Versions
 - ✅ Tests still pass (1 new SyntaxHighlighter test)
 - ✅ Smoke passes
-
-Ready for screenshots → Week 5 submission.
 
 ---
 

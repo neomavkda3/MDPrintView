@@ -8,9 +8,6 @@ A native macOS markdown editor with print-quality typography.
 [![macOS 26+](https://img.shields.io/badge/macOS-26.0+-black?logo=apple)](https://www.apple.com/macos/)
 [![Latest release](https://img.shields.io/github/v/release/neomavkda3/MDPrintView?include_prereleases)](https://github.com/neomavkda3/MDPrintView/releases)
 
-<!-- Screenshot placeholder — replace with an actual hero shot after first release tag -->
-<!-- ![MDPrintView screenshot](assets/hero.png) -->
-
 </div>
 
 MDPrintView is a markdown editor that takes printing seriously. Three pane modes (Editor / Split / Preview), four reading themes, native NSTextView editing, Mermaid diagrams, LaTeX math, and a print pipeline that keeps headings, code blocks, and tables together across page breaks. Built in SwiftUI + AppKit on macOS 26.
@@ -50,10 +47,6 @@ Planned after a few stable point releases, once the install flow has real-world 
 brew install --cask mdprintview
 ```
 
-### Mac App Store
-
-Planned as a paid SKU — same app, "support development" pricing. Use the free OSS build above if you'd rather not pay. No ETA yet.
-
 ## Build from source
 
 ```sh
@@ -88,11 +81,10 @@ Issues, ideas, and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) f
 If MDPrintView is useful to you, sponsorship covers the Apple Developer Program fee and helps me keep shipping:
 
 - [GitHub Sponsors](https://github.com/sponsors/neomavkda3) — 0% platform fee
-- Mac App Store SKU (post-v1.0) — same app, "support development" pricing
 
 ## License
 
-[GNU General Public License v3.0](LICENSE). The OSS build under this license can be freely modified and redistributed, but cannot be repackaged for sale (Section 6 anti-Tivoization is incompatible with Mac App Store terms). The MAS SKU is published separately under proprietary terms by the copyright holder.
+[GNU General Public License v3.0](LICENSE).
 
 ## Architecture + history
 

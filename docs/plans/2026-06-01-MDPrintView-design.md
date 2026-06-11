@@ -145,8 +145,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 
 ## Open decisions deferred to implementation
 
-- Bundle ID (proposed: `net.cmagsisi.MDPrintView` — confirm before App Store Connect registration).
+- Bundle ID (proposed: `net.cmagsisi.MDPrintView`).
 - App icon and marketing assets.
-- Pricing model (free, paid one-time, or freemium).
 - Exact swift-markdown version pin.
 - Whether to additionally ship a Quick Look extension (post-v1)
