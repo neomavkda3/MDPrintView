@@ -18,14 +18,14 @@ MDPrintView is a markdown editor that takes printing seriously. Three pane modes
 
 ## Install
 
-### Quick install — for anyone
+### Quick install (for anyone)
 
 1. Click **[⬇️ Download MDPrintView for Mac](https://github.com/neomavkda3/MDPrintView/releases/latest)** and on the page that opens, download the file ending in `.dmg` (under **Assets**).
 2. **Double-click** the downloaded file. A small window will open showing the MDPrintView app icon.
 3. **Drag the MDPrintView icon into the Applications folder** (the window includes a shortcut to Applications).
 4. Open MDPrintView from **Launchpad** or your **Applications** folder.
 
-The first time you open it, macOS may take a moment to verify the app is from a known developer — this is normal and won't happen again. **There will be no "unidentified developer" warning**: the app is signed and notarized by Apple.
+The first time you open it, macOS may take a moment to verify the app is from a known developer. This is normal and won't happen again. **There will be no "unidentified developer" warning**: the app is signed and notarized by Apple.
 
 MDPrintView checks for new versions automatically once a day, and you can check anytime from the menu bar at **MDPrintView → Check for Updates…**.
 
@@ -39,17 +39,17 @@ brew install --cask mdprintview
 
 ## What it does
 
-- **Three layout modes** — Editor, Split, Preview-only — switch with `⌥⌘1` / `⌥⌘2` / `⌥⌘3`
-- **Four reading themes** — Original, Focus, Sepia, Print
-- **Live external-edit reload** — edit the file from another tool (vim, Claude Code, VS Code) and MDPrintView updates in place
-- **Mermaid diagrams + LaTeX math** — KaTeX (display via `$$...$$`, inline via `\(...\)`)
-- **Print-quality output** — page breaks respect headings, code, and tables
-- **PDF export** — `⌘⇧E`
+- **Three layout modes**: Editor, Split, Preview-only. Switch with `⌥⌘1` / `⌥⌘2` / `⌥⌘3`
+- **Four reading themes**: Original, Focus, Sepia, Print
+- **Live external-edit reload**: edit the file from another tool (vim, Claude Code, VS Code) and MDPrintView updates in place
+- **Mermaid diagrams + LaTeX math**: KaTeX (display via `$$...$$`, inline via `\(...\)`)
+- **Print-quality output**: page breaks respect headings, code, and tables
+- **PDF export**: `⌘⇧E`
 - **Eleven editor fonts** plus full system font picker via the standard Fonts panel
-- **System / Light / Dark appearance** — overrides macOS preference per-app
-- **Welcome screen** — recent + pinned documents with search and content previews
-- **Document tabs** — multiple files cluster as tabs in a single window
-- **Privacy-first** — zero network calls, sandbox-ready, Privacy Manifest declared
+- **System / Light / Dark appearance**: overrides macOS preference per-app
+- **Welcome screen**: recent + pinned documents with search and content previews
+- **Document tabs**: multiple files cluster as tabs in a single window
+- **Privacy-first**: zero network calls, sandbox-ready, Privacy Manifest declared
 
 ## Requirements
 
@@ -95,9 +95,9 @@ Vulnerability reports → see [SECURITY.md](SECURITY.md).
 
 ## Funding
 
-MDPrintView is free and open source under GPL-3.0. Sponsorship on GitHub goes toward equipping new graduates entering sports tech with the tools they need to start — laptops, software subscriptions, training courses, AI and cloud credits — through [ANCOP Canada](https://www.ancopcanada.org/). The first ~$8/month covers MDPrintView's Apple Developer Program fee (so the app stays signed and notarized for everyone); everything beyond that goes to the new-grad tooling fund.
+MDPrintView is free and open source under GPL-3.0. Sponsorship on GitHub goes toward equipping new graduates entering sports tech with the tools they need to start: laptops, software subscriptions, training courses, AI and cloud credits. The work happens through [ANCOP Canada](https://www.ancopcanada.org/). The first ~$8/month covers MDPrintView's Apple Developer Program fee (so the app stays signed and notarized for everyone); everything beyond that goes to the new-grad tooling fund.
 
-- [GitHub Sponsors](https://github.com/sponsors/neomavkda3) — 0% platform fee
+- [GitHub Sponsors](https://github.com/sponsors/neomavkda3) (0% platform fee)
 
 Sponsoring MDPrintView means you get a tool you can use forever, and someone starting their career in sports tech gets a real shot.
 
