@@ -62,6 +62,16 @@ targets:
           # A separate Release-MAS config (sandboxed, no Sparkle) will be
           # added when the Mac App Store SKU ships.
           CODE_SIGN_ENTITLEMENTS: MDPrintView/MDPrintView.entitlements
+          # Sign with the Developer ID Application certificate. Using the
+          # generic family name ("Developer ID Application") lets the
+          # build pick the right one from any Keychain that has exactly
+          # one installed — works locally and on CI runners alike.
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          DEVELOPMENT_TEAM: 6W4NLME2QR
+          # Notarization requires hardened runtime + secure timestamp.
+          # ENABLE_HARDENED_RUNTIME=YES is already inherited from base.
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
 
   MDPrintViewTests:
     type: bundle.unit-test

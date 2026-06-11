@@ -5,20 +5,28 @@
     <!--
         OSS Release (this file): Developer ID signed, NOT sandboxed.
 
-        Why not sandboxed: Sparkle's installer needs to replace the app bundle
-        on disk. Doing that inside an App Sandbox requires shipping Sparkle's
-        XPC installer + downloader services as embedded targets plus a
-        non-trivial set of temporary-exception mach-lookup entitlements. We
-        opt out of that complexity here — Developer ID + notarization is what
-        Gatekeeper expects for non-MAS distribution, and a non-sandboxed
-        Developer-ID app is perfectly acceptable outside the Mac App Store.
+        Why not sandboxed: Sparkle's installer needs to replace the app
+        bundle on disk. Doing that inside an App Sandbox requires shipping
+        Sparkle's XPC installer + downloader services as embedded targets
+        plus a non-trivial set of temporary-exception mach-lookup
+        entitlements. We opt out of that complexity here — Developer ID +
+        notarization is what Gatekeeper expects for non-MAS distribution,
+        and a non-sandboxed Developer-ID app is perfectly acceptable
+        outside the Mac App Store.
 
-        A separate MDPrintView-mas.entitlements (with sandbox + Sparkle XPC
-        services, OR without Sparkle entirely since MAS handles updates) will
-        be added when the Mac App Store SKU ships.
+        A separate MDPrintView-mas.entitlements (with sandbox + Sparkle
+        XPC services, OR without Sparkle entirely since MAS handles
+        updates) will be added when the Mac App Store SKU ships.
 
-        Hardened Runtime is still enabled in the build settings (required for
-        notarization) — that's separate from sandboxing.
+        Hardened Runtime is still enabled in the build settings (required
+        for notarization) — that's separate from sandboxing.
     -->
+
+    <!-- Explicitly DENY debugger attach. If this file has no entitlements
+         declared at all, Xcode falls back to a default that sets
+         get-task-allow=true. Notarization rejects any app where
+         get-task-allow is true, so we set it false here unconditionally. -->
+    <key>com.apple.security.get-task-allow</key>
+    <false/>
 </dict>
 </plist>
