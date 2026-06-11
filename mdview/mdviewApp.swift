@@ -105,6 +105,12 @@ private struct SettingsView: View {
         @Bindable var settings = settings
 
         Form {
+            Section("Appearance") {
+                Picker("Theme", selection: $settings.appearance) {
+                    ForEach(AppSettings.Appearance.allCases) { Text($0.label).tag($0) }
+                }
+                .pickerStyle(.segmented)
+            }
             Section("Editor") {
                 HStack {
                     Text("Font size")
@@ -141,6 +147,6 @@ private struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 460, height: 300)
+        .frame(width: 460, height: 360)
     }
 }
