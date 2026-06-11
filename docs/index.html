@@ -6,18 +6,21 @@
   <title>MDPrintView: Native macOS markdown editor with print-quality typography</title>
   <meta
     name="description"
-    content="Native macOS markdown editor with print-quality typography. Three layout modes, four reading themes, Mermaid diagrams, LaTeX math, and a print pipeline that respects page breaks. Free and open source."
+    content="A free, open-source macOS markdown editor with three layout modes, four reading themes, Mermaid diagrams, LaTeX math, and a print pipeline that respects page breaks."
   />
   <link rel="canonical" href="https://neomavkda3.github.io/MDPrintView/" />
+
+  <!-- Open Graph / Twitter: nice link previews when shared -->
   <meta property="og:title" content="MDPrintView" />
   <meta
     property="og:description"
-    content="Native macOS markdown editor with print-quality typography. Free and open source."
+    content="A native macOS markdown editor with print-quality typography. Free + open source."
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://neomavkda3.github.io/MDPrintView/" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <!-- Use the app icon as the favicon, pulled from the repo via raw.githubusercontent. -->
   <link
     rel="icon"
     type="image/png"
@@ -25,533 +28,441 @@
   />
 
   <style>
+    /* ---- Design tokens: minimal, Apple-style, system fonts ---- */
     :root {
-      --background: #fafafa;
-      --foreground: #171717;
-      --muted: #737373;
-      --border: #e5e5e5;
-      --code-bg: #f5f5f5;
-      --accent: #171717;
-      --accent-fg: #fafafa;
+      --fg: #1a1a1a;
+      --fg-muted: #4a4a4a;
+      --fg-soft: #6f6f6f;
+      --bg: #ffffff;
+      --bg-soft: #f5f5f7;
+      --accent: #0a66d1;
+      --accent-fg: #ffffff;
+      --border: #e5e5e7;
+      --radius: 14px;
+      --max-w: 880px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-        --muted: #a3a3a3;
-        --border: #262626;
-        --code-bg: #171717;
-        --accent: #ededed;
-        --accent-fg: #0a0a0a;
+        --fg: #f5f5f7;
+        --fg-muted: #c4c4c4;
+        --fg-soft: #9a9a9a;
+        --bg: #0c0c0c;
+        --bg-soft: #1a1a1a;
+        --accent: #2f8bff;
+        --border: #2a2a2a;
       }
     }
 
     * { box-sizing: border-box; }
-    html { background: var(--background); }
+    html, body { margin: 0; padding: 0; }
     body {
-      margin: 0;
-      background: var(--background);
-      color: var(--foreground);
-      font-family:
-        ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.55;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
     }
-    a {
-      color: var(--foreground);
-      text-decoration: underline;
-      text-decoration-color: var(--border);
-      text-underline-offset: 3px;
-    }
-    a:hover { text-decoration-color: var(--muted); }
-
-    /* ---- Layout shell ---- */
-    .wrap {
-      max-width: 672px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* ---- Header ---- */
-    header.site {
-      padding: 28px 0 0;
-    }
-    header.site .bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    header.site .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      text-decoration: none;
-    }
-    header.site .brand img {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-    }
-    header.site nav.links {
-      display: flex;
-      gap: 18px;
-      font-size: 13.5px;
-      color: var(--muted);
-    }
-    header.site nav.links a {
-      text-decoration: none;
-      color: var(--muted);
-    }
-    header.site nav.links a:hover { color: var(--foreground); }
-
-    @media (max-width: 640px) {
-      header.site nav.links { display: none; }
-    }
+    main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     /* ---- Hero ---- */
     .hero {
-      padding: 80px 0 48px;
+      text-align: center;
+      padding: 96px 24px 80px;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .hero img.icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 28px;
+      margin-bottom: 28px;
     }
     .hero h1 {
-      font-size: 36px;
-      line-height: 1.15;
-      letter-spacing: -0.025em;
-      font-weight: 600;
-      margin: 0 0 14px;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
     }
-    .hero p.lead {
+    .hero .tagline {
+      font-size: 20px;
+      color: var(--fg-muted);
+      margin: 0 0 36px;
+    }
+    .cta {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-fg);
+      padding: 14px 28px;
+      border-radius: 999px;
       font-size: 17px;
-      color: var(--muted);
-      margin: 0 0 28px;
-      max-width: 56ch;
+      font-weight: 600;
+      letter-spacing: -0.005em;
     }
-    .ctas {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .cta:hover { text-decoration: none; opacity: 0.9; }
+    .cta-meta {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--fg-soft);
     }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      border: 1px solid var(--border);
-      color: var(--foreground);
-      background: transparent;
-      transition: background 120ms ease, border-color 120ms ease;
-    }
-    .btn:hover { border-color: var(--muted); }
-    .btn-primary {
-      background: var(--accent);
-      color: var(--accent-fg);
-      border-color: var(--accent);
-    }
-    .btn-primary:hover {
-      background: var(--accent);
-      color: var(--accent-fg);
-      opacity: 0.85;
-    }
+    .cta-meta a { color: var(--fg-soft); }
 
     /* ---- Sections ---- */
     section {
-      padding: 36px 0;
+      padding: 56px 0;
+      border-top: 1px solid var(--border);
     }
-    section .label {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 14px;
+    section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0 0 24px;
     }
 
-    /* Features: a tight bullet list */
+    /* Features grid */
     .features ul {
       list-style: none;
       padding: 0;
       margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
     }
     .features li {
-      padding: 14px 0;
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: minmax(180px, 1fr) 2fr;
-      gap: 16px;
-      align-items: baseline;
+      background: var(--bg-soft);
+      padding: 20px 22px;
+      border-radius: var(--radius);
     }
-    .features li:last-child { border-bottom: 1px solid var(--border); }
-    .features li b {
+    .features h3 {
+      font-size: 16px;
       font-weight: 600;
-      font-size: 14.5px;
-      letter-spacing: -0.005em;
+      margin: 0 0 6px;
     }
-    .features li span {
-      color: var(--muted);
+    .features p {
+      margin: 0;
+      color: var(--fg-muted);
       font-size: 14.5px;
-    }
-    @media (max-width: 560px) {
-      .features li {
-        grid-template-columns: 1fr;
-        gap: 4px;
-        padding: 12px 0;
-      }
     }
 
     /* Install steps */
     .install ol {
+      padding-left: 0;
       counter-reset: step;
       list-style: none;
-      padding: 0;
-      margin: 0;
+      margin: 0 0 24px;
     }
-    .install ol li {
-      padding: 14px 0 14px 36px;
-      position: relative;
+    .install li {
       counter-increment: step;
-      border-top: 1px solid var(--border);
-      color: var(--foreground);
-      font-size: 14.5px;
+      padding: 16px 16px 16px 64px;
+      position: relative;
+      background: var(--bg-soft);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
     }
-    .install ol li:last-child { border-bottom: 1px solid var(--border); }
-    .install ol li::before {
+    .install li::before {
       content: counter(step);
       position: absolute;
-      left: 0;
+      left: 18px;
       top: 14px;
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      background: var(--code-bg);
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-fg);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-weight: 600;
+      font-size: 15px;
     }
-    .install .note {
-      color: var(--muted);
-      font-size: 13.5px;
+    .install .reassurance {
+      font-size: 14px;
+      color: var(--fg-muted);
+      border-left: 3px solid var(--accent);
+      padding: 0 0 0 14px;
       margin: 16px 0 0;
-      padding: 12px 14px;
-      background: var(--code-bg);
-      border-radius: 6px;
-      border-left: 2px solid var(--border);
     }
 
-    /* Mission */
+    /* Mission section */
     .mission p {
-      color: var(--foreground);
-      margin: 0 0 12px;
+      color: var(--fg-muted);
+      font-size: 15.5px;
+      line-height: 1.65;
+      max-width: 64ch;
     }
-    .mission p:last-child { margin-bottom: 0; }
-    .mission p.muted { color: var(--muted); font-size: 14.5px; }
+    .mission p + p { margin-top: 14px; }
+    .sponsor-cta-wrap { text-align: center; margin-top: 36px !important; }
+    .sponsor-cta {
+      display: inline-block;
+      padding: 12px 26px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .sponsor-cta:hover { text-decoration: none; background: var(--accent); color: var(--accent-fg); }
 
     /* FAQ */
     .faq details {
-      border-top: 1px solid var(--border);
-      padding: 14px 0;
+      padding: 14px 18px;
+      background: var(--bg-soft);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
     }
-    .faq details:last-of-type { border-bottom: 1px solid var(--border); }
+    .faq details[open] { background: var(--bg-soft); }
     .faq summary {
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
       list-style: none;
-      font-size: 14.5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-size: 15.5px;
     }
     .faq summary::-webkit-details-marker { display: none; }
     .faq summary::after {
       content: "+";
-      color: var(--muted);
+      float: right;
       font-weight: 400;
-      margin-left: 12px;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--fg-soft);
     }
     .faq details[open] summary::after { content: "−"; }
     .faq p {
       margin: 10px 0 0;
-      color: var(--muted);
+      color: var(--fg-muted);
       font-size: 14.5px;
     }
 
     /* Footer */
-    footer.site {
-      margin-top: 64px;
-      padding: 32px 0 40px;
+    footer {
+      padding: 48px 24px 64px;
+      text-align: center;
+      color: var(--fg-soft);
+      font-size: 13.5px;
       border-top: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--muted);
     }
-    footer.site .cols {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-bottom: 24px;
+    footer nav a {
+      color: var(--fg-muted);
+      margin: 0 10px;
     }
-    @media (max-width: 640px) {
-      footer.site .cols {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-      }
+    footer .copy {
+      margin-top: 12px;
+      font-size: 12.5px;
     }
-    footer.site h4 {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 10px;
-    }
-    footer.site ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    footer.site ul li { padding: 2px 0; }
-    footer.site ul li a {
-      color: var(--foreground);
-      text-decoration: none;
-      font-size: 13px;
-    }
-    footer.site ul li a:hover { text-decoration: underline; }
-    footer.site .copy {
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      font-size: 12px;
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      .hero { padding: 72px 24px 56px; }
+      .hero h1 { font-size: 36px; }
+      .hero .tagline { font-size: 17px; }
+      section { padding: 44px 0; }
+      section h2 { font-size: 24px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="site">
-      <div class="bar">
-        <a class="brand" href="/MDPrintView/">
-          <img
-            src="https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_128x128.png"
-            alt=""
-          />
-          <span>MDPrintView</span>
+  <header class="hero">
+    <img
+      class="icon"
+      src="https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_256x256.png"
+      alt="MDPrintView app icon"
+    />
+    <h1>MDPrintView</h1>
+    <p class="tagline">
+      A native macOS markdown editor with print-quality typography.
+    </p>
+
+    <a
+      id="download-btn"
+      class="cta"
+      href="https://github.com/neomavkda3/MDPrintView/releases/latest"
+    >⬇ Download for Mac</a>
+
+    <p class="cta-meta">
+      <span id="version-line">macOS 26+</span> · Apple Silicon and Intel ·
+      Free and open source
+      (<a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>)
+    </p>
+  </header>
+
+  <main>
+    <section class="features">
+      <h2>What it does</h2>
+      <ul>
+        <li>
+          <h3>Three layout modes</h3>
+          <p>Editor, Split, or Preview-only. Switch with one keystroke.</p>
+        </li>
+        <li>
+          <h3>Four reading themes</h3>
+          <p>Original, Focus, Sepia, and Print. Match the mood you write in.</p>
+        </li>
+        <li>
+          <h3>Print-quality output</h3>
+          <p>
+            Page breaks respect headings, code blocks, and tables. Export to PDF
+            or send to any printer.
+          </p>
+        </li>
+        <li>
+          <h3>Diagrams and math</h3>
+          <p>
+            Mermaid diagrams and LaTeX math (KaTeX) render in the preview pane
+            and the print output.
+          </p>
+        </li>
+        <li>
+          <h3>Live external-edit reload</h3>
+          <p>
+            Edit the file in another tool (vim, Claude Code, VS Code) and
+            MDPrintView updates in place.
+          </p>
+        </li>
+        <li>
+          <h3>11 fonts plus your own</h3>
+          <p>
+            Curated font picks for editing, with the standard macOS Fonts panel
+            for anything else installed on your system.
+          </p>
+        </li>
+        <li>
+          <h3>System / Light / Dark</h3>
+          <p>Override macOS appearance per-app.</p>
+        </li>
+        <li>
+          <h3>Privacy-first</h3>
+          <p>
+            Zero network calls. Nothing leaves your Mac. Privacy Manifest
+            declared.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="install">
+      <h2>How to install</h2>
+      <ol>
+        <li>
+          Click <strong>Download for Mac</strong> above. On the page that opens,
+          download the file ending in <code>.dmg</code> (under <em>Assets</em>).
+        </li>
+        <li>
+          <strong>Double-click</strong> the downloaded file. A window opens
+          showing the MDPrintView icon.
+        </li>
+        <li>
+          <strong>Drag</strong> the MDPrintView icon into the
+          <strong>Applications</strong> folder shortcut in the same window.
+        </li>
+        <li>
+          Open MDPrintView from <strong>Launchpad</strong> or your
+          <strong>Applications</strong> folder.
+        </li>
+      </ol>
+      <p class="reassurance">
+        macOS may take a moment to verify the app on first launch. This is
+        normal and won't happen again. There's no "unidentified developer"
+        warning: MDPrintView is signed and notarized by Apple. Updates download
+        automatically; you can also check anytime from
+        <strong>MDPrintView → Check for Updates…</strong>.
+      </p>
+    </section>
+
+    <section class="mission">
+      <h2>Why this is free, and what sponsorship funds</h2>
+      <p>
+        MDPrintView is open source under GPL-3.0 and will always be free.
+        Sponsorship on GitHub goes toward equipping new graduates entering
+        sports tech with the tools they need to start: laptops, software
+        subscriptions, training courses, AI and cloud credits. The work
+        happens through
+        <a href="https://www.ancopcanada.org/">ANCOP Canada</a>.
+      </p>
+      <p>
+        The barrier to entry for new tech grads has only gotten higher;
+        small, targeted investments change someone's career trajectory.
+        Sponsoring MDPrintView means you get a tool you can use forever, and
+        someone starting their career in sports tech gets a real shot.
+      </p>
+      <p class="sponsor-cta-wrap">
+        <a class="sponsor-cta" href="https://github.com/sponsors/neomavkda3">
+          ♥ Sponsor MDPrintView
         </a>
-        <nav class="links">
-          <a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>
-          <a href="https://github.com/neomavkda3/MDPrintView/releases">Releases</a>
-          <a href="https://github.com/sponsors/neomavkda3">Sponsor</a>
-        </nav>
-      </div>
-    </header>
+      </p>
+    </section>
 
-    <main>
-      <section class="hero">
-        <h1>The markdown editor built for print-quality output.</h1>
-        <p class="lead">
-          Native macOS markdown editor. Three layout modes, four reading
-          themes, Mermaid diagrams, LaTeX math, and a print pipeline that
-          keeps headings, code blocks, and tables together across page breaks.
-        </p>
-        <div class="ctas">
-          <a id="download-btn" class="btn btn-primary"
-            href="https://github.com/neomavkda3/MDPrintView/releases/latest">
-            Download for Mac
-          </a>
-          <a class="btn" href="https://github.com/neomavkda3/MDPrintView">
-            View on GitHub
-          </a>
-        </div>
-      </section>
-
-      <section class="features">
-        <p class="label">Features</p>
-        <ul>
-          <li>
-            <b>Three layout modes</b>
-            <span>Editor, Split, or Preview-only. One keystroke to switch.</span>
-          </li>
-          <li>
-            <b>Four reading themes</b>
-            <span>Original, Focus, Sepia, Print.</span>
-          </li>
-          <li>
-            <b>Print-quality output</b>
-            <span>Page breaks respect headings, code blocks, and tables.</span>
-          </li>
-          <li>
-            <b>PDF export</b>
-            <span>One shortcut, identical to the print preview.</span>
-          </li>
-          <li>
-            <b>Diagrams and math</b>
-            <span>Mermaid in fenced blocks, KaTeX for inline and display math.</span>
-          </li>
-          <li>
-            <b>Live external-edit reload</b>
-            <span>Edit in vim or Claude Code; MDPrintView updates in place.</span>
-          </li>
-          <li>
-            <b>11 fonts plus your own</b>
-            <span>Curated picks for editing, plus the standard macOS Fonts panel.</span>
-          </li>
-          <li>
-            <b>System / Light / Dark</b>
-            <span>Per-app appearance override.</span>
-          </li>
-          <li>
-            <b>Welcome screen</b>
-            <span>Recent + pinned documents with search and previews.</span>
-          </li>
-          <li>
-            <b>Document tabs</b>
-            <span>Multiple files cluster as tabs in a single window.</span>
-          </li>
-          <li>
-            <b>Privacy-first</b>
-            <span>Zero network calls. Sandbox-ready. Privacy Manifest declared.</span>
-          </li>
-        </ul>
-      </section>
-
-      <section class="install">
-        <p class="label">How to install</p>
-        <ol>
-          <li>Click <strong>Download for Mac</strong> above. On the page that opens, download the file ending in <code>.dmg</code> under <em>Assets</em>.</li>
-          <li>Double-click the downloaded file. A window opens with the MDPrintView icon.</li>
-          <li>Drag the MDPrintView icon into the Applications folder shortcut.</li>
-          <li>Open MDPrintView from Launchpad or your Applications folder.</li>
-        </ol>
-        <p class="note">
-          macOS may take a moment to verify the app on first launch. This is
-          normal and won't happen again. There's no "unidentified developer"
-          warning. MDPrintView is signed and notarized by Apple. Updates
-          download automatically.
-        </p>
-      </section>
-
-      <section class="mission">
-        <p class="label">Why this is free, and what sponsorship funds</p>
+    <section class="faq">
+      <h2>Common questions</h2>
+      <details>
+        <summary>Is it really free?</summary>
         <p>
-          MDPrintView is open source under GPL-3.0 and will always be free.
-          Sponsorship on GitHub goes toward equipping new graduates entering
-          sports tech with the tools they need to start: laptops, software
-          subscriptions, training courses, AI and cloud credits. The work
-          happens through
-          <a href="https://www.ancopcanada.org/">ANCOP Canada</a>.
+          Yes. MDPrintView is open source under the GPL-3.0 license. No
+          subscriptions, no in-app purchases, no tracking.
         </p>
-        <p class="muted">
-          The barrier to entry for new tech grads has only gotten higher.
-          Small, targeted investments change someone's career trajectory.
-          Sponsoring MDPrintView means you get a tool you can use forever,
-          and someone starting their career in sports tech gets a real shot.
-        </p>
+      </details>
+      <details>
+        <summary>Does it work offline?</summary>
         <p>
-          <a class="btn" href="https://github.com/sponsors/neomavkda3">
-            Sponsor MDPrintView
-          </a>
+          Yes. MDPrintView has no network access at all. Everything runs
+          locally on your Mac.
         </p>
-      </section>
+      </details>
+      <details>
+        <summary>What if I see a security warning?</summary>
+        <p>
+          You shouldn't. The app is signed and notarized by Apple. If you do,
+          right-click <strong>MDPrintView</strong> in Applications and choose
+          <strong>Open</strong>. You'll only need to do this once.
+        </p>
+      </details>
+      <details>
+        <summary>Where do I report a bug or request a feature?</summary>
+        <p>
+          On the
+          <a href="https://github.com/neomavkda3/MDPrintView/issues">GitHub Issues</a>
+          page. Bug-report and feature-request templates are provided.
+        </p>
+      </details>
+      <details>
+        <summary>How do sponsorship funds reach new grads?</summary>
+        <p>
+          Sponsorship dollars flow through ANCOP Canada, which works directly
+          with new graduates entering the sports tech industry, providing
+          laptops, software subscriptions, training, and AI/cloud credits.
+          The first ~$8/month covers MDPrintView's Apple Developer Program
+          fee (so the app stays signed and notarized for everyone);
+          everything beyond that goes to the new-grad tooling fund.
+        </p>
+      </details>
+    </section>
+  </main>
 
-      <section class="faq">
-        <p class="label">FAQ</p>
-        <details>
-          <summary>Is it really free?</summary>
-          <p>
-            Yes. MDPrintView is open source under GPL-3.0. No subscriptions,
-            no in-app purchases, no tracking.
-          </p>
-        </details>
-        <details>
-          <summary>Does it work offline?</summary>
-          <p>
-            Yes. MDPrintView has no network access at all. Everything runs
-            locally on your Mac.
-          </p>
-        </details>
-        <details>
-          <summary>What if I see a security warning?</summary>
-          <p>
-            You shouldn't. The app is signed and notarized by Apple. If you
-            do, right-click MDPrintView in Applications and choose Open. You
-            only need to do this once.
-          </p>
-        </details>
-        <details>
-          <summary>Where do I report a bug or request a feature?</summary>
-          <p>
-            On the
-            <a href="https://github.com/neomavkda3/MDPrintView/issues">GitHub Issues</a>
-            page. Bug-report and feature-request templates are provided.
-          </p>
-        </details>
-        <details>
-          <summary>How do sponsorship funds reach new grads?</summary>
-          <p>
-            Sponsorship dollars flow through ANCOP Canada, which works
-            directly with new graduates entering the sports tech industry,
-            providing laptops, software subscriptions, training, and AI/cloud
-            credits. The first ~$8/month covers MDPrintView's Apple Developer
-            Program fee (so the app stays signed and notarized for everyone).
-            Everything beyond that goes to the new-grad tooling fund.
-          </p>
-        </details>
-      </section>
-    </main>
-
-    <footer class="site">
-      <div class="cols">
-        <div>
-          <h4>Product</h4>
-          <ul>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/releases/latest">Download</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/releases">All releases</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/docs/STATUS.md">Roadmap</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Resources</h4>
-          <ul>
-            <li><a href="https://github.com/neomavkda3/MDPrintView">GitHub</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/docs/ARCHITECTURE.md">Architecture</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/CONTRIBUTING.md">Contribute</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/LICENSE">License</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/SECURITY.md">Security</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Social</h4>
-          <ul>
-            <li><a href="https://github.com/sponsors/neomavkda3">GitHub Sponsors</a></li>
-            <li><a href="https://github.com/neomavkda3/MDPrintView/issues">Issues</a></li>
-            <li><a href="https://www.ancopcanada.org/">ANCOP Canada</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="copy">
-        MDPrintView is open source under
-        <a href="https://github.com/neomavkda3/MDPrintView/blob/main/LICENSE">GPL-3.0</a>.
-      </div>
-    </footer>
-  </div>
+  <footer>
+    <nav>
+      <a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>
+      <a href="https://github.com/neomavkda3/MDPrintView/releases">All releases</a>
+      <a href="https://github.com/neomavkda3/MDPrintView/blob/main/CONTRIBUTING.md">Contribute</a>
+      <a href="https://github.com/sponsors/neomavkda3">Sponsor</a>
+    </nav>
+    <p class="copy">
+      MDPrintView is open source under
+      <a href="https://github.com/neomavkda3/MDPrintView/blob/main/LICENSE">GPL-3.0</a>.
+    </p>
+  </footer>
 
   <script>
+    // Keep the download button + version line current with the latest GitHub
+    // Release. No external dependencies; pure fetch. Falls back gracefully:
+    // if the API is unreachable, the button still points at /releases/latest
+    // which always shows the most recent release.
     (function () {
       var btn = document.getElementById('download-btn');
+      var verLine = document.getElementById('version-line');
       fetch(
         'https://api.github.com/repos/neomavkda3/MDPrintView/releases/latest',
         { headers: { Accept: 'application/vnd.github+json' } }
@@ -564,10 +475,13 @@
           });
           if (dmg && dmg.browser_download_url) {
             btn.href = dmg.browser_download_url;
-            btn.textContent = 'Download for Mac (' + (data.tag_name || '') + ')';
+            btn.textContent = '⬇ Download ' + (data.tag_name || '');
+          }
+          if (data.tag_name && verLine) {
+            verLine.textContent = data.tag_name + ' · macOS 26+';
           }
         })
-        .catch(function () { /* fall back to /releases/latest */ });
+        .catch(function () { /* graceful fallback already in place */ });
     })();
   </script>
 </body>
