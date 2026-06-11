@@ -1,8 +1,8 @@
-# mdview Implementation Plan
+# MDPrintView Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build mdview — a native macOS markdown editor + viewer with source/hybrid editing modes and print-quality preview — for Mac App Store distribution on macOS 26.
+**Goal:** Build MDPrintView — a native macOS markdown editor + viewer with source/hybrid editing modes and print-quality preview — for Mac App Store distribution on macOS 26.
 
 **Architecture:** SwiftUI `DocumentGroup` shell wrapping a TextKit 2 `NSTextView` editor and a `WKWebView` preview. Markdown parsed and rendered to HTML in Swift (`swift-markdown`); preview is a sandboxed WebView with bundled JS/CSS (Mermaid, KaTeX, DOMPurify). Strict view/view-model/data separation.
 
@@ -15,8 +15,8 @@
 - Swift Testing for unit tests; one XCUITest for end-to-end print
 
 **Reference docs:**
-- Design: `docs/plans/2026-06-01-mdview-design.md`
-- Source inspirations: MDviewer (print CSS), MacDown (editor+preview pattern)
+- Design: `docs/plans/2026-06-01-MDPrintView-design.md`
+- Source inspirations: MDPrintViewer (print CSS), MacDown (editor+preview pattern)
 
 **Axiom skills to invoke at each phase** (load via `Skill` tool before starting tasks that touch the relevant area):
 - Project setup: `axiom-app-composition`
@@ -49,8 +49,8 @@ Weeks 2–5 will get their own detailed plans written at the start of each phase
 ## Task 1: Initialize git repo and project metadata
 
 **Files:**
-- Create: `/Users/cmagsisi/Dev/mdview/.gitignore`
-- Create: `/Users/cmagsisi/Dev/mdview/README.md`
+- Create: `/Users/cmagsisi/Dev/MDPrintView/.gitignore`
+- Create: `/Users/cmagsisi/Dev/MDPrintView/README.md`
 
 **Step 1: Create `.gitignore` with Xcode + Swift defaults**
 
@@ -84,20 +84,20 @@ ExportOptions.plist
 **Step 2: Create minimal `README.md`**
 
 ```markdown
-# mdview
+# MDPrintView
 
 Native macOS markdown editor + viewer with print-quality typography.
 
 Target: macOS 26+. Distribution: Mac App Store.
 
-See `docs/plans/2026-06-01-mdview-design.md` for the design.
+See `docs/plans/2026-06-01-MDPrintView-design.md` for the design.
 ```
 
 **Step 3: Init repo and commit**
 
 Run:
 ```bash
-cd /Users/cmagsisi/Dev/mdview
+cd /Users/cmagsisi/Dev/MDPrintView
 git init -b main
 git add .gitignore README.md docs/
 git commit -m "init: project skeleton, design docs, gitignore"
@@ -121,10 +121,10 @@ Run: `open -a Xcode`
 
 | Field | Value |
 |---|---|
-| Product Name | `mdview` |
+| Product Name | `MDPrintView` |
 | Team | (your team, or "None" for now) |
 | Organization Identifier | `net.cmagsisi` (placeholder — to be confirmed before MAS) |
-| Bundle Identifier | (auto: `net.cmagsisi.mdview`) |
+| Bundle Identifier | (auto: `net.cmagsisi.MDPrintView`) |
 | Interface | **SwiftUI** |
 | Language | **Swift** |
 | Document Content Type | `public.plain-text` (we'll add markdown UTIs later) |
@@ -135,25 +135,25 @@ Run: `open -a Xcode`
 
 **Step 4: Save into the project directory**
 
-Save location: `/Users/cmagsisi/Dev/mdview`
+Save location: `/Users/cmagsisi/Dev/MDPrintView`
 **Important:** uncheck "Create Git repository" in the save dialog — we already have one.
 
 The resulting tree should be:
 ```
-mdview/
-├── mdview.xcodeproj/
-├── mdview/                  (sources)
-│   ├── mdviewApp.swift
+MDPrintView/
+├── MDPrintView.xcodeproj/
+├── MDPrintView/                  (sources)
+│   ├── MDPrintViewApp.swift
 │   ├── ContentView.swift
-│   ├── mdviewDocument.swift
+│   ├── MDPrintViewDocument.swift
 │   └── Assets.xcassets/
-├── mdviewTests/
-└── mdviewUITests/
+├── MDPrintViewTests/
+└── MDPrintViewUITests/
 ```
 
 **Step 5: Set deployment target to macOS 26**
 
-In Xcode: project → mdview target → General → Minimum Deployments → macOS = **26.0**.
+In Xcode: project → MDPrintView target → General → Minimum Deployments → macOS = **26.0**.
 
 **Step 6: Build and run**
 
@@ -162,7 +162,7 @@ In Xcode: project → mdview target → General → Minimum Deployments → macO
 **Step 7: Commit**
 
 ```bash
-cd /Users/cmagsisi/Dev/mdview
+cd /Users/cmagsisi/Dev/MDPrintView
 git add .
 git commit -m "feat: create Xcode SwiftUI Document App project (macOS 26 target)"
 ```
@@ -172,20 +172,20 @@ git commit -m "feat: create Xcode SwiftUI Document App project (macOS 26 target)
 ## Task 3: Establish source layout
 
 **Files:**
-- Create directories: `mdview/Rendering/`, `mdview/Editor/`, `mdview/Preview/`, `mdview/Models/`, `mdview/Views/`
-- Move: `mdviewDocument.swift` → `mdview/Models/MarkdownDocument.swift`
-- Move: `ContentView.swift` → `mdview/Views/DocumentView.swift`
+- Create directories: `MDPrintView/Rendering/`, `MDPrintView/Editor/`, `MDPrintView/Preview/`, `MDPrintView/Models/`, `MDPrintView/Views/`
+- Move: `MDPrintViewDocument.swift` → `MDPrintView/Models/MarkdownDocument.swift`
+- Move: `ContentView.swift` → `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Create empty directory placeholders** (Xcode groups follow folder structure; SwiftUI Document template ships a flat layout we want to organize before code grows).
 
 ```bash
-cd /Users/cmagsisi/Dev/mdview/mdview
+cd /Users/cmagsisi/Dev/MDPrintView/MDPrintView
 mkdir -p Rendering Editor Preview Models Views
 ```
 
 **Step 2: Move and rename files in Xcode**
-- Right-click `mdviewDocument.swift` in Project navigator → New Group from Selection? No — manually drag into `Models` group, rename to `MarkdownDocument.swift`. Update the type name and any `@main` references.
-- Drag `ContentView.swift` into `Views`, rename to `DocumentView.swift`. Update references in `mdviewApp.swift`.
+- Right-click `MDPrintViewDocument.swift` in Project navigator → New Group from Selection? No — manually drag into `Models` group, rename to `MarkdownDocument.swift`. Update the type name and any `@main` references.
+- Drag `ContentView.swift` into `Views`, rename to `DocumentView.swift`. Update references in `MDPrintViewApp.swift`.
 
 **Step 3: Build and run** — `Cmd+R`. Window still opens blank. No regressions.
 
@@ -204,16 +204,16 @@ git commit -m "refactor: organize source into Models/Views/Editor/Preview/Render
 
 URL: `https://github.com/apple/swift-markdown.git`
 Dependency Rule: **Up to Next Major** from `0.6.0` (or latest stable as of build day).
-Add to target: `mdview`.
+Add to target: `MDPrintView`.
 
 **Step 2: Verify it resolves**
 
 Run:
 ```bash
-xcodebuild -project /Users/cmagsisi/Dev/mdview/mdview.xcodeproj -list 2>&1 | head -20
+xcodebuild -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -list 2>&1 | head -20
 ```
 
-Expected: lists target `mdview` and scheme `mdview`. No package resolution errors.
+Expected: lists target `MDPrintView` and scheme `MDPrintView`. No package resolution errors.
 
 **Step 3: Commit**
 
@@ -227,13 +227,13 @@ git commit -m "deps: add apple/swift-markdown for parsing + HTML emission"
 ## Task 5 (RED): Write failing test for `MarkdownRenderer`
 
 **Files:**
-- Create: `mdviewTests/MarkdownRendererTests.swift`
+- Create: `MDPrintViewTests/MarkdownRendererTests.swift`
 
 **Step 1: Write the failing test**
 
 ```swift
 import Testing
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("MarkdownRenderer")
 struct MarkdownRendererTests {
@@ -252,7 +252,7 @@ struct MarkdownRendererTests {
 
 Run:
 ```bash
-xcodebuild test -project /Users/cmagsisi/Dev/mdview/mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -only-testing:mdviewTests/MarkdownRendererTests 2>&1 | tail -30
+xcodebuild test -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -30
 ```
 
 Expected: compile error — `MarkdownRenderer` does not exist.
@@ -260,7 +260,7 @@ Expected: compile error — `MarkdownRenderer` does not exist.
 **Step 3: Commit RED**
 
 ```bash
-git add mdviewTests/MarkdownRendererTests.swift
+git add MDPrintViewTests/MarkdownRendererTests.swift
 git commit -m "test(red): MarkdownRenderer renders h1"
 ```
 
@@ -269,7 +269,7 @@ git commit -m "test(red): MarkdownRenderer renders h1"
 ## Task 6 (GREEN): Minimal `MarkdownRenderer` implementation
 
 **Files:**
-- Create: `mdview/Rendering/MarkdownRenderer.swift`
+- Create: `MDPrintView/Rendering/MarkdownRenderer.swift`
 
 **Step 1: Implement just enough to pass**
 
@@ -311,7 +311,7 @@ private struct HTMLEmitter: MarkupWalker {
 
 Run:
 ```bash
-xcodebuild test -project /Users/cmagsisi/Dev/mdview/mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -only-testing:mdviewTests/MarkdownRendererTests 2>&1 | tail -10
+xcodebuild test -project /Users/cmagsisi/Dev/MDPrintView/MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewTests/MarkdownRendererTests 2>&1 | tail -10
 ```
 
 Expected: `Test Suite 'MarkdownRendererTests' passed`.
@@ -319,7 +319,7 @@ Expected: `Test Suite 'MarkdownRendererTests' passed`.
 **Step 3: Commit GREEN**
 
 ```bash
-git add mdview/Rendering/MarkdownRenderer.swift
+git add MDPrintView/Rendering/MarkdownRenderer.swift
 git commit -m "feat(green): MarkdownRenderer h1 via swift-markdown"
 ```
 
@@ -328,8 +328,8 @@ git commit -m "feat(green): MarkdownRenderer h1 via swift-markdown"
 ## Task 7: Expand renderer test coverage (RED → GREEN, then commit)
 
 **Files:**
-- Modify: `mdviewTests/MarkdownRendererTests.swift`
-- Modify: `mdview/Rendering/MarkdownRenderer.swift`
+- Modify: `MDPrintViewTests/MarkdownRendererTests.swift`
+- Modify: `MDPrintView/Rendering/MarkdownRenderer.swift`
 
 **Step 1: Add failing tests for paragraphs, lists, emphasis, code, links**
 
@@ -385,8 +385,8 @@ git commit -m "feat: renderer covers paragraphs, lists, emphasis, code, links"
 ## Task 8: Register markdown UTIs
 
 **Files:**
-- Modify: `mdview/Info.plist` (or "Custom macOS Application Target Properties" in Xcode target Info pane)
-- Modify: `mdview/Models/MarkdownDocument.swift`
+- Modify: `MDPrintView/Info.plist` (or "Custom macOS Application Target Properties" in Xcode target Info pane)
+- Modify: `MDPrintView/Models/MarkdownDocument.swift`
 
 **Step 1: Declare Imported Type Identifier in target's Info pane**
 
@@ -443,7 +443,7 @@ final class MarkdownDocument: ReferenceFileDocument {
 }
 ```
 
-**Step 4: Update `mdviewApp.swift`** to use `DocumentGroup(newDocument: { MarkdownDocument() }) { file in DocumentView(document: file.document) }`.
+**Step 4: Update `MDPrintViewApp.swift`** to use `DocumentGroup(newDocument: { MarkdownDocument() }) { file in DocumentView(document: file.document) }`.
 
 **Step 5: Build, run, drag a `.md` file onto the dock icon** — expect a window to open containing the file's text in whatever placeholder UI exists.
 
@@ -459,8 +459,8 @@ git commit -m "feat: register .md/.markdown UTI and ReferenceFileDocument"
 ## Task 9: Minimal `MarkdownTextView` (NSTextView wrapper)
 
 **Files:**
-- Create: `mdview/Editor/MarkdownTextView.swift`
-- Modify: `mdview/Views/DocumentView.swift`
+- Create: `MDPrintView/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Implement bare-bones representable** (no syntax highlighting yet)
 
@@ -526,9 +526,9 @@ git commit -m "feat: MarkdownTextView wraps NSTextView with two-way text binding
 ## Task 10: `PreviewWebView` with bundled CSS
 
 **Files:**
-- Create: `mdview/Preview/PreviewWebView.swift`
-- Create: `mdview/Preview/Resources/preview.html`
-- Create: `mdview/Preview/Resources/preview.css` (start with MDviewer's CSS as a base — adapt)
+- Create: `MDPrintView/Preview/PreviewWebView.swift`
+- Create: `MDPrintView/Preview/Resources/preview.html`
+- Create: `MDPrintView/Preview/Resources/preview.css` (start with MDPrintViewer's CSS as a base — adapt)
 - Add `preview.html` and `preview.css` to target as bundled resources.
 
 **Step 1: Create `preview.html`** (loaded once; JS replaces `<main>` body)
@@ -552,7 +552,7 @@ git commit -m "feat: MarkdownTextView wraps NSTextView with two-way text binding
 </html>
 ```
 
-**Step 2: Create initial `preview.css`** — minimal serif body, headings, code, lists. Borrow structure from MDviewer's CSS (MIT licensed, attribute in README).
+**Step 2: Create initial `preview.css`** — minimal serif body, headings, code, lists. Borrow structure from MDPrintViewer's CSS (MIT licensed, attribute in README).
 
 **Step 3: Implement `PreviewWebView`**
 
@@ -621,7 +621,7 @@ git commit -m "feat: PreviewWebView with bundled CSS, side-by-side editor+previe
 ## Task 11: Debounce + scroll-preserving updates
 
 **Files:**
-- Modify: `mdview/Views/DocumentView.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Wrap the HTML computation in an 80ms debounce.**
 

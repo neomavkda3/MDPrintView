@@ -1,4 +1,4 @@
-# mdview Week 3 Spike — Notes
+# MDPrintView Week 3 Spike — Notes
 
 Append findings after each experiment. Each entry is timestamped.
 
@@ -43,7 +43,7 @@ Append findings after each experiment. Each entry is timestamped.
 **What we can verify in CI / smoke:**
 - ✅ Build succeeds; 38/38 tests pass (33 prior + 5 E1 unit tests on LiveFormatStyler)
 - ✅ App launches in hybrid mode without crash
-- ✅ Latest crash report unchanged (still the June 2 MainActor baseline at `mdview-2026-06-02-001056.ips`)
+- ✅ Latest crash report unchanged (still the June 2 MainActor baseline at `MDPrintView-2026-06-02-001056.ips`)
 - ✅ Repo has docs of varying sizes available for stress (design.md=10KB, implementation.md=22KB, week2.md=50KB, week3-spike.md=35KB)
 
 **What requires user assessment (subjective):**

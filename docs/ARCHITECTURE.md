@@ -1,6 +1,6 @@
-# mdview Architecture
+# MDPrintView Architecture
 
-The shape of the actual code as of v1.0. Where this differs from `docs/plans/2026-06-01-mdview-design.md`, this doc wins — the design doc captures the original brainstorm; this captures what shipped.
+The shape of the actual code as of v1.0. Where this differs from `docs/plans/2026-06-01-MDPrintView-design.md`, this doc wins — the design doc captures the original brainstorm; this captures what shipped.
 
 ## High level
 
@@ -29,7 +29,7 @@ The shape of the actual code as of v1.0. Where this differs from `docs/plans/202
 ## Composition (top-down ownership)
 
 ```
-MdviewApp (mdviewApp.swift)
+MDPrintViewApp (MDPrintViewApp.swift)
   ├─ @State AppSettings (single instance, injected via .environment)
   ├─ DocumentGroup { file in DocumentView(document: file.document) }
   ├─ Settings { SettingsView() }
@@ -122,7 +122,7 @@ Two debounce stages keep typing snappy: the highlighter (80 ms) and the preview 
 
 `WKWebView` loaded from a local `file://` URL. CSP is `default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;`. The `'unsafe-inline'` for scripts is required because Mermaid generates inline `<script>` and `<style>` at render time.
 
-**Bundled JS/CSS** (`mdview/Preview/Resources/`):
+**Bundled JS/CSS** (`MDPrintView/Preview/Resources/`):
 - `preview.html` template (loaded once; navigation handled in Coordinator)
 - `preview.css` — typography + per-theme overrides
 - `mermaid.min.js` (Mermaid 11.x)
@@ -142,7 +142,7 @@ KaTeX woff2 fonts are NOT bundled in v1 — math renders with system fallback fo
 - `defaultPageSize: PageSize` (Letter / A4)
 - `defaultLayoutMode: LayoutMode` (Editor / Split / Preview)
 
-Single instance lives on `MdviewApp` as `@State`, injected via `.environment(settings)` into both the `DocumentGroup` (per-doc windows) and the `Settings` scene. Mutations from the Settings sheet, View menu, or toolbar all funnel through the same observable — instant fan-out to all open windows.
+Single instance lives on `MDPrintViewApp` as `@State`, injected via `.environment(settings)` into both the `DocumentGroup` (per-doc windows) and the `Settings` scene. Mutations from the Settings sheet, View menu, or toolbar all funnel through the same observable — instant fan-out to all open windows.
 
 ## Print
 
@@ -151,7 +151,7 @@ Single instance lives on `MdviewApp` as `@State`, injected via `.environment(set
 - `printPreview()` — `webView.printOperation(with: NSPrintInfo.shared).runModal(for: window)`
 - `exportPDF()` — `NSSavePanel` → `NSPrintInfo` with `.jobDisposition = .save` and `jobSavingURL` → silent print to that URL
 
-Surfaced to the menu bar via `@FocusedValue(\.printPreview)` and `@FocusedValue(\.exportPDF)`. `DocumentView.focusedSceneValue` publishes them; menu items in `mdviewApp.swift` read them. Disabled when no document window is focused.
+Surfaced to the menu bar via `@FocusedValue(\.printPreview)` and `@FocusedValue(\.exportPDF)`. `DocumentView.focusedSceneValue` publishes them; menu items in `MDPrintViewApp.swift` read them. Disabled when no document window is focused.
 
 ## Mermaid editor
 

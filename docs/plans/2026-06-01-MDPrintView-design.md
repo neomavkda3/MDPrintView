@@ -1,4 +1,4 @@
-# mdview — Design Document
+# MDPrintView — Design Document
 
 **Date:** 2026-06-01
 **Status:** Brainstorm validated, ready for implementation planning
@@ -6,7 +6,7 @@
 
 ## Summary
 
-`mdview` is a native macOS markdown editor + viewer with print-quality typography. Inspired by MacDown's editor+preview pattern and MDviewer's print-ready rendering, rewritten ground-up in SwiftUI/AppKit for Mac App Store distribution on macOS 26.
+`MDPrintView` is a native macOS markdown editor + viewer with print-quality typography. Inspired by MacDown's editor+preview pattern and MDPrintViewer's print-ready rendering, rewritten ground-up in SwiftUI/AppKit for Mac App Store distribution on macOS 26.
 
 The app ships two editor modes (source+preview and Typora-style hybrid live-format), an outline sidebar, an integrated Mermaid diagram editing experience, and a screen/print preview toggle so users see exactly what their printed output will look like while they edit.
 
@@ -72,7 +72,7 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
   4. Mermaid + KaTeX re-scan after each swap.
 - **Decision:** HTML rendered in **Swift**, not JS — testable without a WebView, deterministic, no renderer-quirk lock-in.
 - **Bundled assets:**
-  - `preview.css` — adapted from MDviewer's print-ready CSS (serif body, `@page` rules).
+  - `preview.css` — adapted from MDPrintViewer's print-ready CSS (serif body, `@page` rules).
   - `mermaid.min.js` (bundled).
   - `katex.min.js` + KaTeX CSS.
   - `dompurify.min.js` — sanitize HTML before injection.
@@ -145,8 +145,8 @@ The app ships two editor modes (source+preview and Typora-style hybrid live-form
 
 ## Open decisions deferred to implementation
 
-- Bundle ID (proposed: `net.cmagsisi.mdview` — confirm before App Store Connect registration).
+- Bundle ID (proposed: `net.cmagsisi.MDPrintView` — confirm before App Store Connect registration).
 - App icon and marketing assets.
 - Pricing model (free, paid one-time, or freemium).
 - Exact swift-markdown version pin.
-- Whether to additionally ship a Quick Look extension (post-v1).
+- Whether to additionally ship a Quick Look extension (post-v1)

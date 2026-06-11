@@ -1,6 +1,6 @@
 import Testing
 import AppKit
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("SyntaxHighlighter", .serialized)
 @MainActor

@@ -5,7 +5,7 @@
     <!-- Debug builds intentionally OMIT com.apple.security.app-sandbox.
          On macOS 26, ad-hoc-signed sandboxed apps fail to spawn WKWebView's
          WebContent helper process, breaking the preview pane. Release archives
-         for the Mac App Store use mdview.entitlements (with sandbox) and are
+         for the Mac App Store use MDPrintView.entitlements (with sandbox) and are
          signed with the team's distribution identity — those work correctly. -->
 </dict>
 </plist>

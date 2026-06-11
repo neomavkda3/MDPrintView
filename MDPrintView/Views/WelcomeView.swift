@@ -35,7 +35,7 @@ struct WelcomeView: View {
                 .interpolation(.high)
                 .frame(width: 96, height: 96)
             VStack(spacing: 4) {
-                Text("Welcome to mdview")
+                Text("Welcome to MDPrintView")
                     .font(.system(.title2, design: .default, weight: .semibold))
                 Text("A native macOS markdown editor with print-quality typography")
                     .font(.callout)
@@ -243,7 +243,7 @@ struct WelcomeView: View {
 
     private var footer: some View {
         HStack {
-            Toggle("Show this window when mdview launches", isOn: Binding(
+            Toggle("Show this window when MDPrintView launches", isOn: Binding(
                 get: { !suppressOnLaunch },
                 set: { suppressOnLaunch = !$0 }
             ))
@@ -306,7 +306,7 @@ struct WelcomeView: View {
             try NSDocumentController.shared.openUntitledDocumentAndDisplay(true)
             closeWelcome()
         } catch {
-            print("[mdview] Failed to open untitled doc: \(error)")
+            print("[MDPrintView] Failed to open untitled doc: \(error)")
         }
     }
 

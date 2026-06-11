@@ -2,12 +2,12 @@ import SwiftUI
 import AppKit
 
 @main
-struct MdviewApp: App {
+struct MDPrintViewApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var settings = AppSettings()
 
     init() {
-        // Cluster all document windows as tabs of a single mdview window
+        // Cluster all document windows as tabs of a single MDPrintView window
         // by default. Per-window `tabbingMode = .preferred` (set via
         // WindowAccessor inside DocumentView) overrides the user's system
         // tabbing preference so new docs land as tabs even when the system
@@ -27,7 +27,7 @@ struct MdviewApp: App {
         // launch scene with `.defaultLaunchBehavior(.presented)`, and mark
         // `DocumentGroup` as `.suppressed` so it only opens windows in
         // response to actual file opens (Cmd+O, file-double-click, etc.).
-        Window("Welcome to mdview", id: "welcome") {
+        Window("Welcome to MDPrintView", id: "welcome") {
             WelcomeView()
                 .environment(settings)
         }
@@ -157,7 +157,7 @@ private struct SettingsView: View {
                 }
             }
             Section("File handling") {
-                Toggle("Ask to set mdview as default for Markdown files", isOn: Binding(
+                Toggle("Ask to set MDPrintView as default for Markdown files", isOn: Binding(
                     get: { !settings.suppressDefaultAppPrompt },
                     set: { newValue in
                         settings.suppressDefaultAppPrompt = !newValue
@@ -168,7 +168,7 @@ private struct SettingsView: View {
                         }
                     }
                 ))
-                Toggle("Show welcome window when mdview launches", isOn: Binding(
+                Toggle("Show welcome window when MDPrintView launches", isOn: Binding(
                     get: { !settings.suppressWelcomeOnLaunch },
                     set: { settings.suppressWelcomeOnLaunch = !$0 }
                 ))

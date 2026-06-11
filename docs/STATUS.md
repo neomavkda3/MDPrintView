@@ -1,4 +1,4 @@
-# mdview Status
+# MDPrintView Status
 
 What's shipped in v1.0 vs deferred to v1.1.
 
@@ -67,7 +67,7 @@ What's shipped in v1.0 vs deferred to v1.1.
 | Item | Why deferred | Source of decision |
 |---|---|---|
 | Hybrid mode E3 cursor-aware fold/reveal | `LiveFormatStyler.apply` is 8.4 s on 50 KB; wiring to selection changes freezes the editor. Optimization roadmap (4 options) documented. | `docs/plans/2026-06-05-hybrid-mode-decision.md` |
-| In-margin Mermaid live preview overlay | Design doc Section D called for this; would need precise NSTextView range-to-frame conversion + glass overlay positioning + scroll sync. Modal sheet pattern (Cmd+Shift+M) shipped instead. | `docs/plans/2026-06-06-mdview-week4.md` scope decisions |
+| In-margin Mermaid live preview overlay | Design doc Section D called for this; would need precise NSTextView range-to-frame conversion + glass overlay positioning + scroll sync. Modal sheet pattern (Cmd+Shift+M) shipped instead. | `docs/plans/2026-06-06-MDPrintView-week4.md` scope decisions |
 | KaTeX woff2 font bundling | Math currently uses system fallback fonts — slightly degraded metrics but functional | `docs/plans/2026-06-06-vendored-assets.md` |
 | Editor-side math rendering | Preview pane only in v1; source mode shows raw `$…$` | Week 4 scope decision |
 | Editor-side Dynamic Type | macOS NSTextView doesn't auto-respond to system text size changes the way iOS does. Settings slider is the workaround. | `docs/plans/2026-06-06-week4-notes.md` |
@@ -76,7 +76,7 @@ What's shipped in v1.0 vs deferred to v1.1.
 | Tip-jar IAP | Free-no-IAP simplest for v1 | Week 5 plan |
 | Quick Look extension | Out of scope for v1 | Design doc non-goals |
 | Cloud sync / collaboration | Out of scope for v1 (and v1.x) | Design doc non-goals |
-| End-to-end XCUITest | Requires TCC plumbing for the test runner; smoke script + 50 unit tests cover the highest-risk regressions | `docs/plans/2026-06-02-mdview-week2.md` F2 deferred |
+| End-to-end XCUITest | Requires TCC plumbing for the test runner; smoke script + 50 unit tests cover the highest-risk regressions | `docs/plans/2026-06-02-MDPrintView-week2.md` F2 deferred |
 | Quick Window menu items showing checkmarks for current mode | macOS convention; SwiftUI doesn't have a clean primitive for it | Polish follow-up |
 
 ## Recent debugging notes (in case they recur)
@@ -85,7 +85,7 @@ What's shipped in v1.0 vs deferred to v1.1.
 |---|---|---|
 | Preview pane empty after opening a doc | Inline `<script>` in `preview.html` blocked by CSP `script-src 'self'` | W1 — moved JS to bundled file + `evaluateJavaScript` injection |
 | Crash opening any `.md` file | `MarkdownDocument` had `@MainActor` but `NSDocumentController` invokes `init(configuration:)` off-main | W1.T8 — removed `@MainActor` from class |
-| Preview empty again after sandbox added | Debug build was ad-hoc-signed + sandboxed; macOS 26 WKWebView WebContent helper refuses to spawn | W5 — Debug uses `mdview-debug.entitlements` (no sandbox); Release archive keeps sandbox |
+| Preview empty again after sandbox added | Debug build was ad-hoc-signed + sandboxed; macOS 26 WKWebView WebContent helper refuses to spawn | W5 — Debug uses `MDPrintView-debug.entitlements` (no sandbox); Release archive keeps sandbox |
 | Typing felt sticky on 10 KB+ docs | `SyntaxHighlighter.apply` ran synchronously on every keystroke (full AST walk + attribute pass) | Polish.F — 80 ms cancel-and-reschedule Task |
 
 ## Looking at the git history

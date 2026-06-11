@@ -1,8 +1,8 @@
-# mdview Week 3 — Hybrid Live-Format Editor Spike
+# MDPrintView Week 3 — Hybrid Live-Format Editor Spike
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to execute this plan task-by-task.
 
-**Goal:** Determine whether a Typora-style hybrid live-format editor mode is feasible for v1 of mdview, or whether it should be deferred to v1.1. Deliver the maximum useful subset that meets quality criteria.
+**Goal:** Determine whether a Typora-style hybrid live-format editor mode is feasible for v1 of MDPrintView, or whether it should be deferred to v1.1. Deliver the maximum useful subset that meets quality criteria.
 
 **Spike question:** Can we render markdown source as styled text inline (headings larger, bold actually bold, etc.) — and additionally hide/reveal syntax marks based on cursor position — without compromising editing smoothness, selection correctness, or undo?
 
@@ -16,8 +16,8 @@
 - Reference: `axiom-textkit-ref` (load before Experiment 3)
 
 **Reference docs:**
-- Design: `docs/plans/2026-06-01-mdview-design.md` Section B (editor modes)
-- Week 2 plan: `docs/plans/2026-06-02-mdview-week2.md`
+- Design: `docs/plans/2026-06-01-MDPrintView-design.md` Section B (editor modes)
+- Week 2 plan: `docs/plans/2026-06-02-MDPrintView-week2.md`
 - Current commit: `4e8e6d3`
 
 ---
@@ -72,9 +72,9 @@ Spike does NOT need to land a polished UI in this week — just the technical an
 
 Run:
 ```
-cd /Users/cmagsisi/Dev/mdview
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'mdview.app' -path '*Debug*' -type d -print -quit)
-open "$APP_PATH" docs/plans/2026-06-01-mdview-design.md
+cd /Users/cmagsisi/Dev/MDPrintView
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)
+open "$APP_PATH" docs/plans/2026-06-01-MDPrintView-design.md
 ```
 
 Open the design doc. Note in a scratch file what's currently true (so we can compare after each experiment):
@@ -88,7 +88,7 @@ Open the design doc. Note in a scratch file what's currently true (so we can com
 
 **Step 2: Commit the baseline note**
 
-Create `/Users/cmagsisi/Dev/mdview/docs/plans/2026-06-05-spike-notes.md` with these baseline observations. Each subsequent experiment will append a section.
+Create `/Users/cmagsisi/Dev/MDPrintView/docs/plans/2026-06-05-spike-notes.md` with these baseline observations. Each subsequent experiment will append a section.
 
 ```bash
 git add docs/plans/2026-06-05-spike-notes.md
@@ -102,14 +102,14 @@ git commit -m "docs: Week 3 spike — baseline capture"
 **Why:** All subsequent experiments need to be GATED behind a mode toggle so the existing source mode keeps working. If we ship "Rich only" or defer entirely, the toggle either stays or disappears.
 
 **Files:**
-- Create: `mdview/Editor/EditorMode.swift`
-- Modify: `mdview/Editor/MarkdownTextView.swift`
-- Modify: `mdview/Editor/EditorToolbar.swift`
-- Modify: `mdview/Views/DocumentView.swift`
+- Create: `MDPrintView/Editor/EditorMode.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Editor/EditorToolbar.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: `EditorMode` enum**
 
-Create `mdview/Editor/EditorMode.swift`:
+Create `MDPrintView/Editor/EditorMode.swift`:
 
 ```swift
 import Foundation
@@ -131,7 +131,7 @@ enum EditorMode: String, CaseIterable, Identifiable {
 
 **Step 2: Add mode parameter to MarkdownTextView**
 
-In `mdview/Editor/MarkdownTextView.swift`, change the struct signature:
+In `MDPrintView/Editor/MarkdownTextView.swift`, change the struct signature:
 
 ```swift
 struct MarkdownTextView: NSViewRepresentable {
@@ -212,14 +212,14 @@ MarkdownTextView(text: $document.text, controller: editor, mode: editorMode)
 
 ```
 xcodegen generate
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug build 2>&1 | tail -5
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -5
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug build 2>&1 | tail -5
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -5
 ```
 
 Expected: BUILD SUCCEEDED, 33 tests still pass. App launches; toolbar shows Source/Hybrid picker; both modes currently render identically (placeholder — actual hybrid behavior comes in T2-T3).
 
 ```bash
-git add mdview/Editor mdview/Views/DocumentView.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor MDPrintView/Views/DocumentView.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: EditorMode enum + Source/Hybrid toggle (hybrid is placeholder)"
 ```
 
@@ -230,17 +230,17 @@ git commit -m "feat: EditorMode enum + Source/Hybrid toggle (hybrid is placehold
 **Why:** Distinct file from `SyntaxHighlighter` so source mode is unaffected. Same swift-markdown walk pattern, but the *attributes* are richer (real font sizes, real font weights/traits, not just color hints).
 
 **Files:**
-- Create: `mdview/Editor/LiveFormatStyler.swift`
-- Test: `mdviewTests/LiveFormatStylerTests.swift`
+- Create: `MDPrintView/Editor/LiveFormatStyler.swift`
+- Test: `MDPrintViewTests/LiveFormatStylerTests.swift`
 
 **Step 1: RED tests**
 
-Create `mdviewTests/LiveFormatStylerTests.swift`:
+Create `MDPrintViewTests/LiveFormatStylerTests.swift`:
 
 ```swift
 import Testing
 import AppKit
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("LiveFormatStyler — E1 (rich inline styling, marks visible)", .serialized)
 @MainActor
@@ -303,19 +303,19 @@ struct LiveFormatStylerE1Tests {
 **Step 2: Run — expect compile-error RED**
 
 ```
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -10
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -10
 ```
 
 Expected: `cannot find 'LiveFormatStyler' in scope`. Commit:
 
 ```
-git add mdviewTests/LiveFormatStylerTests.swift
+git add MDPrintViewTests/LiveFormatStylerTests.swift
 git commit -m "test(red): LiveFormatStyler E1 — rich inline styling"
 ```
 
 **Step 3: Implement LiveFormatStyler**
 
-Create `mdview/Editor/LiveFormatStyler.swift`:
+Create `MDPrintView/Editor/LiveFormatStyler.swift`:
 
 ```swift
 import AppKit
@@ -439,7 +439,7 @@ If h1 size test fails because heading size doesn't differ enough, the styler is 
 **Step 5: Commit GREEN**
 
 ```bash
-git add mdview/Editor/LiveFormatStyler.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor/LiveFormatStyler.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat(green): LiveFormatStyler — rich inline styling (E1 baseline)"
 ```
 
@@ -448,7 +448,7 @@ git commit -m "feat(green): LiveFormatStyler — rich inline styling (E1 baselin
 ## Task 3: Apply LiveFormatStyler in hybrid mode
 
 **Files:**
-- Modify: `mdview/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
 
 Swap the placeholder `SyntaxHighlighter()` call (added in T1) for `LiveFormatStyler()` in the `.hybrid` branch. Both in `makeNSView`, `updateNSView`, and the `Coordinator.textDidChange`.
 
@@ -511,8 +511,8 @@ xcodebuild ... test 2>&1 | tail -5
 **Step 2: Manual smoke**
 
 ```
-pkill -x mdview 2>/dev/null
-open "$APP_PATH" docs/plans/2026-06-01-mdview-design.md
+pkill -x MDPrintView 2>/dev/null
+open "$APP_PATH" docs/plans/2026-06-01-MDPrintView-design.md
 ```
 
 In the running app: toggle Source → Hybrid in the toolbar. The editor should re-render with bigger headings, real bold for `**bold**`, etc. Marks (`#`, `**`) are STILL VISIBLE.
@@ -520,7 +520,7 @@ In the running app: toggle Source → Hybrid in the toolbar. The editor should r
 **Step 3: Commit**
 
 ```bash
-git add mdview/Editor/MarkdownTextView.swift
+git add MDPrintView/Editor/MarkdownTextView.swift
 git commit -m "feat: hybrid mode applies LiveFormatStyler (E1 — marks visible)"
 ```
 
@@ -583,12 +583,12 @@ git commit -m "docs: Week 3 spike — E1 evaluation [PASS or FAIL]"
 **Approach:** During the same AST walk, compute the *mark ranges* (the `#` prefix on a heading, the `**` delimiters on Strong, etc.) and apply a tertiary-color foreground to them.
 
 **Files:**
-- Modify: `mdview/Editor/LiveFormatStyler.swift`
-- Test: `mdviewTests/LiveFormatStylerTests.swift`
+- Modify: `MDPrintView/Editor/LiveFormatStyler.swift`
+- Test: `MDPrintViewTests/LiveFormatStylerTests.swift`
 
 **Step 1: Failing tests**
 
-Append to `mdviewTests/LiveFormatStylerTests.swift`:
+Append to `MDPrintViewTests/LiveFormatStylerTests.swift`:
 
 ```swift
 @Suite("LiveFormatStyler — E2 (faded marks)", .serialized)
@@ -669,7 +669,7 @@ xcodebuild ... test 2>&1 | tail -10
 Expected: 41 tests pass (38 + 3 E2).
 
 ```bash
-git add mdview/Editor/LiveFormatStyler.swift mdviewTests/LiveFormatStylerTests.swift
+git add MDPrintView/Editor/LiveFormatStyler.swift MDPrintViewTests/LiveFormatStylerTests.swift
 git commit -m "feat(green): LiveFormatStyler — fade syntax marks (E2)"
 ```
 
@@ -716,9 +716,9 @@ git commit -m "docs: Week 3 spike — E2 evaluation"
 **Spike-grade approach for E3:** Use approach #1 if feasible in the time budget, else fall back to `.clear` color and accept the "ghost space" as a known limitation. Document the tradeoff in spike notes.
 
 **Files:**
-- Modify: `mdview/Editor/LiveFormatStyler.swift` (add `apply(to:cursorAt:)` variant)
-- Modify: `mdview/Editor/MarkdownTextView.swift` (wire `textViewDidChangeSelection`)
-- Test: `mdviewTests/LiveFormatStylerTests.swift`
+- Modify: `MDPrintView/Editor/LiveFormatStyler.swift` (add `apply(to:cursorAt:)` variant)
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift` (wire `textViewDidChangeSelection`)
+- Test: `MDPrintViewTests/LiveFormatStylerTests.swift`
 
 **Step 1: Failing tests**
 
@@ -819,7 +819,7 @@ Expected: 44 tests (41 + 3 E3).
 **Step 5: Commit**
 
 ```bash
-git add mdview/Editor/LiveFormatStyler.swift mdview/Editor/MarkdownTextView.swift mdviewTests/LiveFormatStylerTests.swift
+git add MDPrintView/Editor/LiveFormatStyler.swift MDPrintView/Editor/MarkdownTextView.swift MDPrintViewTests/LiveFormatStylerTests.swift
 git commit -m "feat(green): LiveFormatStyler — cursor-aware mark fold/reveal (E3)"
 ```
 
@@ -868,12 +868,12 @@ Only run if E3 verdict was PASS.
 **Step 1: Construct a realistic large doc**
 
 ```bash
-cat docs/plans/2026-06-01-mdview-design.md \
-    docs/plans/2026-06-01-mdview-implementation.md \
-    docs/plans/2026-06-02-mdview-week2.md \
-    docs/plans/2026-06-05-mdview-week3-hybrid-spike.md \
-    > /tmp/mdview-stress.md
-wc -c /tmp/mdview-stress.md  # ~50KB expected
+cat docs/plans/2026-06-01-MDPrintView-design.md \
+    docs/plans/2026-06-01-MDPrintView-implementation.md \
+    docs/plans/2026-06-02-MDPrintView-week2.md \
+    docs/plans/2026-06-05-MDPrintView-week3-hybrid-spike.md \
+    > /tmp/MDPrintView-stress.md
+wc -c /tmp/MDPrintView-stress.md  # ~50KB expected
 ```
 
 **Step 2: Open in app, hybrid mode, exercise it**
@@ -919,7 +919,7 @@ git commit -m "docs: Week 3 spike — E4 evaluation"
 Create `docs/plans/2026-06-05-hybrid-mode-decision.md`:
 
 ```markdown
-# mdview Hybrid Editor Mode — v1 Inclusion Decision
+# MDPrintView Hybrid Editor Mode — v1 Inclusion Decision
 
 **Date:** 2026-06-XX
 **Spike commits:** <git range>

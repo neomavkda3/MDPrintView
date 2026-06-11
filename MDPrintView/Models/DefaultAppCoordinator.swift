@@ -1,7 +1,7 @@
 import AppKit
 import UniformTypeIdentifiers
 
-/// Logic for the "set mdview as default for .md files" prompt.
+/// Logic for the "set MDPrintView as default for .md files" prompt.
 /// At most one prompt is shown per app launch, to avoid pestering the user
 /// when they open multiple files in quick succession. Per-launch dedupe
 /// can be cleared via `resetForCurrentSession()` if you want a fresh prompt
@@ -33,14 +33,14 @@ enum DefaultAppCoordinator {
 
     private static func showPrompt(in window: NSWindow, settings: AppSettings) {
         let alert = NSAlert()
-        alert.messageText = "Open Markdown files with mdview?"
+        alert.messageText = "Open Markdown files with MDPrintView?"
         alert.informativeText = """
-        mdview can be your default app for .md, .markdown, and .mdown files. \
+        MDPrintView can be your default app for .md, .markdown, and .mdown files. \
         macOS will use it whenever you double-click a Markdown file in Finder or \
         open one from another app.
         """
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Use mdview as Default")
+        alert.addButton(withTitle: "Use MDPrintView as Default")
         alert.addButton(withTitle: "Not Now")
 
         let suppressCheckbox = NSButton(checkboxWithTitle: "Don't show this anymore", target: nil, action: nil)
@@ -66,7 +66,7 @@ enum DefaultAppCoordinator {
             toOpen: markdownType
         ) { error in
             if let error {
-                print("[mdview] Failed to set as default app for \(markdownType): \(error)")
+                print("[MDPrintView] Failed to set as default app for \(markdownType): \(error)")
             }
         }
     }

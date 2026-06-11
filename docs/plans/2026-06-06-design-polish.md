@@ -1,4 +1,4 @@
-# mdview Design Polish (Pre-Submission) Implementation Plan
+# MDPrintView Design Polish (Pre-Submission) Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to execute this plan task-by-task.
 
@@ -36,13 +36,13 @@ Total: ~3.5 hours of focused work.
 ## Task A: Preview themes
 
 **Files:**
-- Modify: `mdview/Preview/PreviewWebView.swift`
-- Modify: `mdview/Preview/Resources/preview.css`
-- Modify: `mdview/Views/DocumentView.swift`
+- Modify: `MDPrintView/Preview/PreviewWebView.swift`
+- Modify: `MDPrintView/Preview/Resources/preview.css`
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Define `PreviewTheme` enum**
 
-Add to `mdview/Preview/PreviewWebView.swift`, near the existing `PreviewMode` enum:
+Add to `MDPrintView/Preview/PreviewWebView.swift`, near the existing `PreviewMode` enum:
 
 ```swift
 enum PreviewTheme: String, CaseIterable, Identifiable {
@@ -125,7 +125,7 @@ Update `makeNSView` to set `pendingTheme = theme`.
 
 **Step 3: Add theme CSS to `preview.css`**
 
-Append at the bottom of `mdview/Preview/Resources/preview.css`:
+Append at the bottom of `MDPrintView/Preview/Resources/preview.css`:
 
 ```css
 /* Reading themes — applied via body class swap in PreviewWebView.inject. */
@@ -174,7 +174,7 @@ body.theme-focus h2 {
 
 **Step 4: Add Picker in DocumentView**
 
-Add state and Picker in `mdview/Views/DocumentView.swift`:
+Add state and Picker in `MDPrintView/Views/DocumentView.swift`:
 
 ```swift
 @State private var previewTheme: PreviewTheme = .original
@@ -214,10 +214,10 @@ And pass `theme: previewTheme` into the `PreviewWebView(...)` constructor.
 **Step 5: Build, test, smoke**
 
 ```bash
-cd /Users/cmagsisi/Dev/mdview
+cd /Users/cmagsisi/Dev/MDPrintView
 xcodegen generate 2>&1 | tail -1
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug build 2>&1 | tail -3
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -3
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug build 2>&1 | tail -3
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -3
 ./scripts/smoke.sh
 ```
 
@@ -228,7 +228,7 @@ Manual smoke (visual, USER): open a doc, click the palette icon, cycle Original 
 **Step 6: Commit**
 
 ```bash
-git add mdview/Preview/PreviewWebView.swift mdview/Preview/Resources/preview.css mdview/Views/DocumentView.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Preview/PreviewWebView.swift MDPrintView/Preview/Resources/preview.css MDPrintView/Views/DocumentView.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: preview themes (Original / Sepia / Quiet / Focus) via body-class CSS"
 ```
 
@@ -237,16 +237,16 @@ git commit -m "feat: preview themes (Original / Sepia / Quiet / Focus) via body-
 ## Task B: Editor font family picker
 
 **Files:**
-- Modify: `mdview/Models/AppSettings.swift`
-- Modify: `mdview/mdviewApp.swift` (Settings view)
-- Modify: `mdview/Editor/SyntaxHighlighter.swift`
-- Modify: `mdview/Editor/MarkdownTextView.swift`
-- Modify: `mdview/Views/DocumentView.swift`
-- Test: `mdviewTests/SyntaxHighlighterTests.swift`
+- Modify: `MDPrintView/Models/AppSettings.swift`
+- Modify: `MDPrintView/MDPrintViewApp.swift` (Settings view)
+- Modify: `MDPrintView/Editor/SyntaxHighlighter.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
+- Test: `MDPrintViewTests/SyntaxHighlighterTests.swift`
 
 **Step 1: Add EditorFontFamily enum to AppSettings**
 
-In `mdview/Models/AppSettings.swift`, alongside `PageSize`:
+In `MDPrintView/Models/AppSettings.swift`, alongside `PageSize`:
 
 ```swift
 enum EditorFontFamily: String, CaseIterable, Identifiable {
@@ -296,7 +296,7 @@ var editorFontFamily: EditorFontFamily {
 
 **Step 2: Failing test**
 
-In `mdviewTests/SyntaxHighlighterTests.swift`, append inside the suite:
+In `MDPrintViewTests/SyntaxHighlighterTests.swift`, append inside the suite:
 
 ```swift
 @Test("custom font family is applied at the base font")
@@ -318,13 +318,13 @@ Expected: compile error `extra argument 'fontFamily' in call`.
 
 Commit RED:
 ```bash
-git add mdviewTests/SyntaxHighlighterTests.swift mdview/Models/AppSettings.swift
+git add MDPrintViewTests/SyntaxHighlighterTests.swift MDPrintView/Models/AppSettings.swift
 git commit -m "test(red): SyntaxHighlighter takes a fontFamily parameter"
 ```
 
 **Step 3: Extend SyntaxHighlighter**
 
-In `mdview/Editor/SyntaxHighlighter.swift`, change the init:
+In `MDPrintView/Editor/SyntaxHighlighter.swift`, change the init:
 
 ```swift
 @MainActor
@@ -375,7 +375,7 @@ In `DocumentView`, pass `editorFontFamily: settings.editorFontFamily`.
 
 **Step 5: Add picker to Settings**
 
-In `mdviewApp.swift`'s `SettingsView`:
+In `MDPrintViewApp.swift`'s `SettingsView`:
 
 ```swift
 Section("Editor") {
@@ -398,12 +398,12 @@ Section("Editor") {
 xcodebuild ... test 2>&1 | tail -3
 ./scripts/smoke.sh
 
-git add mdview/Models/AppSettings.swift \
-        mdview/Editor/SyntaxHighlighter.swift \
-        mdview/Editor/MarkdownTextView.swift \
-        mdview/Views/DocumentView.swift \
-        mdview/mdviewApp.swift \
-        mdviewTests/SyntaxHighlighterTests.swift
+git add MDPrintView/Models/AppSettings.swift \
+        MDPrintView/Editor/SyntaxHighlighter.swift \
+        MDPrintView/Editor/MarkdownTextView.swift \
+        MDPrintView/Views/DocumentView.swift \
+        MDPrintView/MDPrintViewApp.swift \
+        MDPrintViewTests/SyntaxHighlighterTests.swift
 git commit -m "feat(green): editor font family picker (Mono / Serif / Sans) via AppSettings"
 ```
 
@@ -412,7 +412,7 @@ git commit -m "feat(green): editor font family picker (Mono / Serif / Sans) via 
 ## Task C: Toolbar consolidation
 
 **Files:**
-- Modify: `mdview/Editor/EditorToolbar.swift`
+- Modify: `MDPrintView/Editor/EditorToolbar.swift`
 
 **Step 1: Collapse list trio into a Menu**
 
@@ -487,7 +487,7 @@ Manual smoke (USER): toolbar now shows: `[Mode]  [B I S] | [Heading▾] | [Link]
 **Step 4: Commit**
 
 ```bash
-git add mdview/Editor/EditorToolbar.swift
+git add MDPrintView/Editor/EditorToolbar.swift
 git commit -m "feat: consolidate toolbar — Lists and Code groups become menu buttons"
 ```
 

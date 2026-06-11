@@ -1,4 +1,4 @@
-# mdview — Design Update from Mobbin Research
+# MDPrintView — Design Update from Mobbin Research
 
 **Date:** 2026-06-06
 **Source:** Mobbin (iOS + web platforms — Mobbin does not index macOS apps directly, so references are cross-platform analogues that translate cleanly to macOS 26's design language).
@@ -51,7 +51,7 @@
 - Font family
 - Font size baseline
 
-**Why this matters for mdview:** The preview pane currently uses one color scheme that adapts to system light/dark. That's the bare minimum. Users reading a long printed-style document for 20+ minutes benefit hugely from sepia / cream backgrounds and a serif font with the right metrics.
+**Why this matters for MDPrintView:** The preview pane currently uses one color scheme that adapts to system light/dark. That's the bare minimum. Users reading a long printed-style document for 20+ minutes benefit hugely from sepia / cream backgrounds and a serif font with the right metrics.
 
 **Proposed change:** Add a `PreviewTheme` enum + presets, exposed via a small palette button above the preview pane (next to the Screen / Print picker):
 
@@ -75,7 +75,7 @@ Implementation: theme is a `body` class swap on the preview WebView (`body.theme
 
 **What they do:** Apple Books offers Andada / Lato / Lora / Raleway (and an "Original" override). Fable does the same. The picker is one row; results apply instantly.
 
-**Why this matters for mdview:** Today, Settings has only font *size*. The user can't choose between monospaced (default) and a proportional editing font. Some Markdown writers want New York / Charter for prose; others want SF Mono for code-heavy docs.
+**Why this matters for MDPrintView:** Today, Settings has only font *size*. The user can't choose between monospaced (default) and a proportional editing font. Some Markdown writers want New York / Charter for prose; others want SF Mono for code-heavy docs.
 
 **Proposed change:** Add `editorFontFamily` to `AppSettings`:
 
@@ -140,9 +140,9 @@ Both are pure CSS/SwiftUI; no architectural change. Sidebar stays on the left to
 
 **What they do:** Mintlify shows the *before / after* side by side when reviewing a PR; Manus shows a "Diff / Original / Modified" tab triplet inside a doc preview.
 
-**Why this matters for mdview:** macOS's NSDocument architecture already gives us **Versions** (Time Machine for documents) via `File → Revert to → Browse All Versions…`. The default Apple chrome for this is fine. We get this for free — no implementation.
+**Why this matters for MDPrintView:** macOS's NSDocument architecture already gives us **Versions** (Time Machine for documents) via `File → Revert to → Browse All Versions…`. The default Apple chrome for this is fine. We get this for free — no implementation.
 
-**Proposed change:** Add a brief note in our README + App Store description that mdview supports macOS Versions out of the box. Don't build a custom diff UI.
+**Proposed change:** Add a brief note in our README + App Store description that MDPrintView supports macOS Versions out of the box. Don't build a custom diff UI.
 
 **Scope:** v1.0 — documentation only.
 

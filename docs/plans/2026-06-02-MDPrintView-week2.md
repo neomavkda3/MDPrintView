@@ -1,8 +1,8 @@
-# mdview Week 2 Implementation Plan
+# MDPrintView Week 2 Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to implement this plan task-by-task.
 
-**Goal:** Turn mdview from a working markdown viewer into a polished editor with syntax highlighting, formatting toolbar, outline navigation, print-quality CSS, Liquid Glass styling, and verified test coverage.
+**Goal:** Turn MDPrintView from a working markdown viewer into a polished editor with syntax highlighting, formatting toolbar, outline navigation, print-quality CSS, Liquid Glass styling, and verified test coverage.
 
 **Architecture:** Build on Week 1's foundation (DocumentGroup + NSTextView + WKWebView + Swift-side `swift-markdown` renderer). Add: HTML escaping + missing renderer nodes, NSTextStorage attribute-based syntax highlighter, SwiftUI toolbar with text-mutating commands via a focused `EditorController`, outline sidebar via `List` + `OutlineGroup`, print-mode CSS with `@page` rules and a screen/print toggle, Liquid Glass on toolbar + sidebar, and one end-to-end XCUITest.
 
@@ -16,8 +16,8 @@
 - XCUITest for end-to-end print verification
 
 **Reference docs:**
-- Week 1 design: `docs/plans/2026-06-01-mdview-design.md`
-- Week 1 plan: `docs/plans/2026-06-01-mdview-implementation.md`
+- Week 1 design: `docs/plans/2026-06-01-MDPrintView-design.md`
+- Week 1 plan: `docs/plans/2026-06-01-MDPrintView-implementation.md`
 - Current commit: `64a250b`
 
 **Axiom skills to invoke when implementing each phase** (load via `Skill` tool before starting):
@@ -53,12 +53,12 @@
 **Why:** Today, literal `<`, `>`, `&` characters in markdown source pass through to the WebView's `innerHTML` as raw HTML. A user typing `` `<body>` `` sees a `<body>` tag take effect inside the preview, not the text "<body>". This is wrong and (mildly) security-adjacent.
 
 **Files:**
-- Modify: `mdview/Rendering/MarkdownRenderer.swift`
-- Modify: `mdviewTests/MarkdownRendererTests.swift`
+- Modify: `MDPrintView/Rendering/MarkdownRenderer.swift`
+- Modify: `MDPrintViewTests/MarkdownRendererTests.swift`
 
 **Step 1: Add the failing tests**
 
-Append to `mdviewTests/MarkdownRendererTests.swift` inside the `MarkdownRendererTests` struct:
+Append to `MDPrintViewTests/MarkdownRendererTests.swift` inside the `MarkdownRendererTests` struct:
 
 ```swift
 @Test("escapes < > & in plain text")
@@ -92,15 +92,15 @@ func escapesLink() {
 **Step 2: Run — verify failures**
 
 ```
-cd /Users/cmagsisi/Dev/mdview
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -30
+cd /Users/cmagsisi/Dev/MDPrintView
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -30
 ```
 
 Expected: 4 new failures, 8 previous tests still pass.
 
 **Step 3: Implement escaping**
 
-In `mdview/Rendering/MarkdownRenderer.swift`, add a private free function and apply it everywhere user-controlled text is concatenated into the output:
+In `MDPrintView/Rendering/MarkdownRenderer.swift`, add a private free function and apply it everywhere user-controlled text is concatenated into the output:
 
 ```swift
 private func htmlEscape(_ s: String) -> String {
@@ -152,7 +152,7 @@ Same command. Expected: 12/12 tests pass.
 **Step 5: Commit**
 
 ```bash
-git add mdview/Rendering/MarkdownRenderer.swift mdviewTests/MarkdownRendererTests.swift
+git add MDPrintView/Rendering/MarkdownRenderer.swift MDPrintViewTests/MarkdownRendererTests.swift
 git commit -m "fix: HTML-escape user content in renderer output"
 ```
 
@@ -161,8 +161,8 @@ git commit -m "fix: HTML-escape user content in renderer output"
 ### Task A2: Missing block nodes (blockquote, hr, ordered list, task list, table)
 
 **Files:**
-- Modify: `mdview/Rendering/MarkdownRenderer.swift`
-- Modify: `mdviewTests/MarkdownRendererTests.swift`
+- Modify: `MDPrintView/Rendering/MarkdownRenderer.swift`
+- Modify: `MDPrintViewTests/MarkdownRendererTests.swift`
 
 **Step 1: Add failing tests for each node type**
 
@@ -320,7 +320,7 @@ Expected: 17/17 pass.
 **Step 5: Commit**
 
 ```bash
-git add mdview/Rendering/MarkdownRenderer.swift mdviewTests/MarkdownRendererTests.swift
+git add MDPrintView/Rendering/MarkdownRenderer.swift MDPrintViewTests/MarkdownRendererTests.swift
 git commit -m "feat: renderer supports blockquote, hr, ordered list, task list, tables"
 ```
 
@@ -356,7 +356,7 @@ mutating func visitImage(_ image: Image) {
 
 (Note: `Markup.plainText` collects all text descendants of the image, which is what authors mean by "alt text" in `![alt](src)`.)
 
-Update `mdview/Preview/Resources/preview.css` to constrain max image width:
+Update `MDPrintView/Preview/Resources/preview.css` to constrain max image width:
 
 ```css
 img {
@@ -368,7 +368,7 @@ img {
 **Step 3: Test, commit**
 
 ```bash
-git add mdview/Rendering/MarkdownRenderer.swift mdviewTests/MarkdownRendererTests.swift mdview/Preview/Resources/preview.css
+git add MDPrintView/Rendering/MarkdownRenderer.swift MDPrintViewTests/MarkdownRendererTests.swift MDPrintView/Preview/Resources/preview.css
 git commit -m "feat: renderer supports images with responsive max-width"
 ```
 
@@ -383,9 +383,9 @@ git commit -m "feat: renderer supports images with responsive max-width"
 **Approach:** A `SyntaxHighlighter` struct walks the swift-markdown AST and applies `NSAttributedString` attributes onto the live `NSTextStorage`. We re-highlight on every text change (acceptable until docs get large; can debounce later).
 
 **Files:**
-- Create: `mdview/Editor/SyntaxHighlighter.swift`
-- Modify: `mdview/Editor/MarkdownTextView.swift`
-- Test: `mdviewTests/SyntaxHighlighterTests.swift`
+- Create: `MDPrintView/Editor/SyntaxHighlighter.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
+- Test: `MDPrintViewTests/SyntaxHighlighterTests.swift`
 
 **Step 1: Invoke Axiom skill**
 
@@ -393,12 +393,12 @@ Before writing code, load: `Skill axiom-textkit-ref`. It covers TextKit 2 attrib
 
 **Step 2: Failing tests for SyntaxHighlighter**
 
-Create `mdviewTests/SyntaxHighlighterTests.swift`:
+Create `MDPrintViewTests/SyntaxHighlighterTests.swift`:
 
 ```swift
 import Testing
 import AppKit
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("SyntaxHighlighter", .serialized)
 @MainActor
@@ -440,7 +440,7 @@ struct SyntaxHighlighterTests {
 
 **Step 3: Implement SyntaxHighlighter (minimal — only enough to pass)**
 
-Create `mdview/Editor/SyntaxHighlighter.swift`:
+Create `MDPrintView/Editor/SyntaxHighlighter.swift`:
 
 ```swift
 import AppKit
@@ -522,7 +522,7 @@ struct SyntaxHighlighter {
 
 **Step 4: Wire into MarkdownTextView**
 
-In `mdview/Editor/MarkdownTextView.swift`, update the `Coordinator` to apply highlighting on every change:
+In `MDPrintView/Editor/MarkdownTextView.swift`, update the `Coordinator` to apply highlighting on every change:
 
 ```swift
 @MainActor
@@ -556,7 +556,7 @@ if let storage = textView.textStorage {
 **Step 5: Run tests + build + manual smoke**
 
 ```
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -15
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -15
 ```
 
 Expected: 21/21 (18 existing + 3 new highlighter tests).
@@ -566,7 +566,7 @@ Manual smoke: launch the app and open a markdown file. Headings should be bigger
 **Step 6: Commit**
 
 ```bash
-git add mdview/Editor/SyntaxHighlighter.swift mdview/Editor/MarkdownTextView.swift mdviewTests/SyntaxHighlighterTests.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor/SyntaxHighlighter.swift MDPrintView/Editor/MarkdownTextView.swift MDPrintViewTests/SyntaxHighlighterTests.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: markdown syntax highlighting via swift-markdown source ranges"
 ```
 
@@ -577,10 +577,10 @@ git commit -m "feat: markdown syntax highlighting via swift-markdown source rang
 **Why:** Toolbar buttons that wrap selection in `**`, prefix lines with `#`, insert links, etc.
 
 **Files:**
-- Create: `mdview/Editor/EditorController.swift`
-- Create: `mdview/Editor/EditorToolbar.swift`
-- Modify: `mdview/Editor/MarkdownTextView.swift`
-- Modify: `mdview/Views/DocumentView.swift`
+- Create: `MDPrintView/Editor/EditorController.swift`
+- Create: `MDPrintView/Editor/EditorToolbar.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Invoke Axiom skill**
 
@@ -588,7 +588,7 @@ Load: `Skill axiom-swiftui-architecture` for the FocusedValue + Observable contr
 
 **Step 2: EditorController**
 
-Create `mdview/Editor/EditorController.swift`:
+Create `MDPrintView/Editor/EditorController.swift`:
 
 ```swift
 import AppKit
@@ -659,12 +659,12 @@ final class EditorController {
 
 **Step 3: Failing tests for EditorController**
 
-Create `mdviewTests/EditorControllerTests.swift`:
+Create `MDPrintViewTests/EditorControllerTests.swift`:
 
 ```swift
 import Testing
 import AppKit
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("EditorController", .serialized)
 @MainActor
@@ -741,7 +741,7 @@ struct MarkdownTextView: NSViewRepresentable {
 
 **Step 5: EditorToolbar view**
 
-Create `mdview/Editor/EditorToolbar.swift`:
+Create `MDPrintView/Editor/EditorToolbar.swift`:
 
 ```swift
 import SwiftUI
@@ -840,7 +840,7 @@ Smoke: launch the app, select text, click Bold — see ** wrap. Cmd+K opens link
 **Step 8: Commit**
 
 ```bash
-git add mdview/Editor mdview/Views/DocumentView.swift mdviewTests/EditorControllerTests.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor MDPrintView/Views/DocumentView.swift MDPrintViewTests/EditorControllerTests.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: EditorController + formatting toolbar with keyboard shortcuts"
 ```
 
@@ -851,7 +851,7 @@ git commit -m "feat: EditorController + formatting toolbar with keyboard shortcu
 Lightweight task — ensure user-typed link URLs and image URLs flow through the renderer's escape function (they should automatically since Task A1; this task is verification only).
 
 **Files:**
-- Modify: `mdviewTests/MarkdownRendererTests.swift`
+- Modify: `MDPrintViewTests/MarkdownRendererTests.swift`
 
 **Step 1: Test**
 
@@ -873,7 +873,7 @@ func escapesDangerousLink() {
 Expected: test passes. If not, A1's escaping has a gap — fix in renderer.
 
 ```bash
-git add mdviewTests/MarkdownRendererTests.swift
+git add MDPrintViewTests/MarkdownRendererTests.swift
 git commit -m "test: confirm link attribute escaping neutralizes quote-breakout"
 ```
 
@@ -886,10 +886,10 @@ git commit -m "test: confirm link attribute escaping neutralizes quote-breakout"
 **Why:** Long documents need a TOC. The outline is also useful for click-to-scroll later.
 
 **Files:**
-- Create: `mdview/Editor/Outline.swift`
-- Create: `mdview/Views/OutlineSidebar.swift`
-- Modify: `mdview/Views/DocumentView.swift`
-- Test: `mdviewTests/OutlineTests.swift`
+- Create: `MDPrintView/Editor/Outline.swift`
+- Create: `MDPrintView/Views/OutlineSidebar.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
+- Test: `MDPrintViewTests/OutlineTests.swift`
 
 **Step 1: Invoke Axiom skill**
 
@@ -897,11 +897,11 @@ Load: `Skill axiom-swiftui-layout` for `NavigationSplitView` sidebar patterns.
 
 **Step 2: Outline data model + tests**
 
-Create `mdviewTests/OutlineTests.swift`:
+Create `MDPrintViewTests/OutlineTests.swift`:
 
 ```swift
 import Testing
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("Outline")
 struct OutlineTests {
@@ -931,7 +931,7 @@ struct OutlineTests {
 
 **Step 3: Implement Outline**
 
-Create `mdview/Editor/Outline.swift`:
+Create `MDPrintView/Editor/Outline.swift`:
 
 ```swift
 import Foundation
@@ -980,7 +980,7 @@ enum Outline {
 
 **Step 4: OutlineSidebar view**
 
-Create `mdview/Views/OutlineSidebar.swift`:
+Create `MDPrintView/Views/OutlineSidebar.swift`:
 
 ```swift
 import SwiftUI
@@ -1056,7 +1056,7 @@ Note: click-to-scroll is NOT in this task — it requires bidirectional scroll-t
 **Step 7: Commit**
 
 ```bash
-git add mdview/Editor/Outline.swift mdview/Views/OutlineSidebar.swift mdview/Views/DocumentView.swift mdviewTests/OutlineTests.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor/Outline.swift MDPrintView/Views/OutlineSidebar.swift MDPrintView/Views/DocumentView.swift MDPrintViewTests/OutlineTests.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: outline sidebar with nested headings"
 ```
 
@@ -1069,7 +1069,7 @@ git commit -m "feat: outline sidebar with nested headings"
 **Why:** The basic print (W1 carryover) uses screen CSS. Adding `@page` rules, page breaks, and margin control delivers the original "print-ready" promise.
 
 **Files:**
-- Modify: `mdview/Preview/Resources/preview.css`
+- Modify: `MDPrintView/Preview/Resources/preview.css`
 
 **Step 1: Append print-mode rules**
 
@@ -1157,7 +1157,7 @@ Rebuild, open the design doc, Cmd+P, choose "Save as PDF". Verify:
 **Step 3: Commit**
 
 ```bash
-git add mdview/Preview/Resources/preview.css
+git add MDPrintView/Preview/Resources/preview.css
 git commit -m "feat: print-mode CSS with @page rules and break-inside controls"
 ```
 
@@ -1168,8 +1168,8 @@ git commit -m "feat: print-mode CSS with @page rules and break-inside controls"
 **Why:** Faster than `Cmd+P` → PDF dropdown. Standard macOS convention.
 
 **Files:**
-- Modify: `mdview/Preview/PreviewPrintController.swift`
-- Modify: `mdview/mdviewApp.swift`
+- Modify: `MDPrintView/Preview/PreviewPrintController.swift`
+- Modify: `MDPrintView/MDPrintViewApp.swift`
 
 **Step 1: Add `exportPDF` method to controller**
 
@@ -1228,7 +1228,7 @@ extension FocusedValues {
 }
 ```
 
-And in `mdviewApp.swift`:
+And in `MDPrintViewApp.swift`:
 
 ```swift
 .commands {
@@ -1257,7 +1257,7 @@ Cmd+Shift+E opens a save panel, writes a PDF.
 **Step 3: Commit**
 
 ```bash
-git add mdview/Preview/PreviewPrintController.swift mdview/mdviewApp.swift mdview/Views/DocumentView.swift
+git add MDPrintView/Preview/PreviewPrintController.swift MDPrintView/MDPrintViewApp.swift MDPrintView/Views/DocumentView.swift
 git commit -m "feat: Cmd+Shift+E exports preview to PDF via NSSavePanel"
 ```
 
@@ -1268,13 +1268,13 @@ git commit -m "feat: Cmd+Shift+E exports preview to PDF via NSSavePanel"
 **Why:** "See what you'll print while you edit" — the original product promise.
 
 **Files:**
-- Modify: `mdview/Preview/PreviewWebView.swift`
-- Modify: `mdview/Preview/RenderState.swift` (or create `PreviewMode.swift`)
-- Modify: `mdview/Views/DocumentView.swift`
+- Modify: `MDPrintView/Preview/PreviewWebView.swift`
+- Modify: `MDPrintView/Preview/RenderState.swift` (or create `PreviewMode.swift`)
+- Modify: `MDPrintView/Views/DocumentView.swift`
 
 **Step 1: Add a mode enum + state**
 
-In `mdview/Preview/PreviewWebView.swift`, add:
+In `MDPrintView/Preview/PreviewWebView.swift`, add:
 
 ```swift
 enum PreviewMode: String, CaseIterable, Identifiable {
@@ -1362,7 +1362,7 @@ Toggle to Print — should see the simulated paper card background with margins;
 **Step 6: Commit**
 
 ```bash
-git add mdview/Preview/PreviewWebView.swift mdview/Views/DocumentView.swift
+git add MDPrintView/Preview/PreviewWebView.swift MDPrintView/Views/DocumentView.swift
 git commit -m "feat: Screen/Print preview mode toggle"
 ```
 
@@ -1414,10 +1414,10 @@ git commit -m "style: Liquid Glass on toolbar, sidebar, and preview chrome"
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'mdview.app' -path '*Debug*' -type d -print -quit)
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)
 if [ -z "$APP_PATH" ]; then echo "App not built — run 'xcodebuild build' first" >&2; exit 1; fi
 
-SAMPLE=$(mktemp -t mdview-smoke).md
+SAMPLE=$(mktemp -t MDPrintView-smoke).md
 trap "rm -f $SAMPLE" EXIT
 
 cat > "$SAMPLE" <<'EOF'
@@ -1438,20 +1438,20 @@ EOF
 open "$APP_PATH" "$SAMPLE"
 sleep 3
 
-if ! pgrep -lf 'mdview.app/Contents/MacOS/mdview' >/dev/null; then
+if ! pgrep -lf 'MDPrintView.app/Contents/MacOS/MDPrintView' >/dev/null; then
     echo "FAIL: process not running"
     exit 1
 fi
 
 # Take a window screenshot for visual diffing (caller can compare manually)
-SCREENSHOT="/tmp/mdview-smoke-$(date +%s).png"
+SCREENSHOT="/tmp/MDPrintView-smoke-$(date +%s).png"
 screencapture -o -t png "$SCREENSHOT" || echo "(screencapture may need TCC; continuing)"
 echo "Screenshot: $SCREENSHOT"
 
 # Quit
-osascript -e 'tell application "mdview" to quit' 2>/dev/null || true
+osascript -e 'tell application "MDPrintView" to quit' 2>/dev/null || true
 sleep 1
-pkill -x mdview 2>/dev/null || true
+pkill -x MDPrintView 2>/dev/null || true
 
 echo "OK: process stayed alive, screenshot at $SCREENSHOT"
 ```
@@ -1473,7 +1473,7 @@ git commit -m "chore: add scripts/smoke.sh for manual end-to-end verification"
 **Why:** Catches regressions like the empty WebView automatically.
 
 **Files:**
-- Create: `mdviewUITests/PrintEndToEndTests.swift`
+- Create: `MDPrintViewUITests/PrintEndToEndTests.swift`
 - Modify: `project.yml` to add a UI test target
 
 **Step 1: Invoke Axiom skill**
@@ -1485,27 +1485,27 @@ Load: `Skill axiom-ui-testing`. It covers XCUITest setup, `XCUIApplication.launc
 Append to `project.yml`:
 
 ```yaml
-  mdviewUITests:
+  MDPrintViewUITests:
     type: bundle.ui-testing
     platform: macOS
     sources:
-      - path: mdviewUITests
+      - path: MDPrintViewUITests
     dependencies:
-      - target: mdview
+      - target: MDPrintView
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.mdviewUITests
-        TEST_TARGET_NAME: mdview
+        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.MDPrintViewUITests
+        TEST_TARGET_NAME: MDPrintView
         MACOSX_DEPLOYMENT_TARGET: "26.0"
 ```
 
-Update `schemes.mdview.test.targets` to include `mdviewUITests`.
+Update `schemes.MDPrintView.test.targets` to include `MDPrintViewUITests`.
 
 Run `xcodegen generate`.
 
 **Step 3: Write the test**
 
-Create `mdviewUITests/PrintEndToEndTests.swift`:
+Create `MDPrintViewUITests/PrintEndToEndTests.swift`:
 
 ```swift
 import XCTest
@@ -1561,11 +1561,11 @@ Note: precise click coordinates and save-panel interaction depend on the axiom-u
 **Step 4: Run + commit**
 
 ```
-xcodebuild test -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -only-testing:mdviewUITests 2>&1 | tail -20
+xcodebuild test -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -only-testing:MDPrintViewUITests 2>&1 | tail -20
 ```
 
 ```bash
-git add mdviewUITests project.yml mdview.xcodeproj
+git add MDPrintViewUITests project.yml MDPrintView.xcodeproj
 git commit -m "test: end-to-end XCUITest opens sample, exports PDF, verifies file"
 ```
 

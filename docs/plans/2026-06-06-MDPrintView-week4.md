@@ -1,8 +1,8 @@
-# mdview Week 4 Implementation Plan
+# MDPrintView Week 4 Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (or subagent-driven-development for same-session) to execute this plan task-by-task.
 
-**Goal:** Add Mermaid diagram rendering, LaTeX math rendering, Settings scene, and accessibility pass — bringing mdview to feature-complete for App Store submission prep in Week 5.
+**Goal:** Add Mermaid diagram rendering, LaTeX math rendering, Settings scene, and accessibility pass — bringing MDPrintView to feature-complete for App Store submission prep in Week 5.
 
 **Architecture:** Bundle Mermaid + KaTeX as local JS/CSS assets (no remote loads — preserves the CSP `default-src 'none'` posture). Preview-side rendering happens after the SetBody DOM swap. Editor-side mermaid UX detects the cursor inside a fenced ` ```mermaid ` block via swift-markdown parsing, exposes an "Edit Diagram" command, opens a modal split-pane sheet (NSTextView source + WKWebView live render). Settings scene uses `@AppStorage`-backed `AppSettings` for font size, theme, page size. Accessibility pass adds VoiceOver labels, outline navigation, and dynamic-type-aware font scaling.
 
@@ -16,8 +16,8 @@
 - macOS 26 dynamic type APIs
 
 **Reference docs:**
-- Design: `docs/plans/2026-06-01-mdview-design.md`
-- Week 1 plan Week 4 outline: `docs/plans/2026-06-01-mdview-implementation.md` (lines ~660-700)
+- Design: `docs/plans/2026-06-01-MDPrintView-design.md`
+- Week 1 plan Week 4 outline: `docs/plans/2026-06-01-MDPrintView-implementation.md` (lines ~660-700)
 - Hybrid mode decision: `docs/plans/2026-06-05-hybrid-mode-decision.md`
 - Current commit: `8b68503`
 
@@ -54,10 +54,10 @@
 ### Task A1: Bundle Mermaid + render code blocks
 
 **Files:**
-- Create: `mdview/Preview/Resources/mermaid.min.js` (downloaded)
-- Modify: `mdview/Preview/Resources/preview.html`
-- Modify: `mdview/Preview/PreviewWebView.swift`
-- Modify: `mdview/Preview/Resources/preview.css`
+- Create: `MDPrintView/Preview/Resources/mermaid.min.js` (downloaded)
+- Modify: `MDPrintView/Preview/Resources/preview.html`
+- Modify: `MDPrintView/Preview/PreviewWebView.swift`
+- Modify: `MDPrintView/Preview/Resources/preview.css`
 
 **Step 1: Bundle Mermaid JS as a resource**
 
@@ -66,16 +66,16 @@ Download `mermaid.min.js` (v11.x, latest stable) from the mermaid-js project's n
 Bash:
 ```bash
 curl -fSL "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" \
-  -o /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/mermaid.min.js
-shasum -a 256 /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/mermaid.min.js
-ls -lh /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/mermaid.min.js
+  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
+shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
+ls -lh /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/mermaid.min.js
 ```
 
 Expect: file is in the ~2.5MB range. Capture SHA-256 to the vendored-assets doc.
 
 **Step 2: Update preview.html to load Mermaid + add render container hook**
 
-Replace `mdview/Preview/Resources/preview.html`:
+Replace `MDPrintView/Preview/Resources/preview.html`:
 
 ```html
 <!DOCTYPE html>
@@ -83,7 +83,7 @@ Replace `mdview/Preview/Resources/preview.html`:
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;">
-    <title>mdview preview</title>
+    <title>MDPrintView preview</title>
     <link rel="stylesheet" href="preview.css">
     <script src="mermaid.min.js"></script>
 </head>
@@ -101,7 +101,7 @@ Document why in a CSS comment near the meta tag.
 
 **Step 3: Modify `PreviewWebView.inject` to invoke Mermaid after setBody**
 
-In `mdview/Preview/PreviewWebView.swift`, update the `inject` static func to call Mermaid after content swap:
+In `MDPrintView/Preview/PreviewWebView.swift`, update the `inject` static func to call Mermaid after content swap:
 
 ```swift
 fileprivate static func inject(html: String, mode: PreviewMode, into webView: WKWebView) {
@@ -125,7 +125,7 @@ fileprivate static func inject(html: String, mode: PreviewMode, into webView: WK
 
 Note: Mermaid expects `<pre><code class="language-mermaid">...</code></pre>` from a typical markdown renderer. Our renderer currently emits `<pre><code>` without language class. **Update `MarkdownRenderer.HTMLEmitter.visitCodeBlock`** to include the language class when present:
 
-In `mdview/Rendering/MarkdownRenderer.swift`, modify `visitCodeBlock`:
+In `MDPrintView/Rendering/MarkdownRenderer.swift`, modify `visitCodeBlock`:
 
 ```swift
 mutating func visitCodeBlock(_ codeBlock: CodeBlock) {
@@ -157,7 +157,7 @@ code.language-mermaid {
 
 **Step 5: Update tests for the new code-block class behavior**
 
-Modify the renderer test for code blocks. In `mdviewTests/MarkdownRendererTests.swift`, find `rendersCodeBlock` and add a new test:
+Modify the renderer test for code blocks. In `MDPrintViewTests/MarkdownRendererTests.swift`, find `rendersCodeBlock` and add a new test:
 
 ```swift
 @Test("code block with language gets class attribute")
@@ -176,9 +176,9 @@ func rendersMermaidBlock() {
 
 Run tests:
 ```
-cd /Users/cmagsisi/Dev/mdview
+cd /Users/cmagsisi/Dev/MDPrintView
 xcodegen generate
-xcodebuild -project mdview.xcodeproj -scheme mdview -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -5
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -destination 'platform=macOS' -configuration Debug test 2>&1 | tail -5
 ```
 
 Expected: TEST SUCCEEDED with 48 tests (46 prior + 2 new).
@@ -202,13 +202,13 @@ graph TD
 More text.
 EOF
 
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'mdview.app' -path '*Debug*' -type d -print -quit)
-pkill -x mdview 2>/dev/null; sleep 1
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)
+pkill -x MDPrintView 2>/dev/null; sleep 1
 open "$APP_PATH" /tmp/mermaid-test.md
 sleep 6
-pgrep -lf 'mdview.app/Contents/MacOS/mdview' >/dev/null && echo "ALIVE" || echo "DEAD"
-osascript -e 'tell application "mdview" to quit' 2>/dev/null
-pkill -x mdview 2>/dev/null
+pgrep -lf 'MDPrintView.app/Contents/MacOS/MDPrintView' >/dev/null && echo "ALIVE" || echo "DEAD"
+osascript -e 'tell application "MDPrintView" to quit' 2>/dev/null
+pkill -x MDPrintView 2>/dev/null
 rm -f /tmp/mermaid-test.md
 ```
 
@@ -217,7 +217,7 @@ Expected: ALIVE; no new crash report. Visual verification (user only): the right
 **Step 7: Commit**
 
 ```
-git add mdview/Preview/Resources/mermaid.min.js mdview/Preview/Resources/preview.html mdview/Preview/Resources/preview.css mdview/Preview/PreviewWebView.swift mdview/Rendering/MarkdownRenderer.swift mdviewTests/MarkdownRendererTests.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Preview/Resources/mermaid.min.js MDPrintView/Preview/Resources/preview.html MDPrintView/Preview/Resources/preview.css MDPrintView/Preview/PreviewWebView.swift MDPrintView/Rendering/MarkdownRenderer.swift MDPrintViewTests/MarkdownRendererTests.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: bundle Mermaid 11.x — fenced \`mermaid\` blocks render as diagrams"
 ```
 
@@ -243,7 +243,7 @@ Third-party assets bundled into the app for offline / sandbox-safe operation. Ea
 - Version: 11.x (vendored 2026-06-06)
 - SHA-256: <paste from A1 step 1>
 - License: MIT
-- Bundled at: `mdview/Preview/Resources/mermaid.min.js`
+- Bundled at: `MDPrintView/Preview/Resources/mermaid.min.js`
 - Why bundled: CSP `script-src 'self'` prohibits remote scripts. App is sandboxed (no network entitlement in v1).
 - Update procedure: re-run the curl in A1 step 1, update hash in this file, smoke test renders.
 ```
@@ -262,25 +262,25 @@ git commit -m "docs: record vendored Mermaid asset (source, version, SHA-256, li
 ### Task B1: Bundle KaTeX + render inline + block math
 
 **Files:**
-- Create: `mdview/Preview/Resources/katex.min.js`
-- Create: `mdview/Preview/Resources/katex.min.css`
-- Create: `mdview/Preview/Resources/auto-render.min.js`
-- Modify: `mdview/Preview/Resources/preview.html`
-- Modify: `mdview/Preview/PreviewWebView.swift`
-- Modify: `mdview/Preview/Resources/preview.css`
+- Create: `MDPrintView/Preview/Resources/katex.min.js`
+- Create: `MDPrintView/Preview/Resources/katex.min.css`
+- Create: `MDPrintView/Preview/Resources/auto-render.min.js`
+- Modify: `MDPrintView/Preview/Resources/preview.html`
+- Modify: `MDPrintView/Preview/PreviewWebView.swift`
+- Modify: `MDPrintView/Preview/Resources/preview.css`
 - Modify: `docs/plans/2026-06-06-vendored-assets.md`
 
 **Step 1: Bundle KaTeX**
 
 ```bash
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" \
-  -o /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/katex.min.js
+  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.js
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css" \
-  -o /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/katex.min.css
+  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.css
 curl -fSL "https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" \
-  -o /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/auto-render.min.js
-shasum -a 256 /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/katex.min.{js,css}
-shasum -a 256 /Users/cmagsisi/Dev/mdview/mdview/Preview/Resources/auto-render.min.js
+  -o /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
+shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/katex.min.{js,css}
+shasum -a 256 /Users/cmagsisi/Dev/MDPrintView/MDPrintView/Preview/Resources/auto-render.min.js
 ```
 
 Append the three hashes to `2026-06-06-vendored-assets.md`.
@@ -295,7 +295,7 @@ Append the three hashes to `2026-06-06-vendored-assets.md`.
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;">
-    <title>mdview preview</title>
+    <title>MDPrintView preview</title>
     <link rel="stylesheet" href="preview.css">
     <link rel="stylesheet" href="katex.min.css">
     <script src="mermaid.min.js"></script>
@@ -362,13 +362,13 @@ $$\int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
 Done.
 EOF
 
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'mdview.app' -path '*Debug*' -type d -print -quit)
-pkill -x mdview 2>/dev/null; sleep 1
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)
+pkill -x MDPrintView 2>/dev/null; sleep 1
 open "$APP_PATH" /tmp/math-test.md
 sleep 6
-pgrep -lf 'mdview.app/Contents/MacOS/mdview' >/dev/null && echo "ALIVE" || echo "DEAD"
-osascript -e 'tell application "mdview" to quit' 2>/dev/null
-pkill -x mdview 2>/dev/null
+pgrep -lf 'MDPrintView.app/Contents/MacOS/MDPrintView' >/dev/null && echo "ALIVE" || echo "DEAD"
+osascript -e 'tell application "MDPrintView" to quit' 2>/dev/null
+pkill -x MDPrintView 2>/dev/null
 rm -f /tmp/math-test.md
 ```
 
@@ -377,7 +377,7 @@ Expected: ALIVE. Visual (user only): inline `E = mc^2` renders with italic E, it
 **Step 5: Commit**
 
 ```
-git add mdview/Preview/Resources/katex.min.js mdview/Preview/Resources/katex.min.css mdview/Preview/Resources/auto-render.min.js mdview/Preview/Resources/preview.html mdview/Preview/PreviewWebView.swift docs/plans/2026-06-06-vendored-assets.md mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Preview/Resources/katex.min.js MDPrintView/Preview/Resources/katex.min.css MDPrintView/Preview/Resources/auto-render.min.js MDPrintView/Preview/Resources/preview.html MDPrintView/Preview/PreviewWebView.swift docs/plans/2026-06-06-vendored-assets.md MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: bundle KaTeX — \$inline\$ and \$\$block\$\$ math render"
 ```
 
@@ -388,7 +388,7 @@ git commit -m "feat: bundle KaTeX — \$inline\$ and \$\$block\$\$ math render"
 **Why:** Pure Swift verification that `$` delimiter content survives our HTML escaping (so KaTeX can find it on the JS side).
 
 **Files:**
-- Modify: `mdviewTests/MarkdownRendererTests.swift`
+- Modify: `MDPrintViewTests/MarkdownRendererTests.swift`
 
 **Step 1: Add test**
 
@@ -416,7 +416,7 @@ xcodebuild ... test 2>&1 | tail -5
 Expected: 49 tests pass (48 + 1 new).
 
 ```
-git add mdviewTests/MarkdownRendererTests.swift
+git add MDPrintViewTests/MarkdownRendererTests.swift
 git commit -m "test: math delimiters survive renderer escape pass"
 ```
 
@@ -429,14 +429,14 @@ git commit -m "test: math delimiters survive renderer escape pass"
 **Why:** Need a pure function to answer "is the cursor at offset N inside a fenced ` ```mermaid ` block, and if so what's the source?" — used by C2 for the modal sheet.
 
 **Files:**
-- Create: `mdview/Editor/MermaidBlock.swift`
-- Test: `mdviewTests/MermaidBlockTests.swift`
+- Create: `MDPrintView/Editor/MermaidBlock.swift`
+- Test: `MDPrintViewTests/MermaidBlockTests.swift`
 
 **Step 1: Failing tests**
 
 ```swift
 import Testing
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("MermaidBlock")
 struct MermaidBlockTests {
@@ -492,13 +492,13 @@ Expected: `cannot find 'MermaidBlock' in scope`.
 
 Commit RED:
 ```
-git add mdviewTests/MermaidBlockTests.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintViewTests/MermaidBlockTests.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "test(red): MermaidBlock cursor-containment lookup"
 ```
 
 **Step 3: Implement**
 
-Create `mdview/Editor/MermaidBlock.swift`:
+Create `MDPrintView/Editor/MermaidBlock.swift`:
 
 ```swift
 import Foundation
@@ -559,7 +559,7 @@ Expected: 53 tests pass (49 + 4 new).
 **Step 5: Commit GREEN**
 
 ```
-git add mdview/Editor/MermaidBlock.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor/MermaidBlock.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat(green): MermaidBlock detects fenced \`mermaid\` containing cursor"
 ```
 
@@ -568,14 +568,14 @@ git commit -m "feat(green): MermaidBlock detects fenced \`mermaid\` containing c
 ### Task C2: Modal mermaid editor sheet
 
 **Files:**
-- Create: `mdview/Editor/MermaidEditorSheet.swift`
-- Modify: `mdview/Editor/EditorController.swift`
-- Modify: `mdview/Views/DocumentView.swift`
-- Modify: `mdview/mdviewApp.swift`
+- Create: `MDPrintView/Editor/MermaidEditorSheet.swift`
+- Modify: `MDPrintView/Editor/EditorController.swift`
+- Modify: `MDPrintView/Views/DocumentView.swift`
+- Modify: `MDPrintView/MDPrintViewApp.swift`
 
 **Step 1: Sheet view**
 
-Create `mdview/Editor/MermaidEditorSheet.swift`:
+Create `MDPrintView/Editor/MermaidEditorSheet.swift`:
 
 ```swift
 import SwiftUI
@@ -796,7 +796,7 @@ Manual smoke:
 **Step 5: Commit**
 
 ```
-git add mdview/Editor/MermaidEditorSheet.swift mdview/Editor/EditorController.swift mdview/Editor/MermaidBlock.swift mdview/Editor/EditorToolbar.swift mdview/Views/DocumentView.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Editor/MermaidEditorSheet.swift MDPrintView/Editor/EditorController.swift MDPrintView/Editor/MermaidBlock.swift MDPrintView/Editor/EditorToolbar.swift MDPrintView/Views/DocumentView.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: Cmd+Shift+M opens modal Mermaid editor (split-pane source + live preview)"
 ```
 
@@ -807,8 +807,8 @@ git commit -m "feat: Cmd+Shift+M opens modal Mermaid editor (split-pane source +
 ### Task D1: AppSettings + Settings scene
 
 **Files:**
-- Create: `mdview/Models/AppSettings.swift`
-- Modify: `mdview/mdviewApp.swift`
+- Create: `MDPrintView/Models/AppSettings.swift`
+- Modify: `MDPrintView/MDPrintViewApp.swift`
 
 **Step 1: AppSettings**
 
@@ -846,10 +846,10 @@ final class AppSettings {
 **Step 2: Settings scene**
 
 ```swift
-// In mdviewApp.swift, add a Settings scene alongside DocumentGroup:
+// In MDPrintViewApp.swift, add a Settings scene alongside DocumentGroup:
 
 @main
-struct MdviewApp: App {
+struct MDPrintViewApp: App {
     @State private var settings = AppSettings()
 
     var body: some Scene {
@@ -911,7 +911,7 @@ Manual: open app, press Cmd+, → Settings window opens with Font size slider + 
 **Step 4: Commit**
 
 ```
-git add mdview/Models/AppSettings.swift mdview/mdviewApp.swift mdview.xcodeproj/project.pbxproj
+git add MDPrintView/Models/AppSettings.swift MDPrintView/MDPrintViewApp.swift MDPrintView.xcodeproj/project.pbxproj
 git commit -m "feat: AppSettings + Cmd+, Settings scene (font size, page size)"
 ```
 
@@ -920,8 +920,8 @@ git commit -m "feat: AppSettings + Cmd+, Settings scene (font size, page size)"
 ### Task D2: Wire font size into the source editor
 
 **Files:**
-- Modify: `mdview/Editor/SyntaxHighlighter.swift`
-- Modify: `mdview/Editor/MarkdownTextView.swift`
+- Modify: `MDPrintView/Editor/SyntaxHighlighter.swift`
+- Modify: `MDPrintView/Editor/MarkdownTextView.swift`
 
 **Step 1: Make SyntaxHighlighter accept a base size**
 
@@ -987,7 +987,7 @@ Expected: 54 tests pass (53 + 1 new).
 **Step 4: Commit**
 
 ```
-git add mdview/Editor/SyntaxHighlighter.swift mdview/Editor/MarkdownTextView.swift mdview/Views/DocumentView.swift mdviewTests/SyntaxHighlighterTests.swift
+git add MDPrintView/Editor/SyntaxHighlighter.swift MDPrintView/Editor/MarkdownTextView.swift MDPrintView/Views/DocumentView.swift MDPrintViewTests/SyntaxHighlighterTests.swift
 git commit -m "feat: editor base font size honors AppSettings (Cmd+, Settings)"
 ```
 
@@ -1000,8 +1000,8 @@ git commit -m "feat: editor base font size honors AppSettings (Cmd+, Settings)"
 ### Task E1: VoiceOver labels + accessibility identifiers
 
 **Files:**
-- Modify: `mdview/Editor/EditorToolbar.swift`
-- Modify: `mdview/Views/OutlineSidebar.swift`
+- Modify: `MDPrintView/Editor/EditorToolbar.swift`
+- Modify: `MDPrintView/Views/OutlineSidebar.swift`
 
 **Step 1: Toolbar accessibility**
 
@@ -1040,7 +1040,7 @@ xcodebuild ... build 2>&1 | tail -3
 **Step 4: Commit**
 
 ```
-git add mdview/Editor/EditorToolbar.swift mdview/Views/OutlineSidebar.swift
+git add MDPrintView/Editor/EditorToolbar.swift MDPrintView/Views/OutlineSidebar.swift
 git commit -m "a11y: accessibility labels + identifiers for toolbar and outline"
 ```
 

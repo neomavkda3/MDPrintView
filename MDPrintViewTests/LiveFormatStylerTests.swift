@@ -1,6 +1,6 @@
 import Testing
 import AppKit
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("LiveFormatStyler — E1 (rich inline styling, marks visible)", .serialized)
 @MainActor

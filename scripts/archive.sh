@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# scripts/archive.sh — produce a Mac App Store distribution package of mdview.
+# scripts/archive.sh — produce a Mac App Store distribution package of MDPrintView.
 #
 # Usage:
 #   DEVELOPMENT_TEAM=ABCD123456 scripts/archive.sh
 #
 # Reads DEVELOPMENT_TEAM from the environment, archives the Release config,
-# emits build/mdview.xcarchive and build/Export-MAS/mdview.pkg ready for
+# emits build/MDPrintView.xcarchive and build/Export-MAS/MDPrintView.pkg ready for
 # Transporter upload to App Store Connect.
 #
 # Requires: active Apple Developer Program membership, Xcode signed in with
@@ -30,7 +30,7 @@ EOF
 fi
 
 echo "==> Cleaning prior build/ artifacts..."
-rm -rf build/mdview.xcarchive build/Export-MAS build/ExportOptions-MAS.plist
+rm -rf build/MDPrintView.xcarchive build/Export-MAS build/ExportOptions-MAS.plist
 mkdir -p build
 
 echo "==> Regenerating Xcode project from project.yml..."
@@ -38,16 +38,16 @@ xcodegen generate >/dev/null
 
 echo "==> Archiving Release for macOS..."
 xcodebuild archive \
-  -project mdview.xcodeproj \
-  -scheme mdview \
+  -project MDPrintView.xcodeproj \
+  -scheme MDPrintView \
   -configuration Release \
   -destination 'platform=macOS' \
-  -archivePath build/mdview.xcarchive \
+  -archivePath build/MDPrintView.xcarchive \
   DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
   CODE_SIGN_STYLE=Automatic \
   2>&1 | tail -5
 
-if [ ! -d "build/mdview.xcarchive" ]; then
+if [ ! -d "build/MDPrintView.xcarchive" ]; then
     echo "FAIL: archive not produced — re-run with full xcodebuild output for details" >&2
     exit 1
 fi
@@ -70,20 +70,20 @@ EOF
 
 echo "==> Exporting Mac App Store package..."
 xcodebuild -exportArchive \
-  -archivePath build/mdview.xcarchive \
+  -archivePath build/MDPrintView.xcarchive \
   -exportOptionsPlist build/ExportOptions-MAS.plist \
   -exportPath build/Export-MAS \
   2>&1 | tail -5
 
-if [ ! -f build/Export-MAS/mdview.pkg ]; then
-    echo "FAIL: mdview.pkg not produced — re-run with full xcodebuild output for details" >&2
+if [ ! -f build/Export-MAS/MDPrintView.pkg ]; then
+    echo "FAIL: MDPrintView.pkg not produced — re-run with full xcodebuild output for details" >&2
     exit 1
 fi
 
 echo "==> Inspecting package signature..."
-pkgutil --check-signature build/Export-MAS/mdview.pkg | head -10
+pkgutil --check-signature build/Export-MAS/MDPrintView.pkg | head -10
 echo ""
 
 ls -lh build/Export-MAS/
 echo ""
-echo "==> Done. Upload build/Export-MAS/mdview.pkg via Transporter.app."
+echo "==> Done. Upload build/Export-MAS/MDPrintView.pkg via Transporter.app."

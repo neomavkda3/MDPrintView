@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9F50E1CE7B626A939626D2B8"
-               BuildableName = "mdview.app"
-               BlueprintName = "mdview"
-               ReferencedContainer = "container:mdview.xcodeproj">
+               BlueprintIdentifier = "83A475B33442A73587B5CA67"
+               BuildableName = "MDPrintView.app"
+               BlueprintName = "MDPrintView"
+               ReferencedContainer = "container:MDPrintView.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,10 +29,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "38C9E10636CC61ECC44F08C0"
-               BuildableName = "mdviewTests.xctest"
-               BlueprintName = "mdviewTests"
-               ReferencedContainer = "container:mdview.xcodeproj">
+               BlueprintIdentifier = "32DE41AF1F3A94693E1FD972"
+               BuildableName = "MDPrintViewTests.xctest"
+               BlueprintName = "MDPrintViewTests"
+               ReferencedContainer = "container:MDPrintView.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,10 +46,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9F50E1CE7B626A939626D2B8"
-            BuildableName = "mdview.app"
-            BlueprintName = "mdview"
-            ReferencedContainer = "container:mdview.xcodeproj">
+            BlueprintIdentifier = "83A475B33442A73587B5CA67"
+            BuildableName = "MDPrintView.app"
+            BlueprintName = "MDPrintView"
+            ReferencedContainer = "container:MDPrintView.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -58,10 +58,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "38C9E10636CC61ECC44F08C0"
-               BuildableName = "mdviewTests.xctest"
-               BlueprintName = "mdviewTests"
-               ReferencedContainer = "container:mdview.xcodeproj">
+               BlueprintIdentifier = "32DE41AF1F3A94693E1FD972"
+               BuildableName = "MDPrintViewTests.xctest"
+               BlueprintName = "MDPrintViewTests"
+               ReferencedContainer = "container:MDPrintView.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -82,10 +82,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9F50E1CE7B626A939626D2B8"
-            BuildableName = "mdview.app"
-            BlueprintName = "mdview"
-            ReferencedContainer = "container:mdview.xcodeproj">
+            BlueprintIdentifier = "83A475B33442A73587B5CA67"
+            BuildableName = "MDPrintView.app"
+            BlueprintName = "MDPrintView"
+            ReferencedContainer = "container:MDPrintView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -101,10 +101,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9F50E1CE7B626A939626D2B8"
-            BuildableName = "mdview.app"
-            BlueprintName = "mdview"
-            ReferencedContainer = "container:mdview.xcodeproj">
+            BlueprintIdentifier = "83A475B33442A73587B5CA67"
+            BuildableName = "MDPrintView.app"
+            BlueprintName = "MDPrintView"
+            ReferencedContainer = "container:MDPrintView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

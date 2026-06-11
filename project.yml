@@ -1,4 +1,4 @@
-name: mdview
+name: MDPrintView
 
 options:
   deploymentTarget:
@@ -21,18 +21,18 @@ packages:
     from: "0.6.0"
 
 targets:
-  mdview:
+  MDPrintView:
     type: application
     platform: macOS
     sources:
-      - path: mdview
+      - path: MDPrintView
     dependencies:
       - package: Markdown
         product: Markdown
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.mdview
-        INFOPLIST_FILE: mdview/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.MDPrintView
+        INFOPLIST_FILE: MDPrintView/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "-"
@@ -44,36 +44,36 @@ targets:
           # Debug uses entitlements WITHOUT app-sandbox because ad-hoc-signed
           # sandboxed apps fail to spawn the WKWebView WebContent helper on
           # macOS 26, leaving the preview pane empty.
-          CODE_SIGN_ENTITLEMENTS: mdview/mdview-debug.entitlements
+          CODE_SIGN_ENTITLEMENTS: MDPrintView/MDPrintView-debug.entitlements
         Release:
           # Release (App Store archive) keeps full sandbox + user-selected
           # files + bookmarks entitlements.
-          CODE_SIGN_ENTITLEMENTS: mdview/mdview.entitlements
+          CODE_SIGN_ENTITLEMENTS: MDPrintView/MDPrintView.entitlements
 
-  mdviewTests:
+  MDPrintViewTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: mdviewTests
+      - path: MDPrintViewTests
     dependencies:
-      - target: mdview
+      - target: MDPrintView
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.mdviewTests
+        PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.MDPrintViewTests
         BUNDLE_LOADER: $(TEST_HOST)
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/mdview.app/Contents/MacOS/mdview
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MDPrintView.app/Contents/MacOS/MDPrintView
         MACOSX_DEPLOYMENT_TARGET: "26.0"
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:
-  mdview:
+  MDPrintView:
     build:
       targets:
-        mdview: all
-        mdviewTests: [test]
+        MDPrintView: all
+        MDPrintViewTests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - mdviewTests
+        - MDPrintViewTests

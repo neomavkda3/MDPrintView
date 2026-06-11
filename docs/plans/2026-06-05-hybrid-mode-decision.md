@@ -1,9 +1,9 @@
-# mdview Hybrid Editor Mode — v1 Inclusion Decision
+# MDPrintView Hybrid Editor Mode — v1 Inclusion Decision
 
 **Date:** 2026-06-05
 **Spike commits:** `2df6a73`…`72b5639`
 **Spike notes:** `docs/plans/2026-06-05-spike-notes.md`
-**Spike plan:** `docs/plans/2026-06-05-mdview-week3-hybrid-spike.md`
+**Spike plan:** `docs/plans/2026-06-05-MDPrintView-week3-hybrid-spike.md`
 
 ## Decision
 
@@ -53,7 +53,7 @@ Option #3 is the most architecturally clean and likely cheapest to implement onc
 
 ## What this delivers vs. the original Brainstorm
 
-Section B of the design (`docs/plans/2026-06-01-mdview-design.md`) committed to "both modes from day one." This decision honors that commitment with one caveat:
+Section B of the design (`docs/plans/2026-06-01-MDPrintView-design.md`) committed to "both modes from day one." This decision honors that commitment with one caveat:
 
 - ✅ Source mode (W2) — fully featured.
 - ✅ Hybrid mode (this spike, "Rich" variant) — rich inline styling, faded marks. **Marks remain visible** in hybrid mode rather than fold/reveal on cursor.

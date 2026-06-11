@@ -1,5 +1,5 @@
 import Testing
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("Outline")
 struct OutlineTests {

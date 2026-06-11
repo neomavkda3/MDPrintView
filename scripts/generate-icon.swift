@@ -3,10 +3,10 @@
 // Generate a 1024×1024 PNG placeholder app icon. Run via:
 //   swift scripts/generate-icon.swift
 //   for size in 16 32 128 256 512; do
-//       sips -z $size $size /tmp/mdview-icon-1024.png \
-//           --out mdview/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}.png
-//       sips -z $((size*2)) $((size*2)) /tmp/mdview-icon-1024.png \
-//           --out mdview/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}@2x.png
+//       sips -z $size $size /tmp/MDPrintView-icon-1024.png \
+//           --out MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}.png
+//       sips -z $((size*2)) $((size*2)) /tmp/MDPrintView-icon-1024.png \
+//           --out MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}@2x.png
 //   done
 //
 // REPLACE THE PLACEHOLDER WITH REAL ARTWORK before submitting to App Review —
@@ -67,5 +67,5 @@ guard let tiff = image.tiffRepresentation,
     FileHandle.standardError.write("Failed to encode PNG\n".data(using: .utf8)!)
     exit(1)
 }
-try png.write(to: URL(fileURLWithPath: "/tmp/mdview-icon-1024.png"))
-print("Wrote /tmp/mdview-icon-1024.png")
+try png.write(to: URL(fileURLWithPath: "/tmp/MDPrintView-icon-1024.png"))
+print("Wrote /tmp/MDPrintView-icon-1024.png")

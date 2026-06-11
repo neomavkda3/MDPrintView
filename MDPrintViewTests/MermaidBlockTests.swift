@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import mdview
+@testable import MDPrintView
 
 @Suite("MermaidBlock")
 struct MermaidBlockTests {

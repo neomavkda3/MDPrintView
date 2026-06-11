@@ -73,9 +73,9 @@ struct DocumentView: View {
         }
         .background(WindowAccessor { window in
             // Force tabbing so additional documents open as tabs of the
-            // existing mdview window instead of separate windows.
+            // existing MDPrintView window instead of separate windows.
             window.tabbingMode = .preferred
-            // First time we see a doc window, offer to set mdview as the
+            // First time we see a doc window, offer to set MDPrintView as the
             // default Markdown handler if it isn't already.
             DefaultAppCoordinator.checkAndPrompt(in: window, settings: settings)
         })

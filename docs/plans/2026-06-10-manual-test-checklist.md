@@ -1,22 +1,22 @@
-# mdview Manual Test Checklist (Pre-Submission)
+# MDPrintView Manual Test Checklist (Pre-Submission)
 
 Walk this list before running `scripts/archive.sh` and submitting. ~30–45 minutes if you go top-to-bottom.
 
 ## Prep (2 min)
 
 ```sh
-cd ~/Dev/mdview
-pkill -x mdview 2>/dev/null
-xcodebuild -project mdview.xcodeproj -scheme mdview -configuration Debug build 2>&1 | tail -3
-APP="$(find ~/Library/Developer/Xcode/DerivedData -name 'mdview.app' -path '*Debug*' -type d -print -quit)"
+cd ~/Dev/MDPrintView
+pkill -x MDPrintView 2>/dev/null
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -configuration Debug build 2>&1 | tail -3
+APP="$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Debug*' -type d -print -quit)"
 # Launch attached to terminal so any errors print:
-"$APP/Contents/MacOS/mdview"
+"$APP/Contents/MacOS/MDPrintView"
 ```
 
 Optional — concatenate all repo docs into one ~150KB stress doc:
 
 ```sh
-cat docs/plans/2026-06-0*-*.md > /tmp/mdview-stress.md
+cat docs/plans/2026-06-0*-*.md > /tmp/MDPrintView-stress.md
 ```
 
 Use that or any large markdown file for the "Performance" section below.
@@ -27,7 +27,7 @@ Use that or any large markdown file for the "Performance" section below.
 
 - [ ] Cmd+O → open a `.md` file
 - [ ] Cmd+O → open a `.txt` file
-- [ ] Double-click a `.md` from Finder — should open in mdview (not TextEdit)
+- [ ] Double-click a `.md` from Finder — should open in MDPrintView (not TextEdit)
 - [ ] Type a few chars + Cmd+S — saves, title bar loses "Edited" badge
 - [ ] File → Revert to → Browse All Versions… opens the macOS Versions browser
 - [ ] Cmd+N opens a blank Untitled doc
@@ -157,9 +157,9 @@ On a multi-page doc (use the stress doc from prep):
 
 In Finder:
 
-- [ ] Right-click a `.md` file → Get Info → Open with → **mdview should be default**
+- [ ] Right-click a `.md` file → Get Info → Open with → **MDPrintView should be default**
 - [ ] Right-click a `.txt` file → Get Info → Open with → TextEdit should still be default (`.txt` is Alternate, not Owner)
-- [ ] `.markdown` and `.mdown` extensions also open in mdview
+- [ ] `.markdown` and `.mdown` extensions also open in MDPrintView
 
 ## 14. Performance feel (3 min)
 
@@ -210,12 +210,12 @@ The following are intentionally absent in v1.0. If you notice them, that's expec
 When everything above is checked OR you've explicitly documented a bug:
 
 - [ ] Replace placeholder app icon with real artwork
-- [ ] Run `scripts/archive.sh` with your `DEVELOPMENT_TEAM` env var → produces `build/Export-MAS/mdview.pkg`
+- [ ] Run `scripts/archive.sh` with your `DEVELOPMENT_TEAM` env var → produces `build/Export-MAS/MDPrintView.pkg`
 - [ ] Walk `docs/plans/2026-06-06-pre-submission-checklist.md` engineering section
 - [ ] Paste copy from `docs/plans/2026-06-06-app-store-listing.md` into ASC
 - [ ] Host privacy policy (from `docs/plans/2026-06-06-privacy-policy.md`) at a public URL
 - [ ] Capture 5 screenshots at 2880×1800 or 1440×900 (same dimensions across all 5)
-- [ ] Upload `mdview.pkg` via Transporter
+- [ ] Upload `MDPrintView.pkg` via Transporter
 - [ ] Submit for Review
 
 ---
