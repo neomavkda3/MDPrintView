@@ -1,0 +1,154 @@
+name: Release
+
+# Trigger on version tags like v0.1.0, or manually from the Actions tab.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (without v prefix, e.g. 0.1.1)'
+        required: true
+
+permissions:
+  contents: write       # gh release create + commit appcast.xml back
+  id-token: write       # actions/attest-build-provenance (optional)
+  attestations: write
+
+jobs:
+  release:
+    name: Build, sign, notarize, publish
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history; we push the appcast commit back
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Compute version
+        id: ver
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Import Developer ID certificate
+        uses: Apple-Actions/import-codesign-certs@v7
+        with:
+          p12-file-base64: ${{ secrets.DEV_ID_APPLICATION_P12_BASE64 }}
+          p12-password:    ${{ secrets.DEV_ID_APPLICATION_P12_PASSWORD }}
+
+      - name: Build Release
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          xcodebuild \
+            -project MDPrintView.xcodeproj \
+            -scheme MDPrintView \
+            -configuration Release \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            build
+
+      - name: Re-sign Sparkle internals
+        run: |
+          APP=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Release*' -type d -print -quit)
+          chmod +x scripts/codesign-sparkle.sh
+          ./scripts/codesign-sparkle.sh "$APP"
+
+      - name: Build + sign DMG
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          APP=$(find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Release*' -type d -print -quit)
+          mkdir -p build
+          DMG="build/MDPrintView-${VERSION}.dmg"
+          hdiutil create -srcfolder "$APP" -volname MDPrintView -format UDZO -ov "$DMG"
+          codesign --force --sign "Developer ID Application" --timestamp "$DMG"
+
+      - name: Notarize + staple
+        env:
+          VERSION:        ${{ steps.ver.outputs.version }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID:     ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID:  ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          DMG="build/MDPrintView-${VERSION}.dmg"
+          # Write API key to disk for notarytool, deleted after the step.
+          echo "$ASC_API_KEY_P8" > AuthKey.p8
+          xcrun notarytool submit "$DMG" \
+            --key AuthKey.p8 \
+            --key-id "$ASC_KEY_ID" \
+            --issuer "$ASC_ISSUER_ID" \
+            --wait
+          xcrun stapler staple "$DMG"
+          rm -f AuthKey.p8
+
+      - name: Generate signed Sparkle appcast entry
+        env:
+          VERSION:                ${{ steps.ver.outputs.version }}
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          GEN=$(find ~/Library/Developer/Xcode/DerivedData -name 'generate_appcast' -type f -print -quit)
+          # generate_appcast scans a directory of DMG bundles and emits
+          # a complete appcast.xml with EdDSA signatures + GitHub
+          # download URLs.
+          mkdir -p update-archive
+          cp "build/MDPrintView-${VERSION}.dmg" update-archive/
+
+          # Stash the EdDSA private key in a temp file (generate_appcast
+          # expects a file path, not stdin).
+          KEYFILE=$(mktemp)
+          printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$KEYFILE"
+
+          "$GEN" --ed-key-file "$KEYFILE" \
+            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/v${VERSION}/" \
+            update-archive
+
+          rm -f "$KEYFILE"
+
+          # Move generated appcast back to repo root for committing
+          mv update-archive/appcast.xml appcast.xml
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION:  ${{ steps.ver.outputs.version }}
+        run: |
+          gh release create "v${VERSION}" \
+            "build/MDPrintView-${VERSION}.dmg" \
+            --title "MDPrintView ${VERSION}" \
+            --generate-notes
+
+      - name: Commit updated appcast.xml to main
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          # Stash the freshly-generated appcast before branch-switching
+          cp appcast.xml /tmp/new-appcast.xml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout origin/main -B main
+
+          # Restore the new appcast
+          cp /tmp/new-appcast.xml appcast.xml
+          rm /tmp/new-appcast.xml
+
+          git add appcast.xml
+          if git diff --cached --quiet; then
+            echo "No appcast changes — already up to date"
+          else
+            # [skip ci] keeps any future push-to-main CI from looping
+            git commit -m "chore: appcast entry for v${VERSION} [skip ci]"
+            git push origin main
+          fi
