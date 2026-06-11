@@ -36,7 +36,7 @@ struct MDPrintViewApp: App {
         .defaultLaunchBehavior(.presented)
 
         DocumentGroup(newDocument: { MarkdownDocument() }) { file in
-            DocumentView(document: file.document)
+            DocumentView(document: file.document, fileURL: file.fileURL)
                 .environment(settings)
         }
         .defaultLaunchBehavior(.suppressed)

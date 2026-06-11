@@ -2,6 +2,9 @@ import SwiftUI
 
 struct DocumentView: View {
     @Bindable var document: MarkdownDocument
+    /// nil for an untitled (unsaved) document — we only file-watch once
+    /// the user has saved and SwiftUI hands us a URL.
+    let fileURL: URL?
     @Environment(AppSettings.self) private var settings
     @State private var render = RenderState()
     @State private var printController = PreviewPrintController()
@@ -10,6 +13,9 @@ struct DocumentView: View {
     @State private var previewMode: PreviewMode = .screen
     @State private var previewTheme: PreviewTheme = .original
     @State private var editorMode: EditorMode = .source
+    /// Owned per-document. Recreated when fileURL changes; deallocated
+    /// when the view goes away (deinit removes the file presenter).
+    @State private var fileWatcher: FileWatcher?
 
     var body: some View {
         @Bindable var settings = settings
@@ -87,6 +93,18 @@ struct DocumentView: View {
             render.schedule(newValue)
             outline = Outline.extract(from: newValue)
         }
+        // Live external-edit watching: when a file URL is attached (i.e.
+        // the doc has been saved), spin up a FileWatcher. If the URL
+        // changes (Save As…), tear the old one down and start a new one.
+        .onChange(of: fileURL, initial: true) { _, newURL in
+            guard let url = newURL else {
+                fileWatcher = nil
+                return
+            }
+            fileWatcher = FileWatcher(url: url) {
+                reloadFromDiskIfChanged(url: url)
+            }
+        }
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
         .toolbar {
@@ -102,5 +120,28 @@ struct DocumentView: View {
                 onCancel: { editor.cancelMermaidEdit() }
             )
         }
+    }
+
+    /// Read the file via NSFileCoordinator and replace `document.text`
+    /// iff the disk content differs from what we already have. The
+    /// equality check is what breaks the self-save loop: when MDPrintView
+    /// writes to disk, the presenter notification fires, we re-read, the
+    /// content matches what we already hold, and we silently no-op.
+    private func reloadFromDiskIfChanged(url: URL) {
+        let coordinator = NSFileCoordinator(filePresenter: fileWatcher)
+        var coordinationError: NSError?
+        var diskText: String?
+        coordinator.coordinate(
+            readingItemAt: url,
+            options: .withoutChanges,
+            error: &coordinationError
+        ) { readURL in
+            if let data = try? Data(contentsOf: readURL),
+               let str = String(data: data, encoding: .utf8) {
+                diskText = str
+            }
+        }
+        guard let diskText, diskText != document.text else { return }
+        document.text = diskText
     }
 }
