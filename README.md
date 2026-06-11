@@ -6,13 +6,38 @@ A native macOS markdown editor with print-quality typography.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![macOS 26+](https://img.shields.io/badge/macOS-26.0+-black?logo=apple)](https://www.apple.com/macos/)
-[![Latest release](https://img.shields.io/github/v/release/neomavkda3/MDPrintView?include_prereleases)](https://github.com/neomavkda3/MDPrintView/releases)
+[![Latest release](https://img.shields.io/github/v/release/neomavkda3/MDPrintView?include_prereleases)](https://github.com/neomavkda3/MDPrintView/releases/latest)
+
+### [⬇️ Download MDPrintView for Mac](https://github.com/neomavkda3/MDPrintView/releases/latest)
 
 </div>
 
-MDPrintView is a markdown editor that takes printing seriously. Three pane modes (Editor / Split / Preview), four reading themes, native NSTextView editing, Mermaid diagrams, LaTeX math, and a print pipeline that keeps headings, code blocks, and tables together across page breaks. Built in SwiftUI + AppKit on macOS 26.
+---
 
-## Features
+MDPrintView is a markdown editor that takes printing seriously. Three pane modes (Editor / Split / Preview), four reading themes, native macOS text editing, Mermaid diagrams, LaTeX math, and a print pipeline that keeps headings, code blocks, and tables together across page breaks.
+
+## Install
+
+### Quick install — for anyone
+
+1. Click **[⬇️ Download MDPrintView for Mac](https://github.com/neomavkda3/MDPrintView/releases/latest)** and on the page that opens, download the file ending in `.dmg` (under **Assets**).
+2. **Double-click** the downloaded file. A small window will open showing the MDPrintView app icon.
+3. **Drag the MDPrintView icon into the Applications folder** (the window includes a shortcut to Applications).
+4. Open MDPrintView from **Launchpad** or your **Applications** folder.
+
+The first time you open it, macOS may take a moment to verify the app is from a known developer — this is normal and won't happen again. **There will be no "unidentified developer" warning**: the app is signed and notarized by Apple.
+
+MDPrintView checks for new versions automatically once a day, and you can check anytime from the menu bar at **MDPrintView → Check for Updates…**.
+
+### Homebrew Cask (coming later)
+
+Planned after a few stable point releases, once the install flow has real-world miles:
+
+```sh
+brew install --cask mdprintview
+```
+
+## What it does
 
 - **Three layout modes** — Editor, Split, Preview-only — switch with `⌥⌘1` / `⌥⌘2` / `⌥⌘3`
 - **Four reading themes** — Original, Focus, Sepia, Print
@@ -29,37 +54,11 @@ MDPrintView is a markdown editor that takes printing seriously. Three pane modes
 ## Requirements
 
 - macOS 26.0 (Tahoe) or later
-- Apple Silicon or Intel
-
-## Install
-
-### Direct download (recommended)
-
-Grab the latest `.dmg` from [Releases](https://github.com/neomavkda3/MDPrintView/releases) and drag MDPrintView to `/Applications`.
-
-The DMG is signed with a Developer ID Application certificate and notarized by Apple, so Gatekeeper accepts it without any "unidentified developer" warnings. The app self-updates via Sparkle — checks on launch (daily) and on demand via **MDPrintView → Check for Updates…**.
-
-### Homebrew Cask
-
-Planned after a few stable point releases, once the install flow has real-world miles:
-
-```sh
-brew install --cask mdprintview
-```
-
-## Build from source
-
-```sh
-brew install xcodegen
-git clone https://github.com/neomavkda3/MDPrintView.git
-cd MDPrintView
-xcodegen generate
-xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -configuration Debug build
-```
-
-Full contributor build notes in [CONTRIBUTING.md](CONTRIBUTING.md).
+- Apple Silicon or Intel Mac
 
 ## Keyboard shortcuts
+
+> macOS keyboard symbols: `⌘` = Command, `⌥` = Option, `⇧` = Shift
 
 | Shortcut | Action |
 |---|---|
@@ -72,9 +71,27 @@ Full contributor build notes in [CONTRIBUTING.md](CONTRIBUTING.md).
 | `⌥⌘1` `⌥⌘2` `⌥⌘3` | Editor only / Split / Preview only |
 | `⌘,` | Settings |
 
-## Contributing
+## For developers
 
-Issues, ideas, and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first and the [Code of Conduct](CODE_OF_CONDUCT.md).
+### Build from source
+
+```sh
+brew install xcodegen
+git clone https://github.com/neomavkda3/MDPrintView.git
+cd MDPrintView
+xcodegen generate
+xcodebuild -project MDPrintView.xcodeproj -scheme MDPrintView -configuration Debug build
+```
+
+Full contributor build notes in [CONTRIBUTING.md](CONTRIBUTING.md). Architecture overview in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). What's shipped vs. deferred in [docs/STATUS.md](docs/STATUS.md).
+
+### Contributing
+
+Issues, ideas, and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) first.
+
+### Security
+
+Vulnerability reports → see [SECURITY.md](SECURITY.md).
 
 ## Funding
 
@@ -85,9 +102,3 @@ If MDPrintView is useful to you, sponsorship covers the Apple Developer Program 
 ## License
 
 [GNU General Public License v3.0](LICENSE).
-
-## Architecture + history
-
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — how the pieces fit together
-- [`docs/STATUS.md`](docs/STATUS.md) — what's shipped vs. deferred
-- [`docs/plans/`](docs/plans/) — design + implementation plans (dated, accreting)
