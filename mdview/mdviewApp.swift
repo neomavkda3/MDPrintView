@@ -119,14 +119,36 @@ private struct SettingsView: View {
                         .monospacedDigit()
                         .frame(width: 50, alignment: .trailing)
                 }
-                Picker("Font family", selection: $settings.editorFontFamily) {
-                    ForEach(EditorFontFamily.Category.allCases) { category in
-                        Section(category.rawValue) {
-                            ForEach(EditorFontFamily.allCases.filter { $0.category == category }) {
-                                Text($0.label).tag($0)
+                HStack {
+                    Picker("Font family", selection: $settings.editorFontFamily) {
+                        ForEach(EditorFontFamily.Category.allCases) { category in
+                            Section(category.rawValue) {
+                                ForEach(EditorFontFamily.allCases.filter { $0.category == category }) { family in
+                                    // Show the actual chosen name instead of
+                                    // "Custom" so the picker reflects state.
+                                    if family == .custom {
+                                        Text(settings.editorCustomFontFamily.isEmpty
+                                             ? "Choose…"
+                                             : settings.editorCustomFontFamily)
+                                            .tag(family)
+                                    } else {
+                                        Text(family.label).tag(family)
+                                    }
+                                }
                             }
                         }
                     }
+                    Button("Browse…") {
+                        let current = settings.editorFontFamily.nsFont(size: settings.editorFontSize)
+                        FontPickerCoordinator.shared.show(
+                            currentFontName: current.familyName ?? current.fontName,
+                            size: settings.editorFontSize
+                        ) { name in
+                            settings.editorCustomFontFamily = name
+                            settings.editorFontFamily = .custom
+                        }
+                    }
+                    .controlSize(.small)
                 }
             }
             Section("Print") {

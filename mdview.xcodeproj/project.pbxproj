@@ -39,6 +39,7 @@
 		B577DB33B0A7B83E3F28106B /* katex.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 8F26FE2FACDE90625FEF454B /* katex.min.js */; };
 		BCCB4D182D2756B964F23068 /* LiveFormatStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59D55F78D443E12F9E4B7F4A /* LiveFormatStyler.swift */; };
 		C3C82E5CD62C3CF160A4910F /* MarkdownRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 697AD543F5FD46152146A2B6 /* MarkdownRendererTests.swift */; };
+		C6515C215D150E92FAC9A440 /* FontPickerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77DF4DEEDFC3CD1B0264DF3 /* FontPickerCoordinator.swift */; };
 		CE67FFBE5CBB1E0D21DC1EAE /* auto-render.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 34DD77C1E88EFEBC3AC5F36E /* auto-render.min.js */; };
 		D177F779CB4A40CF5FE16AB7 /* SyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2DF1E07B76D529CBD86139 /* SyntaxHighlighter.swift */; };
 		D4FD11C6127A92E520738A58 /* preview.html in Resources */ = {isa = PBXBuildFile; fileRef = A6732EFF1DA549F172F01DC3 /* preview.html */; };
@@ -97,6 +98,7 @@
 		C2020DAB8357938417C7E475 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		C9F594A5C54D11939394A4B0 /* mermaid.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = mermaid.min.js; sourceTree = "<group>"; };
 		D31969E0481ED75F0462CD01 /* katex.min.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = katex.min.css; sourceTree = "<group>"; };
+		D77DF4DEEDFC3CD1B0264DF3 /* FontPickerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontPickerCoordinator.swift; sourceTree = "<group>"; };
 		DE5D57C3B42A29D67FA92A43 /* mdview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mdview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA8783A724A9A92995469B2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E80429CD83E121D02FE4BB46 /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 			children = (
 				A62DAEB910655A1F44D8B8B4 /* AppSettings.swift */,
 				18154011B904FD142B62F8F2 /* DefaultAppCoordinator.swift */,
+				D77DF4DEEDFC3CD1B0264DF3 /* FontPickerCoordinator.swift */,
 				7617262B6A0164E57496BDA4 /* LayoutMode.swift */,
 				60040AC6C7EE435EBCF11421 /* MarkdownDocument.swift */,
 				6B0F51C668727F79663C26D1 /* PinnedDocuments.swift */,
@@ -349,6 +352,7 @@
 				D63C26FE54AA771ECE4DA075 /* EditorController.swift in Sources */,
 				81848D36D576F412BFB3042A /* EditorMode.swift in Sources */,
 				E0B900D37B57CBC47A253D6B /* EditorToolbar.swift in Sources */,
+				C6515C215D150E92FAC9A440 /* FontPickerCoordinator.swift in Sources */,
 				DE2166F9FBA278104E52F814 /* LayoutMode.swift in Sources */,
 				BCCB4D182D2756B964F23068 /* LiveFormatStyler.swift in Sources */,
 				85BDB40EDFE19ABDCD489D5F /* MarkdownDocument.swift in Sources */,

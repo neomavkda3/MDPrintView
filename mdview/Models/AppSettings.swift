@@ -19,6 +19,12 @@ enum EditorFontFamily: String, CaseIterable, Identifiable {
     case helveticaNeue
     case avenirNext
 
+    /// User-picked family from NSFontPanel. Resolves the name from
+    /// UserDefaults (`editorCustomFontFamily`) so we don't have to plumb
+    /// the name through every call site that already takes an
+    /// `EditorFontFamily`. Falls back to system mono if no name is set.
+    case custom
+
     var id: String { rawValue }
 
     var label: String {
@@ -34,6 +40,7 @@ enum EditorFontFamily: String, CaseIterable, Identifiable {
         case .systemSans:    return "SF Pro"
         case .helveticaNeue: return "Helvetica Neue"
         case .avenirNext:    return "Avenir Next"
+        case .custom:        return "Custom"
         }
     }
 
@@ -45,6 +52,8 @@ enum EditorFontFamily: String, CaseIterable, Identifiable {
             return .serif
         case .systemSans, .helveticaNeue, .avenirNext:
             return .sans
+        case .custom:
+            return .custom
         }
     }
 
@@ -83,6 +92,10 @@ enum EditorFontFamily: String, CaseIterable, Identifiable {
             return NSFont(name: "Helvetica Neue", size: size) ?? NSFont.systemFont(ofSize: size)
         case .avenirNext:
             return NSFont(name: "Avenir Next", size: size) ?? NSFont.systemFont(ofSize: size)
+        case .custom:
+            let name = UserDefaults.standard.string(forKey: "editorCustomFontFamily") ?? ""
+            return NSFont(name: name, size: size)
+                ?? NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
         }
     }
 
@@ -90,6 +103,7 @@ enum EditorFontFamily: String, CaseIterable, Identifiable {
         case mono = "Monospaced"
         case serif = "Serif"
         case sans = "Sans-Serif"
+        case custom = "Custom"
 
         var id: String { rawValue }
     }
@@ -159,6 +173,23 @@ final class AppSettings {
     var suppressWelcomeOnLaunch: Bool {
         get { access(keyPath: \.suppressWelcomeOnLaunch); return storedSuppressWelcomeOnLaunch }
         set { withMutation(keyPath: \.suppressWelcomeOnLaunch) { storedSuppressWelcomeOnLaunch = newValue } }
+    }
+
+    @ObservationIgnored
+    @AppStorage("editorCustomFontFamily") private var storedEditorCustomFontFamily: String = ""
+
+    /// Stored PostScript family name picked from NSFontPanel. Empty until
+    /// the user has chosen one. Read by `EditorFontFamily.custom.nsFont`.
+    var editorCustomFontFamily: String {
+        get {
+            access(keyPath: \.editorCustomFontFamily)
+            return storedEditorCustomFontFamily
+        }
+        set {
+            withMutation(keyPath: \.editorCustomFontFamily) {
+                storedEditorCustomFontFamily = newValue
+            }
+        }
     }
 
     @ObservationIgnored
