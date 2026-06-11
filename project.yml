@@ -19,6 +19,12 @@ packages:
   Markdown:
     url: https://github.com/apple/swift-markdown.git
     from: "0.6.0"
+  # Sparkle 2 — self-update for the OSS (non-MAS) Developer-ID build.
+  # macOS 26 supported as of 2.8.x. Pin to the 2.x major; minors add
+  # features without breaking integrations.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle.git
+    from: "2.9.0"
 
 targets:
   MDPrintView:
@@ -29,6 +35,8 @@ targets:
     dependencies:
       - package: Markdown
         product: Markdown
+      - package: Sparkle
+        product: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: net.cmagsisi.MDPrintView
@@ -46,8 +54,13 @@ targets:
           # macOS 26, leaving the preview pane empty.
           CODE_SIGN_ENTITLEMENTS: MDPrintView/MDPrintView-debug.entitlements
         Release:
-          # Release (App Store archive) keeps full sandbox + user-selected
-          # files + bookmarks entitlements.
+          # Release is the OSS (Developer ID) build — NOT sandboxed.
+          # Sparkle works without the XPC service complexity, Developer ID
+          # is what Gatekeeper expects for non-MAS distribution, and the
+          # entitlements file is intentionally empty.
+          #
+          # A separate Release-MAS config (sandboxed, no Sparkle) will be
+          # added when the Mac App Store SKU ships.
           CODE_SIGN_ENTITLEMENTS: MDPrintView/MDPrintView.entitlements
 
   MDPrintViewTests:

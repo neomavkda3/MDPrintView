@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		073899124E4C68216DC9914E /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 7B50EC9CC1927F3776172DAD /* Sparkle */; };
 		1339A13AA08E2463CD01086D /* Outline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06068FAF5F3F57316AD7A31A /* Outline.swift */; };
 		19B6077407EF46FE9A455575 /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E62D9F17AF6CCC1E8887D7E /* FileWatcher.swift */; };
 		1C9547108D5598CB08AD34F3 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC80F90A6918791755F50F2D /* WindowAccessor.swift */; };
@@ -116,6 +117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EBD8515B1526E7E1256E64EC /* Markdown in Frameworks */,
+				073899124E4C68216DC9914E /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +284,7 @@
 			name = MDPrintView;
 			packageProductDependencies = (
 				E2C52EBF2FA6076F3A136D56 /* Markdown */,
+				7B50EC9CC1927F3776172DAD /* Sparkle */,
 			);
 			productName = MDPrintView;
 			productReference = 3A50E09243C10430F87A1BF4 /* MDPrintView.app */;
@@ -313,6 +316,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				64EB38D8E7267DEB88B9D5D1 /* XCRemoteSwiftPackageReference "swift-markdown" */,
+				19A31BE75D1C2B76AC3E10F8 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E7567F816847962D2B3F0E22 /* Products */;
@@ -640,6 +644,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		19A31BE75D1C2B76AC3E10F8 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.0;
+			};
+		};
 		64EB38D8E7267DEB88B9D5D1 /* XCRemoteSwiftPackageReference "swift-markdown" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-markdown.git";
@@ -651,6 +663,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7B50EC9CC1927F3776172DAD /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 19A31BE75D1C2B76AC3E10F8 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
 		E2C52EBF2FA6076F3A136D56 /* Markdown */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 64EB38D8E7267DEB88B9D5D1 /* XCRemoteSwiftPackageReference "swift-markdown" */;

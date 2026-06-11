@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a feature or improvement for MDPrintView.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas welcome. MDPrintView is intentionally focused — not every request will fit the scope, but every request is read.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the workflow or pain point first. Solutions are easier when the problem is clear.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: What would the feature look like? UI, keyboard shortcuts, settings — whatever's relevant.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Anything you tried already, or other tools that solve this differently.
+
+  - type: checkboxes
+    id: scope-fit
+    attributes:
+      label: Scope check
+      options:
+        - label: This request is consistent with a focused markdown editor with print-quality output (not, say, a database or a calendar).
+          required: false

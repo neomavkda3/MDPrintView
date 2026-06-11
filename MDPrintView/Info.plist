@@ -53,6 +53,18 @@
     <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2026 Chris Magsisi. All rights reserved.</string>
+    <!-- Sparkle 2 auto-update configuration (OSS Developer-ID build).
+         The MAS build will either drop these keys or use a separate
+         Info.plist entirely. -->
+    <key>SUFeedURL</key>
+    <string>https://mdprintview.app/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>508nuOOQ/fhmDnz2tp0ylc9teOPR15h9+Zr4e3HHhsc=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <!-- Check for updates on launch + once a day in the background. -->
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
     <key>UTImportedTypeDeclarations</key>
     <array>
         <dict>

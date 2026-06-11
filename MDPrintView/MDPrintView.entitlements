@@ -2,11 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>com.apple.security.app-sandbox</key>
-    <true/>
-    <key>com.apple.security.files.user-selected.read-write</key>
-    <true/>
-    <key>com.apple.security.files.bookmarks.app-scope</key>
-    <true/>
+    <!--
+        OSS Release (this file): Developer ID signed, NOT sandboxed.
+
+        Why not sandboxed: Sparkle's installer needs to replace the app bundle
+        on disk. Doing that inside an App Sandbox requires shipping Sparkle's
+        XPC installer + downloader services as embedded targets plus a
+        non-trivial set of temporary-exception mach-lookup entitlements. We
+        opt out of that complexity here — Developer ID + notarization is what
+        Gatekeeper expects for non-MAS distribution, and a non-sandboxed
+        Developer-ID app is perfectly acceptable outside the Mac App Store.
+
+        A separate MDPrintView-mas.entitlements (with sandbox + Sparkle XPC
+        services, OR without Sparkle entirely since MAS handles updates) will
+        be added when the Mac App Store SKU ships.
+
+        Hardened Runtime is still enabled in the build settings (required for
+        notarization) — that's separate from sandboxing.
+    -->
 </dict>
 </plist>

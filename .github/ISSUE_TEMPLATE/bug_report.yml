@@ -1,0 +1,67 @@
+name: Bug report
+description: Something in MDPrintView isn't behaving as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in as much as you can — the more reproducible the report, the faster the fix.
+
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+      description: From the Apple menu → About This Mac.
+      placeholder: e.g. macOS 26.3 (Tahoe)
+    validations:
+      required: true
+
+  - type: input
+    id: mdprintview-version
+    attributes:
+      label: MDPrintView version
+      description: From MDPrintView → About MDPrintView.
+      placeholder: e.g. 0.2.0 (build 14)
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect to happen, and what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that reliably reproduce the bug.
+      placeholder: |
+        1. Open MDPrintView
+        2. Create a new document
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: file-or-snippet
+    attributes:
+      label: Markdown that triggers it (if relevant)
+      description: Paste a minimal `.md` snippet that reproduces the bug. Redact anything sensitive.
+      render: markdown
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / screen recordings
+      description: Drag images or videos into this field. A 5-second screen recording is often the fastest path to a fix.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and didn't find a duplicate.
+          required: true

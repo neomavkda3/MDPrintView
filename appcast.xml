@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+    <channel>
+        <title>MDPrintView</title>
+        <link>https://mdprintview.app/appcast.xml</link>
+        <description>Most recent changes with links to updates.</description>
+        <language>en</language>
+        <!--
+            Items are appended by Sparkle's `generate_appcast` tool during
+            the release workflow. Each item embeds the version, build
+            number, release notes (markdown), EdDSA signature, and the
+            GitHub Releases enclosure URL of the .dmg.
+
+            Until the first release ships this file is intentionally empty.
+            Sparkle handles an empty channel gracefully — the app reports
+            "You're up to date" on a manual Check for Updates.
+        -->
+    </channel>
+</rss>

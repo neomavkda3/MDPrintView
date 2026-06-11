@@ -1,10 +1,15 @@
 import SwiftUI
 import AppKit
+import Sparkle
 
 @main
 struct MDPrintViewApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var settings = AppSettings()
+
+    /// Sparkle's standard updater. Started at init so the first background
+    /// check fires shortly after launch.
+    private let updaterController: SPUStandardUpdaterController
 
     init() {
         // Cluster all document windows as tabs of a single MDPrintView window
@@ -13,6 +18,15 @@ struct MDPrintViewApp: App {
         // tabbing preference so new docs land as tabs even when the system
         // pref is "Manually" or "In Full Screen".
         NSWindow.allowsAutomaticWindowTabbing = true
+
+        // Sparkle reads SUFeedURL + SUPublicEDKey + SUEnableAutomaticChecks
+        // from Info.plist. `startingUpdater: true` kicks off the scheduled
+        // background check using SUScheduledCheckInterval (24h here).
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
     }
 
     var body: some Scene {
@@ -41,6 +55,9 @@ struct MDPrintViewApp: App {
         }
         .defaultLaunchBehavior(.suppressed)
         .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
+            }
             CommandGroup(replacing: .printItem) {
                 PrintMenuItem()
                 ExportPDFMenuItem()
@@ -52,6 +69,28 @@ struct MDPrintViewApp: App {
             SettingsView()
                 .environment(settings)
         }
+    }
+}
+
+/// Menu item that wires `SPUUpdater.checkForUpdates()` to the "Check for
+/// Updates…" item under the MDPrintView application menu. The
+/// `canCheckForUpdates` binding disables the menu while Sparkle is
+/// already running a check, which matches the system Mail / Safari /
+/// Xcode pattern.
+private struct CheckForUpdatesView: View {
+    private let updater: SPUUpdater
+    @State private var canCheck: Bool = true
+
+    init(updater: SPUUpdater) {
+        self.updater = updater
+    }
+
+    var body: some View {
+        Button("Check for Updates…") {
+            updater.checkForUpdates()
+        }
+        .disabled(!canCheck)
+        .onReceive(updater.publisher(for: \.canCheckForUpdates)) { canCheck = $0 }
     }
 }
 
