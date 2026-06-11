@@ -1,49 +1,85 @@
 import Foundation
-import AppKit
 
-/// Watches a single file URL and fires `onChange` (on main) whenever
-/// another process modifies it on disk.
+/// Watches a single file URL for any on-disk modification and fires
+/// `onChange` on the main actor.
 ///
-/// Built on `NSFilePresenter` so it cooperates with `NSFileCoordinator` —
-/// when MDPrintView itself saves, the coordinator pauses presenter
-/// notifications during the write, and well-behaved macOS apps (TextEdit,
-/// the system shell out from Claude Code, Xcode's atomic-write path) do
-/// the same. The result: no fights, no half-written reads.
+/// Implementation: `DispatchSource.makeFileSystemObjectSource` (a thin
+/// wrapper around the kernel `kqueue` facility).
 ///
-/// Self-save de-dupe is handled by the *caller* — after we re-read disk,
-/// the caller compares to the in-memory document text and only updates
-/// if they differ, so MDPrintView writing the file does not loop back.
-final class FileWatcher: NSObject, NSFilePresenter {
+/// We switched away from `NSFilePresenter` because it only reliably
+/// notifies when the *other* writer also uses `NSFileCoordinator`
+/// (TextEdit, Pages, Word). Tools that do raw atomic writes — vim,
+/// `echo >`, sed, Claude Code's Edit tool, VS Code — bypass the
+/// coordination layer entirely and never trigger NSFilePresenter
+/// callbacks. kqueue catches all of them because it's hooked into the
+/// VFS at the kernel level.
+///
+/// Atomic-write handling: most editors save by writing a `.tmp` file
+/// and `rename(2)`-ing it over the original. That replaces the inode
+/// our file descriptor points to. We detect this via the `.delete` /
+/// `.rename` event flags and re-`open(2)` the path after a short delay
+/// so the watcher continues firing for subsequent edits.
+///
+/// `@unchecked Sendable`: the dispatch source's event handler runs on
+/// `.main`, and `start`/`restart` are only invoked from main, so all
+/// reads/writes of `source` happen on a single thread. Swift's strict
+/// concurrency checker can't see that, hence the unchecked annotation.
+final class FileWatcher: @unchecked Sendable {
     private let url: URL
     private let onChange: @MainActor () -> Void
+    private var source: DispatchSourceFileSystemObject?
 
     init(url: URL, onChange: @escaping @MainActor () -> Void) {
         self.url = url
         self.onChange = onChange
-        super.init()
-        NSFileCoordinator.addFilePresenter(self)
+        start()
     }
 
     deinit {
-        NSFileCoordinator.removeFilePresenter(self)
+        source?.cancel()
     }
 
-    // MARK: NSFilePresenter
+    private func start() {
+        // O_EVTONLY: file descriptor that delivers vnode events without
+        // counting as an open for read or write — won't conflict with
+        // other apps holding the file open.
+        let fd = open(url.path, O_EVTONLY)
+        guard fd >= 0 else { return }
 
-    var presentedItemURL: URL? { url }
+        let src = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: fd,
+            eventMask: [.write, .extend, .delete, .rename],
+            queue: .main
+        )
 
-    /// Drive callbacks on .main so the closure can touch SwiftUI state
-    /// without an extra hop. NSFileCoordinator serializes calls onto this
-    /// queue, so we don't risk re-entrant reads.
-    var presentedItemOperationQueue: OperationQueue { .main }
+        let callback = onChange
+        src.setEventHandler { [weak self] in
+            let events = src.data
+            let needsRestart = events.contains(.delete) || events.contains(.rename)
 
-    func presentedItemDidChange() {
-        // We're already on main (per presentedItemOperationQueue), but
-        // Swift can't statically prove it — Task @MainActor cheaply
-        // confirms isolation for the @MainActor-typed closure.
-        let action = onChange
-        Task { @MainActor in
-            action()
+            Task { @MainActor in
+                callback()
+            }
+
+            if needsRestart {
+                // Atomic-write window: by the time we get the delete
+                // event, the new file is usually already in place. A
+                // small delay handles the rare case where it isn't yet.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                    self?.restart()
+                }
+            }
         }
+        src.setCancelHandler {
+            close(fd)
+        }
+        source = src
+        src.resume()
+    }
+
+    private func restart() {
+        source?.cancel()
+        source = nil
+        start()
     }
 }

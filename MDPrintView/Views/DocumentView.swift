@@ -122,26 +122,15 @@ struct DocumentView: View {
         }
     }
 
-    /// Read the file via NSFileCoordinator and replace `document.text`
-    /// iff the disk content differs from what we already have. The
-    /// equality check is what breaks the self-save loop: when MDPrintView
-    /// writes to disk, the presenter notification fires, we re-read, the
-    /// content matches what we already hold, and we silently no-op.
+    /// Re-read the file and replace `document.text` iff the disk content
+    /// differs from what we already have. The equality check is what
+    /// breaks the self-save loop: when MDPrintView writes to disk, the
+    /// watcher fires, we re-read, the content matches what we already
+    /// hold, and we silently no-op.
     private func reloadFromDiskIfChanged(url: URL) {
-        let coordinator = NSFileCoordinator(filePresenter: fileWatcher)
-        var coordinationError: NSError?
-        var diskText: String?
-        coordinator.coordinate(
-            readingItemAt: url,
-            options: .withoutChanges,
-            error: &coordinationError
-        ) { readURL in
-            if let data = try? Data(contentsOf: readURL),
-               let str = String(data: data, encoding: .utf8) {
-                diskText = str
-            }
-        }
-        guard let diskText, diskText != document.text else { return }
+        guard let data = try? Data(contentsOf: url),
+              let diskText = String(data: data, encoding: .utf8),
+              diskText != document.text else { return }
         document.text = diskText
     }
 }
