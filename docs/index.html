@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDPrintView — Native macOS markdown editor with print-quality typography</title>
+  <meta
+    name="description"
+    content="A free, open-source macOS markdown editor with three layout modes, four reading themes, Mermaid diagrams, LaTeX math, and a print pipeline that respects page breaks."
+  />
+  <link rel="canonical" href="https://neomavkda3.github.io/MDPrintView/" />
+
+  <!-- Open Graph / Twitter — for nice link previews when shared -->
+  <meta property="og:title" content="MDPrintView" />
+  <meta
+    property="og:description"
+    content="A native macOS markdown editor with print-quality typography. Free + open source."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://neomavkda3.github.io/MDPrintView/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Use the app icon as the favicon — pulled from the repo via raw.githubusercontent. -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_128x128.png"
+  />
+
+  <style>
+    /* ---- Design tokens — minimal, Apple-style, system fonts ---- */
+    :root {
+      --fg: #1a1a1a;
+      --fg-muted: #4a4a4a;
+      --fg-soft: #6f6f6f;
+      --bg: #ffffff;
+      --bg-soft: #f5f5f7;
+      --accent: #0a66d1;
+      --accent-fg: #ffffff;
+      --border: #e5e5e7;
+      --radius: 14px;
+      --max-w: 880px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg: #f5f5f7;
+        --fg-muted: #c4c4c4;
+        --fg-soft: #9a9a9a;
+        --bg: #0c0c0c;
+        --bg-soft: #1a1a1a;
+        --accent: #2f8bff;
+        --border: #2a2a2a;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ---- Hero ---- */
+    .hero {
+      text-align: center;
+      padding: 96px 24px 80px;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .hero img.icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 28px;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+    }
+    .hero .tagline {
+      font-size: 20px;
+      color: var(--fg-muted);
+      margin: 0 0 36px;
+    }
+    .cta {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-fg);
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .cta:hover { text-decoration: none; opacity: 0.9; }
+    .cta-meta {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--fg-soft);
+    }
+    .cta-meta a { color: var(--fg-soft); }
+
+    /* ---- Sections ---- */
+    section {
+      padding: 56px 0;
+      border-top: 1px solid var(--border);
+    }
+    section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0 0 24px;
+    }
+
+    /* Features grid */
+    .features ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .features li {
+      background: var(--bg-soft);
+      padding: 20px 22px;
+      border-radius: var(--radius);
+    }
+    .features h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    .features p {
+      margin: 0;
+      color: var(--fg-muted);
+      font-size: 14.5px;
+    }
+
+    /* Install steps */
+    .install ol {
+      padding-left: 0;
+      counter-reset: step;
+      list-style: none;
+      margin: 0 0 24px;
+    }
+    .install li {
+      counter-increment: step;
+      padding: 16px 16px 16px 64px;
+      position: relative;
+      background: var(--bg-soft);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+    }
+    .install li::before {
+      content: counter(step);
+      position: absolute;
+      left: 18px;
+      top: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .install .reassurance {
+      font-size: 14px;
+      color: var(--fg-muted);
+      border-left: 3px solid var(--accent);
+      padding: 0 0 0 14px;
+      margin: 16px 0 0;
+    }
+
+    /* FAQ */
+    .faq details {
+      padding: 14px 18px;
+      background: var(--bg-soft);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+    }
+    .faq details[open] { background: var(--bg-soft); }
+    .faq summary {
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      font-size: 15.5px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: "+";
+      float: right;
+      font-weight: 400;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--fg-soft);
+    }
+    .faq details[open] summary::after { content: "−"; }
+    .faq p {
+      margin: 10px 0 0;
+      color: var(--fg-muted);
+      font-size: 14.5px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 24px 64px;
+      text-align: center;
+      color: var(--fg-soft);
+      font-size: 13.5px;
+      border-top: 1px solid var(--border);
+    }
+    footer nav a {
+      color: var(--fg-muted);
+      margin: 0 10px;
+    }
+    footer .copy {
+      margin-top: 12px;
+      font-size: 12.5px;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      .hero { padding: 72px 24px 56px; }
+      .hero h1 { font-size: 36px; }
+      .hero .tagline { font-size: 17px; }
+      section { padding: 44px 0; }
+      section h2 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <img
+      class="icon"
+      src="https://raw.githubusercontent.com/neomavkda3/MDPrintView/main/MDPrintView/Assets.xcassets/AppIcon.appiconset/icon_256x256.png"
+      alt="MDPrintView app icon"
+    />
+    <h1>MDPrintView</h1>
+    <p class="tagline">
+      A native macOS markdown editor with print-quality typography.
+    </p>
+
+    <a
+      id="download-btn"
+      class="cta"
+      href="https://github.com/neomavkda3/MDPrintView/releases/latest"
+    >⬇ Download for Mac</a>
+
+    <p class="cta-meta">
+      <span id="version-line">macOS 26+</span> · Apple Silicon and Intel ·
+      Free and open source
+      (<a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>)
+    </p>
+  </header>
+
+  <main>
+    <section class="features">
+      <h2>What it does</h2>
+      <ul>
+        <li>
+          <h3>Three layout modes</h3>
+          <p>Editor, Split, or Preview-only — switch with one keystroke.</p>
+        </li>
+        <li>
+          <h3>Four reading themes</h3>
+          <p>Original, Focus, Sepia, and Print. Match the mood you write in.</p>
+        </li>
+        <li>
+          <h3>Print-quality output</h3>
+          <p>
+            Page breaks respect headings, code blocks, and tables. Export to PDF
+            or send to any printer.
+          </p>
+        </li>
+        <li>
+          <h3>Diagrams and math</h3>
+          <p>
+            Mermaid diagrams and LaTeX math (KaTeX) render in the preview pane
+            and the print output.
+          </p>
+        </li>
+        <li>
+          <h3>Live external-edit reload</h3>
+          <p>
+            Edit the file in another tool (vim, Claude Code, VS Code) and
+            MDPrintView updates in place.
+          </p>
+        </li>
+        <li>
+          <h3>11 fonts plus your own</h3>
+          <p>
+            Curated font picks for editing, with the standard macOS Fonts panel
+            for anything else installed on your system.
+          </p>
+        </li>
+        <li>
+          <h3>System / Light / Dark</h3>
+          <p>Override macOS appearance per-app.</p>
+        </li>
+        <li>
+          <h3>Privacy-first</h3>
+          <p>
+            Zero network calls. Nothing leaves your Mac. Privacy Manifest
+            declared.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="install">
+      <h2>How to install</h2>
+      <ol>
+        <li>
+          Click <strong>Download for Mac</strong> above. On the page that opens,
+          download the file ending in <code>.dmg</code> (under <em>Assets</em>).
+        </li>
+        <li>
+          <strong>Double-click</strong> the downloaded file. A window opens
+          showing the MDPrintView icon.
+        </li>
+        <li>
+          <strong>Drag</strong> the MDPrintView icon into the
+          <strong>Applications</strong> folder shortcut in the same window.
+        </li>
+        <li>
+          Open MDPrintView from <strong>Launchpad</strong> or your
+          <strong>Applications</strong> folder.
+        </li>
+      </ol>
+      <p class="reassurance">
+        macOS may take a moment to verify the app on first launch — this is
+        normal and won't happen again. There's no "unidentified developer"
+        warning: MDPrintView is signed and notarized by Apple. Updates download
+        automatically; you can also check anytime from
+        <strong>MDPrintView → Check for Updates…</strong>.
+      </p>
+    </section>
+
+    <section class="faq">
+      <h2>Common questions</h2>
+      <details>
+        <summary>Is it really free?</summary>
+        <p>
+          Yes. MDPrintView is open source under the GPL-3.0 license. No
+          subscriptions, no in-app purchases, no tracking.
+        </p>
+      </details>
+      <details>
+        <summary>Does it work offline?</summary>
+        <p>
+          Yes. MDPrintView has no network access at all. Everything runs
+          locally on your Mac.
+        </p>
+      </details>
+      <details>
+        <summary>What if I see a security warning?</summary>
+        <p>
+          You shouldn't — the app is signed and notarized by Apple. If you do,
+          right-click <strong>MDPrintView</strong> in Applications and choose
+          <strong>Open</strong>. You'll only need to do this once.
+        </p>
+      </details>
+      <details>
+        <summary>Where do I report a bug or request a feature?</summary>
+        <p>
+          On the
+          <a href="https://github.com/neomavkda3/MDPrintView/issues">GitHub Issues</a>
+          page. Bug-report and feature-request templates are provided.
+        </p>
+      </details>
+      <details>
+        <summary>Can I help fund development?</summary>
+        <p>
+          Yes — <a href="https://github.com/sponsors/neomavkda3">GitHub Sponsors</a>
+          covers the Apple Developer Program fee and helps keep shipping. 0% platform
+          cut.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <nav>
+      <a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>
+      <a href="https://github.com/neomavkda3/MDPrintView/releases">All releases</a>
+      <a href="https://github.com/neomavkda3/MDPrintView/blob/main/CONTRIBUTING.md">Contribute</a>
+      <a href="https://github.com/sponsors/neomavkda3">Sponsor</a>
+    </nav>
+    <p class="copy">
+      MDPrintView is open source under
+      <a href="https://github.com/neomavkda3/MDPrintView/blob/main/LICENSE">GPL-3.0</a>.
+    </p>
+  </footer>
+
+  <script>
+    // Keep the download button + version line current with the latest GitHub
+    // Release. No external dependencies; pure fetch. Falls back gracefully:
+    // if the API is unreachable, the button still points at /releases/latest
+    // which always shows the most recent release.
+    (function () {
+      var btn = document.getElementById('download-btn');
+      var verLine = document.getElementById('version-line');
+      fetch(
+        'https://api.github.com/repos/neomavkda3/MDPrintView/releases/latest',
+        { headers: { Accept: 'application/vnd.github+json' } }
+      )
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.assets) return;
+          var dmg = data.assets.find(function (a) {
+            return a.name && a.name.toLowerCase().endsWith('.dmg');
+          });
+          if (dmg && dmg.browser_download_url) {
+            btn.href = dmg.browser_download_url;
+            btn.textContent = '⬇ Download ' + (data.tag_name || '');
+          }
+          if (data.tag_name && verLine) {
+            verLine.textContent = data.tag_name + ' · macOS 26+';
+          }
+        })
+        .catch(function () { /* graceful fallback already in place */ });
+    })();
+  </script>
+</body>
+</html>
