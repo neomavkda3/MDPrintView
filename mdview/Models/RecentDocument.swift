@@ -15,10 +15,20 @@ struct RecentDocument: Identifiable, Hashable {
     }
 
     /// "5m ago", "2d ago", etc. Uses the system-localized short style.
+    /// Formatter cached as `static let` — instantiating one per row was
+    /// flagged by the architecture audit as a hot allocation, since
+    /// `documentCard()` reads this for every visible row.
+    // nonisolated(unsafe): Foundation formatters aren't `Sendable`, but
+    // RelativeDateTimeFormatter's `localizedString(for:relativeTo:)` is
+    // read-only after configuration — no mutable shared state.
+    nonisolated(unsafe) private static let relativeFormatter: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .short
+        return f
+    }()
+
     var relativeDate: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: modificationDate, relativeTo: Date())
+        Self.relativeFormatter.localizedString(for: modificationDate, relativeTo: Date())
     }
 
     func matches(_ query: String) -> Bool {

@@ -18,6 +18,16 @@
                 <string>CA92.1</string>
             </array>
         </dict>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <!-- C617.1: Display file timestamps to the user (we show
+                     "5m ago" etc. on the welcome screen's recent docs). -->
+                <string>C617.1</string>
+            </array>
+        </dict>
     </array>
 </dict>
 </plist>

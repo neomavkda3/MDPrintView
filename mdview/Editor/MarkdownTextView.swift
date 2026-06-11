@@ -29,6 +29,13 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.smartInsertDeleteEnabled = false
 
+        // Opt into the macOS 26 Writing Tools experience in the context
+        // menu (Rewrite / Proofread / Compose). `.default` lets the system
+        // pick the right behavior for our plain-text content.
+        if #available(macOS 26, *) {
+            textView.writingToolsBehavior = .default
+        }
+
         textView.string = text
         controller.textView = textView
         if let storage = textView.textStorage {

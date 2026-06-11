@@ -36,9 +36,9 @@ struct WelcomeView: View {
                 .frame(width: 96, height: 96)
             VStack(spacing: 4) {
                 Text("Welcome to mdview")
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(.title2, design: .default, weight: .semibold))
                 Text("A native macOS markdown editor with print-quality typography")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -50,12 +50,11 @@ struct WelcomeView: View {
             Button(action: createNewDocument) {
                 HStack(spacing: 8) {
                     Image(systemName: "doc.text")
-                        .font(.system(size: 14))
                     Text("New Document")
-                        .font(.system(size: 13, weight: .medium))
+                        .fontWeight(.medium)
                     Spacer()
                     Text("⌘N")
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .monospaced()
                         .foregroundStyle(.secondary)
                 }
@@ -64,17 +63,18 @@ struct WelcomeView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .tint(.accentColor)
             .keyboardShortcut("n", modifiers: .command)
+            .accessibilityIdentifier("welcome.new")
 
             Button(action: openDocumentPanel) {
                 HStack(spacing: 8) {
                     Image(systemName: "folder")
-                        .font(.system(size: 14))
                     Text("Open…")
-                        .font(.system(size: 13, weight: .medium))
+                        .fontWeight(.medium)
                     Spacer()
                     Text("⌘O")
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .monospaced()
                         .foregroundStyle(.secondary)
                 }
@@ -84,6 +84,7 @@ struct WelcomeView: View {
             .buttonStyle(.bordered)
             .controlSize(.large)
             .keyboardShortcut("o", modifiers: .command)
+            .accessibilityIdentifier("welcome.open")
         }
     }
 
@@ -128,29 +129,31 @@ struct WelcomeView: View {
     private var searchField: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 11))
+                .font(.caption)
                 .foregroundStyle(.tertiary)
             TextField("Search documents", text: $searchText)
                 .textFieldStyle(.plain)
-                .font(.system(size: 12))
+                .font(.callout)
+                .accessibilityLabel("Search documents")
+                .accessibilityIdentifier("welcome.search")
             if !searchText.isEmpty {
                 Button { searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Clear search")
             }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(Color(nsColor: .controlBackgroundColor))
-        .cornerRadius(6)
+        .background(.thickMaterial, in: RoundedRectangle(cornerRadius: 6))
     }
 
     private func sectionHeader(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .semibold))
+            .font(.caption2.weight(.semibold))
             .tracking(0.8)
             .foregroundStyle(.secondary)
             .padding(.top, 4)
@@ -160,11 +163,11 @@ struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 4) {
             if searchText.isEmpty {
                 Text("Documents you open will show up here.")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(.tertiary)
             } else {
                 Text("No documents match \"\(searchText)\".")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(.tertiary)
             }
         }
@@ -174,58 +177,68 @@ struct WelcomeView: View {
 
     private func documentCard(_ doc: RecentDocument) -> some View {
         let isPinned = pinnedURLs.contains(doc.url)
-        return Button { openURL(doc.url) } label: {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "doc.text")
-                    .font(.system(size: 18))
-                    .foregroundStyle(.tertiary)
-                    .frame(width: 22, alignment: .top)
-                    .padding(.top, 1)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(doc.displayTitle)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                        Spacer(minLength: 4)
-                        Text(doc.relativeDate)
-                            .font(.system(size: 10))
-                            .foregroundStyle(.tertiary)
-                    }
-
-                    if !doc.preview.isEmpty {
-                        Text(doc.preview)
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    Text(doc.url.deletingLastPathComponent().path)
-                        .font(.system(size: 10))
+        return HStack(alignment: .top, spacing: 12) {
+            Button { openURL(doc.url) } label: {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "doc.text")
+                        .font(.title3)
                         .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
+                        .frame(width: 22, alignment: .top)
+                        .padding(.top, 1)
 
-                Button { togglePin(doc.url) } label: {
-                    Image(systemName: isPinned ? "pin.fill" : "pin")
-                        .font(.system(size: 12))
-                        .foregroundStyle(isPinned ? Color.accentColor : Color.secondary.opacity(0.45))
-                        .rotationEffect(.degrees(isPinned ? 0 : 45))
-                        .frame(width: 18, height: 18)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(doc.displayTitle)
+                                .font(.callout.weight(.medium))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            Spacer(minLength: 4)
+                            Text(doc.relativeDate)
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+
+                        if !doc.preview.isEmpty {
+                            Text(doc.preview)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Text(doc.url.deletingLastPathComponent().path)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    Spacer(minLength: 0)
                 }
-                .buttonStyle(.plain)
-                .help(isPinned ? "Unpin" : "Pin to top")
+                .contentShape(Rectangle())
             }
-            .padding(10)
-            .background(Color.primary.opacity(0.04))
-            .cornerRadius(7)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open \(doc.displayTitle)")
+            .accessibilityHint("Modified \(doc.relativeDate)")
+
+            // Pin button — separate from the card-open button so VoiceOver
+            // treats them as distinct actions, and hit area is enlarged via
+            // a 44pt-square contentShape without inflating the visual icon.
+            Button { togglePin(doc.url) } label: {
+                Image(systemName: isPinned ? "pin.fill" : "pin")
+                    .font(.callout)
+                    .foregroundStyle(isPinned ? Color.accentColor : Color.secondary)
+                    .rotationEffect(.degrees(isPinned ? 0 : 45))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(isPinned ? "Unpin" : "Pin to top")
+            .accessibilityLabel(isPinned ? "Unpin document" : "Pin document")
+            .accessibilityHint(isPinned ? "Removes from pinned section" : "Keeps this document at the top of the list")
         }
-        .buttonStyle(.plain)
+        .padding(10)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
     }
 
     private var footer: some View {
@@ -241,8 +254,9 @@ struct WelcomeView: View {
             if !recents.isEmpty {
                 Button("Clear Recents", action: clearRecents)
                     .buttonStyle(.plain)
-                    .font(.system(size: 11))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("Clear recent documents")
             }
         }
     }
