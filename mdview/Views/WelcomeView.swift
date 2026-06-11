@@ -5,127 +5,231 @@ struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
     @Environment(\.dismissWindow) private var dismissWindow
 
-    // Held in @State (rather than computed from NSDocumentController each
-    // body call) so we can refresh it on .onAppear — otherwise the list
-    // stays frozen at whatever it was when the Window scene first rendered.
-    @State private var recentURLs: [URL] = []
+    // Held in @State (rather than computed from NSDocumentController on
+    // every body call) so we can refresh it on .onAppear — otherwise the
+    // list stays frozen at whatever it was when the Window scene was
+    // first created.
+    @State private var recents: [RecentDocument] = []
+    @State private var pinnedURLs: [URL] = []
+    @State private var searchText: String = ""
 
     var body: some View {
-        VStack(spacing: 24) {
-            // App icon — pulled via NSWorkspace from the bundle path so we
-            // always get the most current AppIcon (NSApp.applicationIconImage
-            // can be stale during Debug rebuilds due to icon cache).
+        VStack(spacing: 18) {
+            header
+            actionButtons
+            Divider()
+            recentsSection
+            footer
+        }
+        .padding(28)
+        .frame(width: 600, height: 720)
+        .onAppear(perform: refresh)
+    }
+
+    // MARK: - Sections
+
+    private var header: some View {
+        VStack(spacing: 10) {
             Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
                 .resizable()
                 .interpolation(.high)
-                .frame(width: 144, height: 144)
-
-            VStack(spacing: 6) {
+                .frame(width: 96, height: 96)
+            VStack(spacing: 4) {
                 Text("Welcome to mdview")
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(.system(size: 22, weight: .semibold))
                 Text("A native macOS markdown editor with print-quality typography")
-                    .font(.system(size: 14))
+                    .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
+        }
+    }
 
-            VStack(spacing: 10) {
-                Button(action: createNewDocument) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "doc.text")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("New Document")
-                            .font(.system(size: 14, weight: .medium))
-                        Spacer()
-                        Text("⌘N")
-                            .font(.system(size: 12))
-                            .monospaced()
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .keyboardShortcut("n", modifiers: .command)
-
-                Button(action: openDocumentPanel) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "folder")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Open Document…")
-                            .font(.system(size: 14, weight: .medium))
-                        Spacer()
-                        Text("⌘O")
-                            .font(.system(size: 12))
-                            .monospaced()
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
-                .keyboardShortcut("o", modifiers: .command)
-            }
-
-            Divider()
-                .padding(.vertical, 2)
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("RECENT")
-                        .font(.system(size: 11, weight: .semibold))
-                        .tracking(0.8)
-                        .foregroundStyle(.secondary)
+    private var actionButtons: some View {
+        HStack(spacing: 10) {
+            Button(action: createNewDocument) {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 14))
+                    Text("New Document")
+                        .font(.system(size: 13, weight: .medium))
                     Spacer()
-                    if !recentURLs.isEmpty {
-                        Button("Clear", action: clearRecents)
-                            .buttonStyle(.plain)
+                    Text("⌘N")
+                        .font(.system(size: 11))
+                        .monospaced()
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .keyboardShortcut("n", modifiers: .command)
+
+            Button(action: openDocumentPanel) {
+                HStack(spacing: 8) {
+                    Image(systemName: "folder")
+                        .font(.system(size: 14))
+                    Text("Open…")
+                        .font(.system(size: 13, weight: .medium))
+                    Spacer()
+                    Text("⌘O")
+                        .font(.system(size: 11))
+                        .monospaced()
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .keyboardShortcut("o", modifiers: .command)
+        }
+    }
+
+    @ViewBuilder
+    private var recentsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            searchField
+
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 14) {
+                    if !visiblePinned.isEmpty {
+                        sectionHeader("PINNED")
+                        ForEach(visiblePinned) { doc in
+                            documentCard(doc)
+                        }
+                    }
+
+                    let visibleByGroup = recentsByGroup
+                    let allEmpty = visiblePinned.isEmpty
+                        && visibleByGroup.allSatisfy { $0.value.isEmpty }
+
+                    if allEmpty {
+                        emptyState
+                    } else {
+                        ForEach(DateGroup.allCases, id: \.rawValue) { group in
+                            let docs = visibleByGroup[group] ?? []
+                            if !docs.isEmpty {
+                                sectionHeader(group.label.uppercased())
+                                ForEach(docs) { doc in
+                                    documentCard(doc)
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 4)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
+            TextField("Search documents", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+            if !searchText.isEmpty {
+                Button { searchText = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(6)
+    }
+
+    private func sectionHeader(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .semibold))
+            .tracking(0.8)
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
+    }
+
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if searchText.isEmpty {
+                Text("Documents you open will show up here.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.tertiary)
+            } else {
+                Text("No documents match \"\(searchText)\".")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 12)
+    }
+
+    private func documentCard(_ doc: RecentDocument) -> some View {
+        let isPinned = pinnedURLs.contains(doc.url)
+        return Button { openURL(doc.url) } label: {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "doc.text")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.tertiary)
+                    .frame(width: 22, alignment: .top)
+                    .padding(.top, 1)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(doc.displayTitle)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                        Spacer(minLength: 4)
+                        Text(doc.relativeDate)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    if !doc.preview.isEmpty {
+                        Text(doc.preview)
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                }
-                .padding(.bottom, 2)
 
-                if recentURLs.isEmpty {
-                    Text("Documents you open will show up here.")
-                        .font(.system(size: 12))
+                    Text(doc.url.deletingLastPathComponent().path)
+                        .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 8)
-                } else {
-                    ForEach(recentURLs.prefix(5), id: \.self) { url in
-                        Button { openURL(url) } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: "doc")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(.tertiary)
-                                    .frame(width: 24)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(url.lastPathComponent)
-                                        .font(.system(size: 13))
-                                        .lineLimit(1)
-                                    Text(url.deletingLastPathComponent().path)
-                                        .font(.system(size: 11))
-                                        .foregroundStyle(.tertiary)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                }
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                 }
+
+                Button { togglePin(doc.url) } label: {
+                    Image(systemName: isPinned ? "pin.fill" : "pin")
+                        .font(.system(size: 12))
+                        .foregroundStyle(isPinned ? Color.accentColor : Color.secondary.opacity(0.45))
+                        .rotationEffect(.degrees(isPinned ? 0 : 45))
+                        .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.plain)
+                .help(isPinned ? "Unpin" : "Pin to top")
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(10)
+            .background(Color.primary.opacity(0.04))
+            .cornerRadius(7)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
 
-            Spacer(minLength: 8)
-
+    private var footer: some View {
+        HStack {
             Toggle("Show this window when mdview launches", isOn: Binding(
                 get: { !suppressOnLaunch },
                 set: { suppressOnLaunch = !$0 }
@@ -133,19 +237,54 @@ struct WelcomeView: View {
             .toggleStyle(.checkbox)
             .controlSize(.small)
             .foregroundStyle(.secondary)
+            Spacer()
+            if !recents.isEmpty {
+                Button("Clear Recents", action: clearRecents)
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding(32)
-        .frame(width: 560, height: recentURLs.isEmpty ? 580 : 680)
-        .onAppear(perform: refreshRecents)
     }
 
-    private func refreshRecents() {
-        recentURLs = NSDocumentController.shared.recentDocumentURLs
+    // MARK: - Derived data
+
+    /// Pinned docs that pass the search filter, in user-pin order.
+    private var visiblePinned: [RecentDocument] {
+        pinnedURLs
+            .compactMap { url -> RecentDocument? in
+                // Prefer the in-memory recent (already has preview cached);
+                // fall back to a fresh load for pinned items that have aged
+                // out of the recent list.
+                recents.first(where: { $0.url == url }) ?? RecentDocument.load(from: url)
+            }
+            .filter { $0.matches(searchText) }
     }
 
-    private func clearRecents() {
-        NSDocumentController.shared.clearRecentDocuments(nil)
-        refreshRecents()
+    /// Non-pinned recents, bucketed by DateGroup, filtered by search.
+    private var recentsByGroup: [DateGroup: [RecentDocument]] {
+        var buckets: [DateGroup: [RecentDocument]] = [:]
+        for doc in recents where !pinnedURLs.contains(doc.url) && doc.matches(searchText) {
+            buckets[DateGroup.group(for: doc.modificationDate), default: []].append(doc)
+        }
+        // Sort each bucket newest-first.
+        for key in buckets.keys {
+            buckets[key]?.sort { $0.modificationDate > $1.modificationDate }
+        }
+        return buckets
+    }
+
+    // MARK: - Actions
+
+    private func refresh() {
+        recents = NSDocumentController.shared.recentDocumentURLs
+            .compactMap { RecentDocument.load(from: $0) }
+        pinnedURLs = PinnedDocuments.shared.urls
+    }
+
+    private func togglePin(_ url: URL) {
+        PinnedDocuments.shared.toggle(url)
+        pinnedURLs = PinnedDocuments.shared.urls
     }
 
     private func createNewDocument() {
@@ -171,6 +310,11 @@ struct WelcomeView: View {
         NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, _ in
             DispatchQueue.main.async { closeWelcome() }
         }
+    }
+
+    private func clearRecents() {
+        NSDocumentController.shared.clearRecentDocuments(nil)
+        refresh()
     }
 
     private func closeWelcome() {
