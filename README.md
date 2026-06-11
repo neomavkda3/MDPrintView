@@ -95,9 +95,11 @@ Vulnerability reports → see [SECURITY.md](SECURITY.md).
 
 ## Funding
 
-If MDPrintView is useful to you, sponsorship covers the Apple Developer Program fee and helps me keep shipping:
+MDPrintView is free and open source under GPL-3.0. Sponsorship on GitHub goes toward equipping new graduates entering sports tech with the tools they need to start — laptops, software subscriptions, training courses, AI and cloud credits — through [ANCOP Canada](https://www.ancopcanada.org/). The first ~$8/month covers MDPrintView's Apple Developer Program fee (so the app stays signed and notarized for everyone); everything beyond that goes to the new-grad tooling fund.
 
 - [GitHub Sponsors](https://github.com/sponsors/neomavkda3) — 0% platform fee
+
+Sponsoring MDPrintView means you get a tool you can use forever, and someone starting their career in sports tech gets a real shot.
 
 ## License
 

@@ -187,6 +187,27 @@
       margin: 16px 0 0;
     }
 
+    /* Mission section */
+    .mission p {
+      color: var(--fg-muted);
+      font-size: 15.5px;
+      line-height: 1.65;
+      max-width: 64ch;
+    }
+    .mission p + p { margin-top: 14px; }
+    .sponsor-cta-wrap { text-align: center; margin-top: 36px !important; }
+    .sponsor-cta {
+      display: inline-block;
+      padding: 12px 26px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .sponsor-cta:hover { text-decoration: none; background: var(--accent); color: var(--accent-fg); }
+
     /* FAQ */
     .faq details {
       padding: 14px 18px;
@@ -352,6 +373,29 @@
       </p>
     </section>
 
+    <section class="mission">
+      <h2>Why this is free — and what sponsorship funds</h2>
+      <p>
+        MDPrintView is open source under GPL-3.0 and will always be free.
+        Sponsorship on GitHub goes toward equipping new graduates entering
+        sports tech with the tools they need to start — laptops, software
+        subscriptions, training courses, AI and cloud credits. The work
+        happens through
+        <a href="https://www.ancopcanada.org/">ANCOP Canada</a>.
+      </p>
+      <p>
+        The barrier to entry for new tech grads has only gotten higher;
+        small, targeted investments change someone's career trajectory.
+        Sponsoring MDPrintView means you get a tool you can use forever, and
+        someone starting their career in sports tech gets a real shot.
+      </p>
+      <p class="sponsor-cta-wrap">
+        <a class="sponsor-cta" href="https://github.com/sponsors/neomavkda3">
+          ♥ Sponsor MDPrintView
+        </a>
+      </p>
+    </section>
+
     <section class="faq">
       <h2>Common questions</h2>
       <details>
@@ -385,11 +429,14 @@
         </p>
       </details>
       <details>
-        <summary>Can I help fund development?</summary>
+        <summary>How do sponsorship funds reach new grads?</summary>
         <p>
-          Yes — <a href="https://github.com/sponsors/neomavkda3">GitHub Sponsors</a>
-          covers the Apple Developer Program fee and helps keep shipping. 0% platform
-          cut.
+          Sponsorship dollars flow through ANCOP Canada, which works directly
+          with new graduates entering the sports tech industry, providing
+          laptops, software subscriptions, training, and AI/cloud credits.
+          The first ~$8/month covers MDPrintView's Apple Developer Program
+          fee (so the app stays signed and notarized for everyone);
+          everything beyond that goes to the new-grad tooling fund.
         </p>
       </details>
     </section>
