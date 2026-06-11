@@ -9,7 +9,6 @@ These are **historical artifacts of the build process**, not authoritative curre
 | Path | What's here |
 |---|---|
 | `*.md` (this directory) | Active or historical plans relevant to the current OSS-first direction |
-| `archived/` | Plans from the earlier MAS-first strategy — kept for reference, not current state |
 | `private/` | Not present in the repo — gitignored. Used locally for plans that aren't ready (or appropriate) to share publicly |
 
 ## Conventions
