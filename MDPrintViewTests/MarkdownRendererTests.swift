@@ -177,4 +177,29 @@ struct MarkdownRendererTests {
         // to the literal `"`, which then passes through unescaped in `alt=`.
         #expect(html.contains("alt=\"\u{201C}injection&lt;&gt;\""))
     }
+
+    // MARK: - Currency vs. math regression
+    //
+    // Real bug, shipped and fixed once: KaTeX's single-$ inline delimiter
+    // paired "$4.8B in 2025 ... $13.2B" as a math expression and stripped
+    // the whitespace, rendering "4.8Bin2025...". The fix removed the
+    // single-$ delimiter from the KaTeX config in PreviewWebView. These
+    // tests document the renderer-side contract: dollar signs in prose
+    // must pass through to HTML untouched, so the JS layer's delimiter
+    // choice is the only thing standing between prose and math mode.
+
+    @Test("currency amounts with paired dollar signs pass through verbatim")
+    func currencyPreserved() {
+        let html = MarkdownRenderer().renderHTML(
+            from: "The market was $4.8B in 2025 and is projected to reach $13.2B by 2034."
+        )
+        #expect(html.contains("$4.8B in 2025"))
+        #expect(html.contains("$13.2B by 2034"))
+    }
+
+    @Test("display math delimiters pass through for KaTeX")
+    func displayMathPreserved() {
+        let html = MarkdownRenderer().renderHTML(from: "$$e^{i\\pi} + 1 = 0$$")
+        #expect(html.contains("$$"))
+    }
 }
