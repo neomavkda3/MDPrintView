@@ -6,6 +6,9 @@ import Sparkle
 struct MDPrintViewApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var settings = AppSettings()
+    // Read directly here (not via AppSettings) because scene-builder
+    // modifiers run before the environment is available.
+    @AppStorage("suppressWelcomeOnLaunch") private var suppressWelcomeOnLaunch = false
 
     /// Sparkle's standard updater. Started at init so the first background
     /// check fires shortly after launch.
@@ -47,7 +50,10 @@ struct MDPrintViewApp: App {
         }
         .windowResizability(.contentSize)
         .restorationBehavior(.disabled)
-        .defaultLaunchBehavior(.presented)
+        // Honor the "Show this window when MDPrintView launches" toggle.
+        // .automatic (not .suppressed) when opted out, so the window can
+        // still be opened on demand via dock-menu or Window menu.
+        .defaultLaunchBehavior(suppressWelcomeOnLaunch ? .automatic : .presented)
 
         DocumentGroup(newDocument: { MarkdownDocument() }) { file in
             DocumentView(document: file.document, fileURL: file.fileURL)

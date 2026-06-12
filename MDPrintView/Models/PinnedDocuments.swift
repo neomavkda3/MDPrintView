@@ -2,24 +2,33 @@ import Foundation
 import AppKit
 
 /// Persists the user's pinned welcome-screen documents using
-/// security-scoped bookmarks so pins survive across launches even in the
-/// sandboxed App Store build.
+/// security-scoped bookmarks so pins survive across launches.
 ///
-/// Notes for the sandboxed Release build:
-/// - The `com.apple.security.files.user-selected.read-write` entitlement
-///   covers any URL the user explicitly opened, so `.withSecurityScope`
-///   bookmarks created from `NSDocumentController.recentDocumentURLs` are
-///   resolvable on next launch.
-/// - We do NOT call `startAccessingSecurityScopedResource()` here — when
-///   the user clicks a pinned card we hand the URL to
-///   `NSDocumentController.openDocument(withContentsOf:)`, which manages
-///   sandbox access for us.
+/// Resilience policy: a bookmark that fails to resolve is NOT discarded.
+/// Resolution can fail transiently — the file lives on an unmounted
+/// external drive, a network share that's offline, an iCloud item that's
+/// been evicted. We keep the original bookmark data and retry on next
+/// launch; the pin simply doesn't appear in `urls` until it resolves.
+/// (The previous implementation rewrote storage from resolved URLs only,
+/// which permanently destroyed pins after a single bad launch.)
+///
+/// Sandbox note for a future sandboxed build: regenerating bookmark data
+/// with `.withSecurityScope` requires an active security scope on the
+/// URL. We therefore only regenerate data for entries that resolved
+/// *stale*, and keep the original data if regeneration throws.
 @MainActor
 final class PinnedDocuments {
     static let shared = PinnedDocuments()
 
-    private(set) var urls: [URL] = []
+    /// One entry per pin: the persisted bookmark plus its resolved URL
+    /// (nil while unresolvable, e.g. volume not mounted).
+    private var entries: [(data: Data, url: URL?)] = []
     private let storageKey = "pinnedBookmarks"
+
+    /// Pins that currently resolve, in user-pin order.
+    var urls: [URL] {
+        entries.compactMap(\.url)
+    }
 
     private init() {
         load()
@@ -27,48 +36,49 @@ final class PinnedDocuments {
 
     private func load() {
         guard let bookmarks = UserDefaults.standard.array(forKey: storageKey) as? [Data] else { return }
-        var resolved: [URL] = []
-        var didDropStale = false
-        for data in bookmarks {
+        var needsSave = false
+        entries = bookmarks.map { data in
             var stale = false
-            if let url = try? URL(
+            guard let url = try? URL(
                 resolvingBookmarkData: data,
                 options: .withSecurityScope,
                 relativeTo: nil,
                 bookmarkDataIsStale: &stale
-            ) {
-                resolved.append(url)
-                if stale { didDropStale = true }
-            } else {
-                didDropStale = true
+            ) else {
+                // Keep the bookmark; it may resolve on a future launch.
+                return (data: data, url: nil)
             }
-        }
-        urls = resolved
-        // Re-save so we drop stale / unresolvable entries on next read.
-        if didDropStale { save() }
-    }
-
-    private func save() {
-        let bookmarks: [Data] = urls.compactMap {
-            try? $0.bookmarkData(
+            if stale, let fresh = try? url.bookmarkData(
                 options: .withSecurityScope,
                 includingResourceValuesForKeys: nil,
                 relativeTo: nil
-            )
+            ) {
+                needsSave = true
+                return (data: fresh, url: url)
+            }
+            return (data: data, url: url)
         }
-        UserDefaults.standard.set(bookmarks, forKey: storageKey)
+        if needsSave { save() }
+    }
+
+    private func save() {
+        UserDefaults.standard.set(entries.map(\.data), forKey: storageKey)
     }
 
     func toggle(_ url: URL) {
-        if let idx = urls.firstIndex(of: url) {
-            urls.remove(at: idx)
-        } else {
-            urls.append(url)
+        if let idx = entries.firstIndex(where: { $0.url == url }) {
+            entries.remove(at: idx)
+        } else if let data = try? url.bookmarkData(
+            options: .withSecurityScope,
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        ) {
+            entries.append((data: data, url: url))
         }
         save()
     }
 
     func contains(_ url: URL) -> Bool {
-        urls.contains(url)
+        entries.contains { $0.url == url }
     }
 }

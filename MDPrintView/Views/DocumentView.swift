@@ -97,6 +97,7 @@ struct DocumentView: View {
         // the doc has been saved), spin up a FileWatcher. If the URL
         // changes (Save As…), tear the old one down and start a new one.
         .onChange(of: fileURL, initial: true) { _, newURL in
+            fileWatcher?.cancel()
             guard let url = newURL else {
                 fileWatcher = nil
                 return
@@ -104,6 +105,13 @@ struct DocumentView: View {
             fileWatcher = FileWatcher(url: url) {
                 reloadFromDiskIfChanged(url: url)
             }
+        }
+        .onDisappear {
+            // Explicit main-actor teardown — @State deinit alone can run
+            // off-main during document teardown, racing the watcher's
+            // dispatch source.
+            fileWatcher?.cancel()
+            fileWatcher = nil
         }
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
@@ -122,15 +130,26 @@ struct DocumentView: View {
         }
     }
 
-    /// Re-read the file and replace `document.text` iff the disk content
-    /// differs from what we already have. The equality check is what
-    /// breaks the self-save loop: when MDPrintView writes to disk, the
-    /// watcher fires, we re-read, the content matches what we already
-    /// hold, and we silently no-op.
+    /// Re-read the file and adopt the disk content only when it represents
+    /// a genuine external change. Three guards, in order:
+    ///
+    /// 1. disk == editor text          → nothing changed; no-op.
+    /// 2. disk == lastSavedText        → this event is our OWN save landing
+    ///    (the atomic rename fires the watcher). The editor may already
+    ///    have newer keystrokes; adopting disk here would eat them.
+    /// 3. editor != lastSavedText      → user has unsaved in-app edits AND
+    ///    something external also wrote the file. Conflict. We protect the
+    ///    user's typing and skip; their next save wins (last-write).
+    ///
+    /// Only when none of those hold (editor is clean, disk is genuinely
+    /// newer) do we reload — the "viewing while editing externally" flow.
     private func reloadFromDiskIfChanged(url: URL) {
         guard let data = try? Data(contentsOf: url),
-              let diskText = String(data: data, encoding: .utf8),
-              diskText != document.text else { return }
+              let diskText = String(data: data, encoding: .utf8) else { return }
+        guard diskText != document.text else { return }
+        guard diskText != document.lastSavedText else { return }
+        guard document.text == document.lastSavedText else { return }
         document.text = diskText
+        document.lastSavedText = diskText
     }
 }

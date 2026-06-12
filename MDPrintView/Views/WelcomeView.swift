@@ -11,6 +11,7 @@ struct WelcomeView: View {
     // first created.
     @State private var recents: [RecentDocument] = []
     @State private var pinnedURLs: [URL] = []
+    @State private var pinnedDocs: [RecentDocument] = []
     @State private var searchText: String = ""
 
     var body: some View {
@@ -264,15 +265,12 @@ struct WelcomeView: View {
     // MARK: - Derived data
 
     /// Pinned docs that pass the search filter, in user-pin order.
+    /// Filters the cache built in `refresh()` — no disk I/O here. (This
+    /// computed property runs on every body pass, including every search
+    /// keystroke; loading files inside it re-read every pinned doc per
+    /// keystroke.)
     private var visiblePinned: [RecentDocument] {
-        pinnedURLs
-            .compactMap { url -> RecentDocument? in
-                // Prefer the in-memory recent (already has preview cached);
-                // fall back to a fresh load for pinned items that have aged
-                // out of the recent list.
-                recents.first(where: { $0.url == url }) ?? RecentDocument.load(from: url)
-            }
-            .filter { $0.matches(searchText) }
+        pinnedDocs.filter { $0.matches(searchText) }
     }
 
     /// Non-pinned recents, bucketed by DateGroup, filtered by search.
@@ -294,11 +292,22 @@ struct WelcomeView: View {
         recents = NSDocumentController.shared.recentDocumentURLs
             .compactMap { RecentDocument.load(from: $0) }
         pinnedURLs = PinnedDocuments.shared.urls
+        rebuildPinnedCache()
     }
 
     private func togglePin(_ url: URL) {
         PinnedDocuments.shared.toggle(url)
         pinnedURLs = PinnedDocuments.shared.urls
+        rebuildPinnedCache()
+    }
+
+    /// Load pinned docs once per refresh/toggle — prefer the in-memory
+    /// recent (preview already extracted); hit disk only for pins that
+    /// have aged out of the recents list.
+    private func rebuildPinnedCache() {
+        pinnedDocs = pinnedURLs.compactMap { url in
+            recents.first(where: { $0.url == url }) ?? RecentDocument.load(from: url)
+        }
     }
 
     private func createNewDocument() {
