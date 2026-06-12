@@ -28,16 +28,20 @@ mkdir -p "$OUTPUT_DIR"
 DMG="$OUTPUT_DIR/MDPrintView-${VERSION}.dmg"
 
 echo "[1/6] xcodebuild Release ($VERSION, build $BUILD_NUMBER)"
+# Explicit -derivedDataPath so we always sign/staple the app we just
+# built — find-ing across DerivedData can pick a stale build from an
+# older project hash.
 /usr/bin/xcodebuild \
     -project MDPrintView.xcodeproj \
     -scheme MDPrintView \
     -configuration Release \
+    -derivedDataPath "$OUTPUT_DIR/DerivedData" \
     MARKETING_VERSION="$VERSION" \
     CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
     build 2>&1 | tail -3
 
-APP=$(/usr/bin/find ~/Library/Developer/Xcode/DerivedData -name 'MDPrintView.app' -path '*Release*' -type d -print -quit)
-[ -d "$APP" ] || { echo "FAIL: built app not found"; exit 1; }
+APP="$OUTPUT_DIR/DerivedData/Build/Products/Release/MDPrintView.app"
+[ -d "$APP" ] || { echo "FAIL: built app not found at $APP"; exit 1; }
 
 echo "[2/6] re-sign Sparkle internals"
 ./scripts/codesign-sparkle.sh "$APP"

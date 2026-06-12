@@ -25,6 +25,11 @@ set -euo pipefail
 
 APP="${1:?usage: $0 <path-to-app>}"
 [ -d "$APP" ] || { echo "FAIL: app bundle not found at $APP"; exit 1; }
+# Resolve the app path to absolute BEFORE changing directory, then cd to
+# the repo root so the relative entitlements path below works no matter
+# where the script is invoked from.
+APP="$(cd "$APP" && pwd)"
+cd "$(dirname "$0")/.."
 
 SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
 [ -d "$SPARKLE" ] || { echo "FAIL: Sparkle.framework not found inside $APP"; exit 1; }
