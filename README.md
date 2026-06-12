@@ -12,6 +12,8 @@ A native macOS markdown editor with print-quality typography.
 
 </div>
 
+![MDPrintView running on macOS in Split view, showing source, preview, an outline sidebar, syntax-highlighted code, a Mermaid diagram, and rendered LaTeX math.](docs/assets/hero.png)
+
 ---
 
 MDPrintView is a markdown editor that takes printing seriously. Three pane modes (Editor / Split / Preview), four reading themes, native macOS text editing, Mermaid diagrams, LaTeX math, and a print pipeline that keeps headings, code blocks, and tables together across page breaks.

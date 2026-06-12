@@ -18,7 +18,11 @@
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://neomavkda3.github.io/MDPrintView/" />
+  <meta property="og:image" content="https://neomavkda3.github.io/MDPrintView/assets/hero-og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="780" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://neomavkda3.github.io/MDPrintView/assets/hero-og.png" />
 
   <!-- Use the app icon as the favicon, pulled from the repo via raw.githubusercontent. -->
   <link
@@ -77,10 +81,28 @@
       margin: 0 auto;
     }
     .hero img.icon {
-      width: 128px;
-      height: 128px;
-      border-radius: 28px;
-      margin-bottom: 28px;
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      margin-bottom: 22px;
+    }
+    .hero img.shot {
+      display: block;
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      margin: 44px auto 0;
+      border-radius: 12px;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.08),
+        0 12px 32px -8px rgba(0, 0, 0, 0.18);
+    }
+    @media (prefers-color-scheme: dark) {
+      .hero img.shot {
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.6),
+          0 14px 36px -10px rgba(0, 0, 0, 0.7);
+      }
     }
     .hero h1 {
       font-size: 48px;
@@ -311,6 +333,14 @@
       Free and open source
       (<a href="https://github.com/neomavkda3/MDPrintView">GitHub</a>)
     </p>
+
+    <img
+      class="shot"
+      src="assets/hero.png"
+      alt="MDPrintView running on macOS in dark mode, showing the welcome document in Split view with outline sidebar, source editor, and live preview featuring syntax-highlighted code, a Mermaid diagram, and rendered LaTeX math."
+      loading="eager"
+      decoding="async"
+    />
   </header>
 
   <main>
