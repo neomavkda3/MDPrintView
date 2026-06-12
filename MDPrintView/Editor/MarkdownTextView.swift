@@ -105,9 +105,12 @@ struct MarkdownTextView: NSViewRepresentable {
         func scheduleStyling(for storage: NSTextStorage) {
             highlightTask?.cancel()
             let captured = (mode, fontSize, fontFamily)
-            highlightTask = Task { @MainActor [weak self] in
+            // weak storage: if the NSTextView (and its storage) is torn
+            // down mid-debounce, the task must not keep the storage alive
+            // or mutate an object the view hierarchy no longer owns.
+            highlightTask = Task { @MainActor [weak self, weak storage] in
                 try? await Task.sleep(for: self?.highlightDelay ?? .milliseconds(80))
-                guard !Task.isCancelled, let self else { return }
+                guard !Task.isCancelled, self != nil, let storage else { return }
                 // Use the captured values to guard against mode flips mid-debounce.
                 Self.applyStyling(mode: captured.0, fontSize: captured.1, fontFamily: captured.2, to: storage)
             }

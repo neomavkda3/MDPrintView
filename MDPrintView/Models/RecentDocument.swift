@@ -61,7 +61,8 @@ struct RecentDocument: Identifiable, Hashable {
     /// Strip basic markdown syntax + YAML frontmatter so the preview reads
     /// as plain prose. Not a real markdown parser — just enough to skip
     /// headings/emphasis markers visually.
-    private static func sanitize(_ text: String) -> String {
+    /// Internal (not private) so the preview contract is unit-testable.
+    static func sanitize(_ text: String) -> String {
         var lines = text.components(separatedBy: .newlines)
 
         // Drop YAML frontmatter if present.

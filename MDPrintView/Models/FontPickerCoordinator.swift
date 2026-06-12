@@ -6,12 +6,19 @@ import AppKit
 /// responder chain. `NSFontManager` intercepts it and forwards to its
 /// `target`, which is where we hook in. We keep a singleton so the target
 /// stays alive while the panel is open.
+///
+/// Target hygiene: while we are the NSFontManager target, EVERY
+/// `changeFont:` in the app routes here — including ones from text views
+/// that show the standard Fonts panel. We therefore restore
+/// `manager.target = nil` and drop the pick callback the moment the
+/// panel closes, instead of holding the hijack forever.
 @MainActor
 final class FontPickerCoordinator: NSObject {
     static let shared = FontPickerCoordinator()
 
     private var onPick: ((String) -> Void)?
     private var baseSize: CGFloat = 14
+    private var panelCloseObserver: NSObjectProtocol?
 
     private override init() { super.init() }
 
@@ -29,7 +36,26 @@ final class FontPickerCoordinator: NSObject {
         manager.target = self
         manager.setSelectedFont(font, isMultiple: false)
 
-        NSFontPanel.shared.orderFront(nil)
+        let panel = NSFontPanel.shared
+        if panelCloseObserver == nil {
+            panelCloseObserver = NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification,
+                object: panel,
+                queue: .main
+            ) { _ in
+                MainActor.assumeIsolated {
+                    FontPickerCoordinator.shared.panelDidClose()
+                }
+            }
+        }
+        panel.orderFront(nil)
+    }
+
+    private func panelDidClose() {
+        onPick = nil
+        if NSFontManager.shared.target === self {
+            NSFontManager.shared.target = nil
+        }
     }
 
     @objc func changeFont(_ sender: Any?) {

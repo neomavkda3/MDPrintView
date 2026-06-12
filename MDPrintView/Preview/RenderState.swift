@@ -10,9 +10,14 @@ final class RenderState {
 
     func schedule(_ source: String, delay: Duration = .milliseconds(40)) {
         debounceTask?.cancel()
-        debounceTask = Task { @MainActor [renderer] in
+        // [weak self]: the pending task must not keep RenderState alive
+        // through the debounce window after the owning view is torn down.
+        // (No deinit cancel needed — an orphaned task wakes, finds self
+        // nil, and exits; deinit is nonisolated in Swift 6 and can't touch
+        // the MainActor-isolated task property anyway.)
+        debounceTask = Task { @MainActor [weak self, renderer] in
             try? await Task.sleep(for: delay)
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, let self else { return }
             let result = renderer.renderHTML(from: source)
             guard !Task.isCancelled else { return }
             self.html = result

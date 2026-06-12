@@ -24,6 +24,9 @@ struct WindowAccessor: NSViewRepresentable {
             guard !fired, let window = self.window else { return }
             fired = true
             onWindowAvailable?(window)
+            // One-shot: release the closure (and everything it captures)
+            // instead of holding it for the lifetime of the window.
+            onWindowAvailable = nil
         }
     }
 }
