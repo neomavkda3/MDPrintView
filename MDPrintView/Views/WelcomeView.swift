@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
@@ -13,6 +14,7 @@ struct WelcomeView: View {
     @State private var pinnedURLs: [URL] = []
     @State private var pinnedDocs: [RecentDocument] = []
     @State private var searchText: String = ""
+    @State private var isDropTargeted = false
 
     var body: some View {
         VStack(spacing: 18) {
@@ -25,6 +27,31 @@ struct WelcomeView: View {
         .padding(28)
         .frame(width: 600, height: 720)
         .onAppear(perform: refresh)
+        .onDrop(of: [.fileURL], delegate: WelcomeDropDelegate(
+            isTargeted: $isDropTargeted,
+            open: { url in
+                // Mirrors openURL(_:): open via NSDocumentController, then
+                // dismiss Welcome. Captures the Sendable dismissWindow action,
+                // not self. A repeat dismiss on an already-closed window is a
+                // harmless no-op.
+                NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, _ in
+                    dismissWindow(id: "welcome")
+                }
+            }
+        ))
+        .overlay {
+            if isDropTargeted {
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                    .overlay(
+                        Text("Drop to open")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                    )
+                    .allowsHitTesting(false)
+                    .padding(6)
+            }
+        }
     }
 
     // MARK: - Sections
