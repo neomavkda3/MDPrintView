@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct DocumentView: View {
     @Bindable var document: MarkdownDocument
@@ -77,6 +78,14 @@ struct DocumentView: View {
             }
             .frame(minWidth: 480, minHeight: 480)
         }
+        // Drop files anywhere on the window to open them as tabs. No custom
+        // highlight overlay here — the editor/preview NSView subclasses can't
+        // feed SwiftUI a hover state, so we rely on the uniform macOS copy
+        // cursor across all surfaces instead. (`isTargeted` is unused.)
+        .onDrop(of: [.fileURL], delegate: FileDropDelegate(
+            isTargeted: .constant(false),
+            open: { FileDrop.open($0) }
+        ))
         .background(WindowAccessor { window in
             // Force tabbing so additional documents open as tabs of the
             // existing MDPrintView window instead of separate windows.

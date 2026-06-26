@@ -47,7 +47,7 @@ struct PreviewWebView: NSViewRepresentable {
         let config = WKWebViewConfiguration()
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
 
-        let webView = WKWebView(frame: .zero, configuration: config)
+        let webView = FileDropWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
         // Enable right-click Inspect Element in Debug builds for diagnosing
         // preview-pane render issues. Public property since macOS 13.3.

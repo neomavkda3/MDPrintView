@@ -27,17 +27,9 @@ struct WelcomeView: View {
         .padding(28)
         .frame(width: 600, height: 720)
         .onAppear(perform: refresh)
-        .onDrop(of: [.fileURL], delegate: WelcomeDropDelegate(
+        .onDrop(of: [.fileURL], delegate: FileDropDelegate(
             isTargeted: $isDropTargeted,
-            open: { url in
-                // Mirrors openURL(_:): open via NSDocumentController, then
-                // dismiss Welcome. Captures the Sendable dismissWindow action,
-                // not self. A repeat dismiss on an already-closed window is a
-                // harmless no-op.
-                NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, _ in
-                    dismissWindow(id: "welcome")
-                }
-            }
+            open: { FileDrop.open($0) { dismissWindow(id: "welcome") } }
         ))
         .overlay {
             if isDropTargeted {

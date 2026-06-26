@@ -3,41 +3,41 @@ import Foundation
 import UniformTypeIdentifiers
 @testable import MDPrintView
 
-@Suite("WelcomeDrop acceptance")
-struct WelcomeDropTests {
+@Suite("FileDrop acceptance")
+struct FileDropTests {
 
     @Test("plain text is accepted")
     func plainText() {
-        #expect(WelcomeDrop.accepts(.plainText))
+        #expect(FileDrop.accepts(.plainText))
     }
 
     @Test("the app's markdown type is accepted")
     func markdown() {
         // Regression guard on the app's UTImportedTypeDeclarations: the
         // daringfireball markdown UTI must conform to public.plain-text.
-        #expect(WelcomeDrop.accepts(.markdown))
+        #expect(FileDrop.accepts(.markdown))
     }
 
     @Test("source files conform to plain-text and are accepted (matches Open panel)")
     func sourceCode() {
-        #expect(WelcomeDrop.accepts(.swiftSource))
+        #expect(FileDrop.accepts(.swiftSource))
     }
 
     @Test("images are rejected")
     func image() {
-        #expect(!WelcomeDrop.accepts(.png))
+        #expect(!FileDrop.accepts(.png))
     }
 
     @Test("folders are rejected")
     func folder() {
-        #expect(!WelcomeDrop.accepts(.folder))
+        #expect(!FileDrop.accepts(.folder))
     }
 
     @Test("opaque data (extensionless / unknown) is rejected")
     func opaqueData() {
         // Extensionless files resolve to public.data — rejected, same as the
         // Open panel, which also greys them out. No content sniffing.
-        #expect(!WelcomeDrop.accepts(.data))
+        #expect(!FileDrop.accepts(.data))
     }
 
     // MARK: Real-file URL mapping (the behavior the drop handler relies on)
@@ -58,7 +58,7 @@ struct WelcomeDropTests {
         try "# Hi".write(to: md, atomically: true, encoding: .utf8)
         // Relies on the app's UTImportedTypeDeclarations being registered via
         // TEST_HOST. If this fails, .md no longer maps to the markdown UTI.
-        #expect(WelcomeDrop.accepts(md))
+        #expect(FileDrop.accepts(md))
     }
 
     @Test("a real .txt file URL is accepted")
@@ -67,7 +67,7 @@ struct WelcomeDropTests {
         defer { try? FileManager.default.removeItem(at: dir) }
         let txt = dir.appendingPathComponent("notes.txt")
         try "hello".write(to: txt, atomically: true, encoding: .utf8)
-        #expect(WelcomeDrop.accepts(txt))
+        #expect(FileDrop.accepts(txt))
     }
 
     @Test("a real .png file URL is rejected")
@@ -77,7 +77,7 @@ struct WelcomeDropTests {
         // Type resolves from the .png extension, not the bytes.
         let png = dir.appendingPathComponent("image.png")
         try "not really a png".write(to: png, atomically: true, encoding: .utf8)
-        #expect(!WelcomeDrop.accepts(png))
+        #expect(!FileDrop.accepts(png))
     }
 
     @Test("a real extensionless text file URL is rejected")
@@ -88,13 +88,13 @@ struct WelcomeDropTests {
         // same as the Open panel.
         let file = dir.appendingPathComponent("plainfile")
         try "hello".write(to: file, atomically: true, encoding: .utf8)
-        #expect(!WelcomeDrop.accepts(file))
+        #expect(!FileDrop.accepts(file))
     }
 
     @Test("a directory URL is rejected")
     func directoryURL() throws {
         let dir = try makeTempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
-        #expect(!WelcomeDrop.accepts(dir))
+        #expect(!FileDrop.accepts(dir))
     }
 }
