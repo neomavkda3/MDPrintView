@@ -46,7 +46,15 @@ enum FileDrop {
     /// completion handler is not guaranteed to run on the main thread).
     @MainActor
     static func open(_ url: URL, then completion: (@MainActor () -> Void)? = nil) {
-        NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, _ in
+        // TODO: sandbox — the future MAS build will receive security-scoped
+        // URLs from sandboxed source apps that need
+        // startAccessingSecurityScopedResource() before NSDocumentController can
+        // read them. The OSS Release is not sandboxed, so this works today.
+        // (Sandboxed MAS build deferred — see docs/STATUS.md.)
+        NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, error in
+            if let error {
+                print("[MDPrintView] failed to open dropped file \(url.lastPathComponent): \(error)")
+            }
             guard let completion else { return }
             Task { @MainActor in completion() }
         }
