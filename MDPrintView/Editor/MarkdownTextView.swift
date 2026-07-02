@@ -13,10 +13,26 @@ struct MarkdownTextView: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSTextView.scrollableTextView()
-        guard let textView = scrollView.documentView as? NSTextView else {
-            return scrollView
-        }
+        // Faithful reproduction of NSTextView.scrollableTextView() (which we
+        // can't use because it returns a stock NSTextView, not our subclass),
+        // keeping TextKit 2 via `usingTextLayoutManager: true`.
+        let scrollView = NSScrollView()
+        scrollView.borderType = .noBorder
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+
+        let textView = FileDropTextView(usingTextLayoutManager: true)
+        textView.frame = NSRect(origin: .zero, size: scrollView.contentSize)
+        textView.minSize = NSSize(width: 0, height: 0)
+        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(width: scrollView.contentSize.width,
+                                                        height: CGFloat.greatestFiniteMagnitude)
+        scrollView.documentView = textView
 
         textView.delegate = context.coordinator
         textView.isRichText = false
@@ -28,6 +44,9 @@ struct MarkdownTextView: NSViewRepresentable {
         textView.isAutomaticTextReplacementEnabled = false
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.smartInsertDeleteEnabled = false
+
+        // Ensure file-URL drags reach our subclass overrides.
+        textView.registerForDraggedTypes([.fileURL])
 
         // Opt into the macOS 26 Writing Tools experience in the context
         // menu (Rewrite / Proofread / Compose). `.default` lets the system

@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 struct WelcomeView: View {
     @AppStorage("suppressWelcomeOnLaunch") private var suppressOnLaunch: Bool = false
@@ -13,6 +14,7 @@ struct WelcomeView: View {
     @State private var pinnedURLs: [URL] = []
     @State private var pinnedDocs: [RecentDocument] = []
     @State private var searchText: String = ""
+    @State private var isDropTargeted = false
 
     var body: some View {
         VStack(spacing: 18) {
@@ -25,6 +27,23 @@ struct WelcomeView: View {
         .padding(28)
         .frame(width: 600, height: 720)
         .onAppear(perform: refresh)
+        .onDrop(of: [.fileURL], delegate: FileDropDelegate(
+            isTargeted: $isDropTargeted,
+            open: { FileDrop.open($0) { dismissWindow(id: "welcome") } }
+        ))
+        .overlay {
+            if isDropTargeted {
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                    .overlay(
+                        Text("Drop to open")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                    )
+                    .allowsHitTesting(false)
+                    .padding(6)
+            }
+        }
     }
 
     // MARK: - Sections
