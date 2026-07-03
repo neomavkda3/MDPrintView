@@ -72,6 +72,14 @@
     <!-- Check for updates on launch + once a day in the background. -->
     <key>SUScheduledCheckInterval</key>
     <integer>86400</integer>
+    <!-- Default new installs to silent auto-download-and-install. Users who
+         prefer manual control can toggle it off in Settings → Software
+         Updates, or via Sparkle's own update dialog checkbox. Users who
+         previously set an explicit preference keep their choice —
+         Info.plist only supplies the default for users who have never
+         touched the setting. -->
+    <key>SUAutomaticallyUpdate</key>
+    <true/>
     <key>UTImportedTypeDeclarations</key>
     <array>
         <dict>

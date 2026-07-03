@@ -104,6 +104,7 @@ jobs:
       - name: Generate signed Sparkle appcast entry
         env:
           VERSION:                ${{ steps.ver.outputs.version }}
+          REPO:                   ${{ github.repository }}
           SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
         run: |
           GEN=$(find build/DerivedData/SourcePackages/artifacts -name 'generate_appcast' -type f -print -quit)
@@ -120,13 +121,22 @@ jobs:
           printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$KEYFILE"
 
           "$GEN" --ed-key-file "$KEYFILE" \
-            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/v${VERSION}/" \
+            --download-url-prefix "https://github.com/${REPO}/releases/download/v${VERSION}/" \
             update-archive
 
           rm -f "$KEYFILE"
 
           # Move generated appcast back to repo root for committing
           mv update-archive/appcast.xml appcast.xml
+
+          # Inject a <sparkle:releaseNotesLink> pointing at the GitHub
+          # release page for this version. `generate_appcast`'s own
+          # --release-notes-url-prefix flag insists on appending ".html"
+          # to the version (e.g. v0.2.0.html), which doesn't match
+          # GitHub's URL scheme, so we splice the tag ourselves. Sparkle
+          # picks this up and adds a "Release Notes" button to the
+          # update dialog.
+          python3 scripts/inject-releasenotes-link.py
 
       - name: Publish GitHub Release
         env:

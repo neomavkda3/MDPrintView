@@ -72,7 +72,7 @@ struct MDPrintViewApp: App {
         }
 
         Settings {
-            SettingsView()
+            SettingsView(updater: updaterController.updater)
                 .environment(settings)
         }
     }
@@ -145,6 +145,11 @@ private struct LayoutCommands: Commands {
 
 private struct SettingsView: View {
     @Environment(AppSettings.self) private var settings
+    let updater: SPUUpdater
+    /// Mirrors `updater.automaticallyDownloadsUpdates`. We keep it in local
+    /// state so SwiftUI can bind a Toggle to it; onAppear seeds from the
+    /// live value, onChange writes back to Sparkle.
+    @State private var autoInstallUpdates: Bool = true
 
     var body: some View {
         @Bindable var settings = settings
@@ -218,8 +223,21 @@ private struct SettingsView: View {
                     set: { settings.suppressWelcomeOnLaunch = !$0 }
                 ))
             }
+            Section("Software Updates") {
+                Toggle("Install updates automatically", isOn: $autoInstallUpdates)
+                    .onChange(of: autoInstallUpdates) { _, newValue in
+                        updater.automaticallyDownloadsUpdates = newValue
+                    }
+                Text("MDPrintView checks for a new version once a day and on launch. When this is on, updates are downloaded and installed on your next relaunch. When it's off, you'll see a dialog asking permission first.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding()
-        .frame(width: 460, height: 360)
+        .frame(width: 460, height: 460)
+        .onAppear {
+            autoInstallUpdates = updater.automaticallyDownloadsUpdates
+        }
     }
 }
