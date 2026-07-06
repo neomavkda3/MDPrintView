@@ -70,6 +70,13 @@ struct MDPrintViewApp: App {
             }
             FindAndSpellCommands()
             LayoutCommands(settings: settings)
+            CommandGroup(after: .help) {
+                Button("What's New in MDPrintView") {
+                    if let url = URL(string: "https://github.com/neomavkda3/MDPrintView/blob/main/CHANGELOG.md") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            }
         }
 
         Settings {

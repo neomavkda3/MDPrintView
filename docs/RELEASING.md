@@ -5,10 +5,21 @@ Maintainer-only doc. Covers the standard release process, the secrets the CI rel
 ## TL;DR — shipping a new version
 
 ```sh
-# From main, with the version you want to ship:
-git tag -a v0.1.1 -m "v0.1.1 — short summary"
-git push origin v0.1.1
+# 1. Add a section to CHANGELOG.md at the top with the version + date.
+#    Move relevant "Planned for vX.Y.Z" bullets into the new section.
+#    Update the [Unreleased] and [X.Y.Z] compare links at the bottom.
+$EDITOR CHANGELOG.md
+git add CHANGELOG.md
+git commit -m "docs: CHANGELOG for vX.Y.Z"
+git push origin main
+
+# 2. Tag + push. CI does the rest.
+git tag -a vX.Y.Z -m "vX.Y.Z — short summary"
+git push origin vX.Y.Z
 ```
+
+Update CHANGELOG.md BEFORE tagging so the "What's New in MDPrintView"
+Help-menu item lands on a page that already documents this release.
 
 The push triggers `.github/workflows/release.yml`, which:
 

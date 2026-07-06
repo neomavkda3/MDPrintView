@@ -68,6 +68,8 @@ brew install --cask mdprintview
 | `⌘B` / `⌘I` | Bold / Italic |
 | `⌘1` `⌘2` `⌘3` | Heading 1 / 2 / 3 |
 | `⌘K` | Insert link |
+| `⌘F` / `⌘G` / `⌘⇧G` | Find / Find Next / Find Previous |
+| `⌘;` / `⌘:` | Check Document Now / Show Spelling and Grammar |
 | `⌘⇧M` | Mermaid editor |
 | `⌘P` / `⌘⇧E` | Print preview / Export PDF |
 | `⌥⌘1` `⌥⌘2` `⌥⌘3` | Editor only / Split / Preview only |
@@ -94,6 +96,10 @@ Issues, ideas, and PRs welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) a
 ### Security
 
 Vulnerability reports → see [SECURITY.md](SECURITY.md).
+
+## Changelog
+
+Full history of what's changed and what's planned: [CHANGELOG.md](CHANGELOG.md). Also available in the app at **Help → What's New in MDPrintView**.
 
 ## Funding
 
