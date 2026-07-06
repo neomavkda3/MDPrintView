@@ -68,6 +68,7 @@ struct MDPrintViewApp: App {
                 PrintMenuItem()
                 ExportPDFMenuItem()
             }
+            FindAndSpellCommands()
             LayoutCommands(settings: settings)
         }
 
@@ -117,6 +118,66 @@ private struct ExportPDFMenuItem: View {
         Button("Export as PDF…") { exportAction?() }
             .keyboardShortcut("e", modifiers: [.command, .shift])
             .disabled(exportAction == nil)
+    }
+}
+
+/// Standard macOS Edit-menu items for Find and Spelling/Grammar that
+/// SwiftUI does NOT include in `.textEditingCommands` — you have to
+/// wire them yourself. All items dispatch via `NSApp.sendAction(_:to:from:)`
+/// so they route through the responder chain to whichever `NSTextView`
+/// (or `NSResponder`) is first responder.
+///
+/// Find uses the modern find bar (see `MarkdownTextView.makeNSView`),
+/// which requires `textView.usesFindBar = true`. Actions are identified
+/// by an `NSTextFinder.Action` raw value carried in a sender's `tag` —
+/// AppKit reads that tag inside `performTextFinderAction:` to decide
+/// which action to run.
+private struct FindAndSpellCommands: Commands {
+    var body: some Commands {
+        CommandGroup(after: .textEditing) {
+            Section {
+                Button("Find…") { performTextFinder(.showFindInterface) }
+                    .keyboardShortcut("f", modifiers: .command)
+                Button("Find Next") { performTextFinder(.nextMatch) }
+                    .keyboardShortcut("g", modifiers: .command)
+                Button("Find Previous") { performTextFinder(.previousMatch) }
+                    .keyboardShortcut("g", modifiers: [.command, .shift])
+                Button("Use Selection for Find") { performTextFinder(.setSearchString) }
+                    .keyboardShortcut("e", modifiers: .command)
+                Button("Jump to Selection") {
+                    NSApp.sendAction(#selector(NSResponder.centerSelectionInVisibleArea(_:)), to: nil, from: nil)
+                }
+                .keyboardShortcut("j", modifiers: .command)
+            }
+            Section {
+                Menu("Spelling and Grammar") {
+                    Button("Show Spelling and Grammar") {
+                        NSApp.sendAction(#selector(NSText.showGuessPanel(_:)), to: nil, from: nil)
+                    }
+                    .keyboardShortcut(":", modifiers: .command)
+                    Button("Check Document Now") {
+                        NSApp.sendAction(#selector(NSText.checkSpelling(_:)), to: nil, from: nil)
+                    }
+                    .keyboardShortcut(";", modifiers: .command)
+                    Divider()
+                    Button("Check Spelling While Typing") {
+                        NSApp.sendAction(#selector(NSTextView.toggleContinuousSpellChecking(_:)), to: nil, from: nil)
+                    }
+                    Button("Check Grammar With Spelling") {
+                        NSApp.sendAction(#selector(NSTextView.toggleGrammarChecking(_:)), to: nil, from: nil)
+                    }
+                }
+            }
+        }
+    }
+
+    /// AppKit routes Find actions by reading the `tag` on the sender. We
+    /// forge a menu-item sender with the right tag and let the responder
+    /// chain deliver it to the current NSTextView.
+    private func performTextFinder(_ action: NSTextFinder.Action) {
+        let sender = NSMenuItem()
+        sender.tag = action.rawValue
+        NSApp.sendAction(#selector(NSTextView.performTextFinderAction(_:)), to: nil, from: sender)
     }
 }
 

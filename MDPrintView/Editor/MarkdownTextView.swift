@@ -48,6 +48,13 @@ struct MarkdownTextView: NSViewRepresentable {
         // Ensure file-URL drags reach our subclass overrides.
         textView.registerForDraggedTypes([.fileURL])
 
+        // Enable the modern (macOS 10.7+) find bar rather than the legacy
+        // floating panel. Wired up via the Edit → Find menu items in
+        // FindAndSpellCommands (MDPrintViewApp.swift), which route Cmd+F
+        // et al. through NSApp.sendAction to performTextFinderAction:.
+        textView.usesFindBar = true
+        textView.isIncrementalSearchingEnabled = true
+
         // Opt into the macOS 26 Writing Tools experience in the context
         // menu (Rewrite / Proofread / Compose). `.default` lets the system
         // pick the right behavior for our plain-text content.
