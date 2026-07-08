@@ -6,7 +6,7 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.3.1
+### Planned for v0.3.2
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
@@ -15,6 +15,19 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ### Planned for v0.5.0
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.3.1] — 2026-07-08
+
+Two contributor features from [@xtreme-andy-shen](https://github.com/xtreme-andy-shen): preview-placed page breaks, and raw HTML rendering with a GitHub-parity sanitizer.
+
+### Added
+- **Page breaks from the preview pane.** Hover the gap between two blocks → click to insert a page break; click ✕ on the divider to remove. Breaks paginate `⌘P` and PDF export via `@media print { break-after: page }`. Session-only, in-memory (`PageBreakStore`, one per document window) — nothing is written to the markdown source, and breaks are gone when the window closes. Anchors are `(block index, 64-char text fingerprint)` pairs re-resolved on every render, so breaks follow their content while you edit; orphans are dropped. Thanks to [@xtreme-andy-shen](https://github.com/xtreme-andy-shen) (PR #3).
+- **Raw HTML in the preview** via a GitHub-parity sanitizer. `<div align="center">` headers, `<details>`/`<summary>` folds, `<kbd>`, `<sup>`/`<sub>` render as they do on GitHub — including this repo's own README header. Hand-written 302-line sanitizer, no new dependencies. Mirrors GitHub's html-pipeline `SanitizationFilter` allowlist: `script`/`style`/`iframe`/`object`/`embed` drop with contents; unknown tags strip keeping children; malformed input fails closed to escaped text; `on*` and `style` attributes are dropped; `javascript:` and other non-`http(s)`/`mailto` URL schemes rejected. Reviewed against 15 additional adversarial vectors (HTML-entity-encoded schemes, tab/newline obfuscation, DOCTYPE/CDATA smuggling, SVG `<foreignObject>`, attribute breakout) — all handled safely. Thanks to [@xtreme-andy-shen](https://github.com/xtreme-andy-shen) (PR #4).
+
+### Fixed
+- Negative-index guard on the page-break `.add` message handler — currently unreachable but hardened as defense-in-depth at the WKWebView message boundary.
 
 ---
 
@@ -133,7 +146,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.1
 [0.3.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.0
 [0.2.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.2.1
 [0.2.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.2.0
