@@ -105,7 +105,7 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
-        output += htmlEscape(inlineHTML.rawHTML)
+        output += HTMLSanitizer.sanitize(inlineHTML.rawHTML)
     }
 
     mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
@@ -163,6 +163,6 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitHTMLBlock(_ htmlBlock: HTMLBlock) {
-        output += htmlEscape(htmlBlock.rawHTML)
+        output += HTMLSanitizer.sanitize(htmlBlock.rawHTML)
     }
 }
