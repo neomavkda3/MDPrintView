@@ -256,3 +256,69 @@ body.theme-focus blockquote {
     color: rgba(255, 255, 255, 0.6);
     border-left-color: rgba(255, 255, 255, 0.3);
 }
+
+/* ---- Page breaks (preview-placed, app-side metadata) ---- */
+
+/* Invisible hover strip between top-level blocks. Flow-neutral: 14px hit
+   area netted out by negative margins so Screen spacing is unchanged. */
+.break-gap {
+    height: 14px;
+    margin: -7px 0;
+    position: relative;
+    cursor: pointer;
+}
+.break-gap::after {
+    content: "⊕ insert page break";
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    font-size: 0.75em;
+    color: var(--accent, #0a84ff);
+    border-top: 1px dashed var(--accent, #0a84ff);
+    line-height: 0;
+    padding: 0 0.5em;
+    opacity: 0;
+    transition: opacity 120ms ease-in;
+    pointer-events: none;
+}
+.break-gap:hover::after { opacity: 1; }
+
+/* Placed break divider. */
+.page-break {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin: 0.75em 0;
+    color: #8e8e93;
+    font-size: 0.75em;
+    user-select: none;
+}
+.page-break::before,
+.page-break::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed #8e8e93;
+}
+.page-break-label { white-space: nowrap; }
+.page-break-remove {
+    border: none;
+    background: transparent;
+    color: #8e8e93;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 0 0.25em;
+}
+.page-break-remove:hover { color: #ff3b30; }
+
+@media print {
+    .break-gap { display: none; }
+    .page-break {
+        break-after: page;
+        page-break-after: always; /* legacy alias, WebKit print engine */
+        visibility: hidden;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}

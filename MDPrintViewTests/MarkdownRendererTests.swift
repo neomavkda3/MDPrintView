@@ -221,3 +221,40 @@ struct MarkdownRendererTests {
         #expect(html.contains("$$"))
     }
 }
+
+@Suite("Page break rendering")
+struct PageBreakRenderingTests {
+    private let renderer = MarkdownRenderer()
+    private let source = "# One\n\nPara one.\n\nPara two."   // 3 top-level blocks
+
+    @Test("blockFingerprints yields one entry per top-level block")
+    func fingerprints() {
+        let fps = MarkdownRenderer.blockFingerprints(from: source)
+        #expect(fps.count == 3)
+        #expect(fps[0] == PageBreak.fingerprint(of: "# One"))
+    }
+
+    @Test("no breaks: gap divs between every boundary, none trailing")
+    func gapsOnly() {
+        let html = renderer.renderHTML(from: source, breaksAfter: [])
+        #expect(html.contains("<div class=\"break-gap\" data-after=\"0\"></div>"))
+        #expect(html.contains("<div class=\"break-gap\" data-after=\"1\"></div>"))
+        #expect(!html.contains("data-after=\"2\""))   // no gap after the last block
+    }
+
+    @Test("break replaces the gap at its boundary")
+    func breakDiv() {
+        let html = renderer.renderHTML(from: source, breaksAfter: [1])
+        #expect(html.contains("<div class=\"page-break\" data-after=\"1\">"))
+        #expect(html.contains("page-break-remove"))
+        #expect(!html.contains("<div class=\"break-gap\" data-after=\"1\"></div>"))
+        #expect(html.contains("<div class=\"break-gap\" data-after=\"0\"></div>"))
+    }
+
+    @Test("plain renderHTML(from:) emits no gap or break markup")
+    func plainUnchanged() {
+        let html = renderer.renderHTML(from: source)
+        #expect(!html.contains("break-gap"))
+        #expect(!html.contains("page-break"))
+    }
+}

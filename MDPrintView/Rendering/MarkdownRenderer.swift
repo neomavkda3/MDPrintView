@@ -18,11 +18,47 @@ func htmlEscape(_ s: String) -> String {
 }
 
 struct MarkdownRenderer {
+    /// Legacy path — byte-identical output to the pre-page-break renderer.
+    /// (Existing tests and the Mermaid sheet depend on this.)
     func renderHTML(from source: String) -> String {
         let document = Document(parsing: source)
         var emitter = HTMLEmitter()
         emitter.visit(document)
         return emitter.output
+    }
+
+    /// Interactive preview path. Emits page-break affordances between
+    /// top-level blocks: an invisible hover gap (`.break-gap`) at every
+    /// boundary, or a break divider (`.page-break`) where `breaksAfter`
+    /// contains the boundary index. No gap after the last block (a break
+    /// there is meaningless).
+    func renderHTML(from source: String, breaksAfter: Set<Int>) -> String {
+        let document = Document(parsing: source)
+        let children = Array(document.children)
+        var output = ""
+        for (i, child) in children.enumerated() {
+            var emitter = HTMLEmitter()
+            emitter.visit(child)
+            output += emitter.output
+            guard i < children.count - 1 else { break }
+            if breaksAfter.contains(i) {
+                output += "<div class=\"page-break\" data-after=\"\(i)\">"
+                    + "<span class=\"page-break-label\">Page break</span>"
+                    + "<button class=\"page-break-remove\" data-after=\"\(i)\" aria-label=\"Remove page break\">✕</button>"
+                    + "</div>"
+            } else {
+                output += "<div class=\"break-gap\" data-after=\"\(i)\"></div>"
+            }
+        }
+        return output
+    }
+
+    /// One fingerprint per top-level block, for page-break anchoring.
+    /// Uses the block's formatted markdown (round-trip source) — stable for
+    /// every block kind, including code blocks and tables.
+    static func blockFingerprints(from source: String) -> [String] {
+        let document = Document(parsing: source)
+        return document.children.map { PageBreak.fingerprint(of: $0.format()) }
     }
 }
 
