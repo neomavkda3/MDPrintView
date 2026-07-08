@@ -1,7 +1,7 @@
 import Foundation
 import Markdown
 
-private func htmlEscape(_ s: String) -> String {
+func htmlEscape(_ s: String) -> String {
     var result = ""
     result.reserveCapacity(s.count)
     for ch in s {
