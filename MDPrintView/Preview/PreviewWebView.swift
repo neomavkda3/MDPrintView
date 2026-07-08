@@ -38,6 +38,8 @@ struct PreviewWebView: NSViewRepresentable {
     let mode: PreviewMode
     let theme: PreviewTheme
     let printController: PreviewPrintController
+    /// Called on the main actor when the user clicks a page-break affordance.
+    var onPageBreakAction: ((PageBreakAction) -> Void)? = nil
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -46,6 +48,11 @@ struct PreviewWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        // Weak proxy: WKUserContentController retains its handler strongly;
+        // registering the Coordinator directly would leak it per window.
+        config.userContentController.add(
+            WeakScriptMessageHandler(context.coordinator), name: "pageBreak")
+        context.coordinator.onPageBreakAction = onPageBreakAction
 
         let webView = FileDropWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
@@ -67,7 +74,13 @@ struct PreviewWebView: NSViewRepresentable {
         return webView
     }
 
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.configuration.userContentController
+            .removeScriptMessageHandler(forName: "pageBreak")
+    }
+
     func updateNSView(_ webView: WKWebView, context: Context) {
+        context.coordinator.onPageBreakAction = onPageBreakAction
         if context.coordinator.templateReady {
             Self.inject(html: html, mode: mode, theme: theme, into: webView)
         } else {
@@ -154,11 +167,27 @@ struct PreviewWebView: NSViewRepresentable {
     }
 
     @MainActor
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var pendingHTML: String = ""
         var pendingMode: PreviewMode = .screen
         var pendingTheme: PreviewTheme = .original
         var templateReady: Bool = false
+        var onPageBreakAction: ((PageBreakAction) -> Void)?
+
+        // WKScriptMessageHandler delivers on the main thread; Coordinator is
+        // @MainActor — no hop needed.
+        func userContentController(_ userContentController: WKUserContentController,
+                                   didReceive message: WKScriptMessage) {
+            guard message.name == "pageBreak",
+                  let body = message.body as? [String: Any],
+                  let action = body["action"] as? String,
+                  let after = body["after"] as? Int else { return }
+            switch action {
+            case "add": onPageBreakAction?(.add(after: after))
+            case "remove": onPageBreakAction?(.remove(after: after))
+            default: break
+            }
+        }
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
             print("[MDPrintView.preview] didStartProvisionalNavigation — URL=\(webView.url?.absoluteString ?? "nil")")
@@ -190,5 +219,17 @@ struct PreviewWebView: NSViewRepresentable {
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
             print("[MDPrintView.preview] provisional navigation failed:", error)
         }
+    }
+}
+
+/// WKUserContentController retains its message handlers strongly; this box
+/// breaks the retain cycle so the Coordinator (and its captured closures)
+/// don't leak per window.
+private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
+    private weak var delegate: (any WKScriptMessageHandler & AnyObject)?
+    init(_ delegate: any WKScriptMessageHandler & AnyObject) { self.delegate = delegate }
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        delegate?.userContentController(userContentController, didReceive: message)
     }
 }
