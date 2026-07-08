@@ -88,7 +88,8 @@ document.text changes (via @Binding)
     → RenderState.schedule(text)                      [DEBOUNCED 40 ms]
        → MarkdownRenderer.renderHTML(...)
          → swift-markdown Document → HTMLEmitter MarkupWalker
-            → HTML string with htmlEscape on user content
+            → HTML string; text/code htmlEscaped, raw HTML sanitized
+              (GitHub-parity allowlist — see HTMLSanitizer.swift)
        → RenderState.html = result                    [SwiftUI invalidates]
     → Outline.extract(text)                           [SYNC, fast]
 

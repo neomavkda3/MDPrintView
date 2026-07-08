@@ -101,11 +101,11 @@ struct MarkdownRendererTests {
         #expect(!html.contains("<script>x</script>"))
     }
 
-    @Test("escapes link href and label")
+    @Test("escapes link href; sanitized inline HTML in label renders")
     func escapesLink() {
         let html = MarkdownRenderer().renderHTML(from: "[<b>label</b>](https://x.com?a=1&b=2)")
         #expect(html.contains("href=\"https://x.com?a=1&amp;b=2\""))
-        #expect(html.contains("&lt;b&gt;label&lt;/b&gt;"))
+        #expect(html.contains("<b>label</b>"))
     }
 
     @Test("renders blockquote")
@@ -154,11 +154,29 @@ struct MarkdownRendererTests {
         #expect(html.contains("<td>a</td>"))
     }
 
-    @Test("escapes block-level raw HTML")
-    func escapesHTMLBlock() {
-        let html = MarkdownRenderer().renderHTML(from: "<div>raw</div>")
-        #expect(html.contains("&lt;div&gt;raw&lt;/div&gt;"))
-        #expect(!html.contains("<div>raw</div>"))
+    @Test("sanitized block-level raw HTML renders")
+    func sanitizedHTMLBlock() {
+        let html = MarkdownRenderer().renderHTML(from: "<div align=\"center\">raw</div>")
+        #expect(html.contains("<div align=\"center\">"))
+        #expect(!html.contains("&lt;div"))
+    }
+
+    @Test("script in a document is dropped, not escaped")
+    func scriptDropped() {
+        let html = MarkdownRenderer().renderHTML(from: "before\n\n<script>evil()</script>\n\nafter")
+        #expect(!html.contains("script"))
+        #expect(!html.contains("evil"))
+        #expect(html.contains("before"))
+        #expect(html.contains("after"))
+    }
+
+    @Test("README-style centered header block renders with real tags")
+    func centeredHeaderBlock() {
+        let source = "<div align=\"center\">\n\n# Title\n\n</div>"
+        let html = MarkdownRenderer().renderHTML(from: source)
+        #expect(html.contains("<div align=\"center\">"))
+        #expect(html.contains("<h1>Title</h1>"))
+        #expect(html.contains("</div>"))
     }
 
     @Test("renders image")

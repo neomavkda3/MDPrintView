@@ -1,7 +1,7 @@
 import Foundation
 import Markdown
 
-private func htmlEscape(_ s: String) -> String {
+func htmlEscape(_ s: String) -> String {
     var result = ""
     result.reserveCapacity(s.count)
     for ch in s {
@@ -141,7 +141,7 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
-        output += htmlEscape(inlineHTML.rawHTML)
+        output += HTMLSanitizer.sanitize(inlineHTML.rawHTML)
     }
 
     mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
@@ -199,6 +199,6 @@ private struct HTMLEmitter: MarkupWalker {
     }
 
     mutating func visitHTMLBlock(_ htmlBlock: HTMLBlock) {
-        output += htmlEscape(htmlBlock.rawHTML)
+        output += HTMLSanitizer.sanitize(htmlBlock.rawHTML)
     }
 }
