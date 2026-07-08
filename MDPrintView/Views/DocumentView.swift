@@ -78,7 +78,10 @@ struct DocumentView: View {
                                 switch action {
                                 case .add(let after):
                                     let fps = MarkdownRenderer.blockFingerprints(from: document.text)
-                                    guard after < fps.count else { return }
+                                    // Also guard `after < 0` — fps[negative] traps,
+                                    // and this line sits downstream of a WKWebView
+                                    // message boundary, so it's cheap to harden.
+                                    guard after >= 0, after < fps.count else { return }
                                     pageBreakStore.add(afterBlock: after, fingerprint: fps[after])
                                 case .remove(let after):
                                     pageBreakStore.remove(afterBlock: after)
