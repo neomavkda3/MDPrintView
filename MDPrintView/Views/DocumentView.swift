@@ -17,6 +17,9 @@ struct DocumentView: View {
     /// Owned per-document. Recreated when fileURL changes; deallocated
     /// when the view goes away (deinit removes the file presenter).
     @State private var fileWatcher: FileWatcher?
+    /// Session-only print-layout state; intentionally not persisted (markdown
+    /// has no page-break concept). Dies with the window.
+    @State private var pageBreakStore = PageBreakStore()
 
     var body: some View {
         @Bindable var settings = settings
@@ -70,7 +73,18 @@ struct DocumentView: View {
                             html: render.html,
                             mode: previewMode,
                             theme: previewTheme,
-                            printController: printController
+                            printController: printController,
+                            onPageBreakAction: { action in
+                                switch action {
+                                case .add(let after):
+                                    let fps = MarkdownRenderer.blockFingerprints(from: document.text)
+                                    guard after < fps.count else { return }
+                                    pageBreakStore.add(afterBlock: after, fingerprint: fps[after])
+                                case .remove(let after):
+                                    pageBreakStore.remove(afterBlock: after)
+                                }
+                                renderWithBreaks(document.text, immediate: true)
+                            }
                         )
                     }
                     .frame(minWidth: 320)
@@ -95,11 +109,11 @@ struct DocumentView: View {
             DefaultAppCoordinator.checkAndPrompt(in: window, settings: settings)
         })
         .onAppear {
-            render.renderNow(document.text)
+            renderWithBreaks(document.text, immediate: true)
             outline = Outline.extract(from: document.text)
         }
         .onChange(of: document.text) { _, newValue in
-            render.schedule(newValue)
+            renderWithBreaks(newValue)
             outline = Outline.extract(from: newValue)
         }
         // Live external-edit watching: when a file URL is attached (i.e.
@@ -136,6 +150,17 @@ struct DocumentView: View {
                 onApply: { newCode in editor.applyMermaidEdit(newCode) },
                 onCancel: { editor.cancelMermaidEdit() }
             )
+        }
+    }
+
+    /// Resolve stored breaks against the current text and re-render.
+    private func renderWithBreaks(_ text: String, immediate: Bool = false) {
+        let fingerprints = MarkdownRenderer.blockFingerprints(from: text)
+        let resolved = pageBreakStore.resolve(against: fingerprints)
+        if immediate {
+            render.renderNow(text, breaksAfter: resolved)
+        } else {
+            render.schedule(text, breaksAfter: resolved)
         }
     }
 

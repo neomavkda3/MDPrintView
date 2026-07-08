@@ -8,7 +8,7 @@ final class RenderState {
     private let renderer = MarkdownRenderer()
     private var debounceTask: Task<Void, Never>?
 
-    func schedule(_ source: String, delay: Duration = .milliseconds(40)) {
+    func schedule(_ source: String, breaksAfter: Set<Int> = [], delay: Duration = .milliseconds(40)) {
         debounceTask?.cancel()
         // [weak self]: the pending task must not keep RenderState alive
         // through the debounce window after the owning view is torn down.
@@ -18,14 +18,14 @@ final class RenderState {
         debounceTask = Task { @MainActor [weak self, renderer] in
             try? await Task.sleep(for: delay)
             guard !Task.isCancelled, let self else { return }
-            let result = renderer.renderHTML(from: source)
+            let result = renderer.renderHTML(from: source, breaksAfter: breaksAfter)
             guard !Task.isCancelled else { return }
             self.html = result
         }
     }
 
-    func renderNow(_ source: String) {
+    func renderNow(_ source: String, breaksAfter: Set<Int> = []) {
         debounceTask?.cancel()
-        html = renderer.renderHTML(from: source)
+        html = renderer.renderHTML(from: source, breaksAfter: breaksAfter)
     }
 }
