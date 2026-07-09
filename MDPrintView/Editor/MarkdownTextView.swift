@@ -68,6 +68,15 @@ struct MarkdownTextView: NSViewRepresentable {
             context.coordinator.applyStylingImmediately(to: storage)
         }
 
+        // Line-number gutter (always on). NSRulerView scrolls with the
+        // scroll view for free; we only invalidate on text/font changes.
+        let ruler = LineNumberRulerView(scrollView: scrollView, textView: textView)
+        ruler.updateFontSize(editorFontSize)
+        scrollView.verticalRulerView = ruler
+        scrollView.hasVerticalRuler = true
+        scrollView.rulersVisible = true
+        context.coordinator.ruler = ruler
+
         return scrollView
     }
 
@@ -84,9 +93,15 @@ struct MarkdownTextView: NSViewRepresentable {
             if let storage = textView.textStorage {
                 context.coordinator.applyStylingImmediately(to: storage)
             }
+            // Programmatic text replacement (external reload) moves lines and
+            // does not fire textDidChange.
+            context.coordinator.ruler?.invalidate()
         } else if (modeChanged || fontSizeChanged || fontFamilyChanged), let storage = textView.textStorage {
             // Mode/font changes are user-initiated and rare — apply immediately.
             context.coordinator.applyStylingImmediately(to: storage)
+        }
+        if fontSizeChanged {
+            context.coordinator.ruler?.updateFontSize(editorFontSize)
         }
     }
 
@@ -100,6 +115,10 @@ struct MarkdownTextView: NSViewRepresentable {
         private var highlightTask: Task<Void, Never>?
         private let highlightDelay: Duration = .milliseconds(80)
 
+        /// Weak: the scroll view owns the ruler; the coordinator must not
+        /// extend its life.
+        weak var ruler: LineNumberRulerView?
+
         init(text: Binding<String>, mode: EditorMode, fontSize: CGFloat, fontFamily: EditorFontFamily) {
             self.text = text
             self.mode = mode
@@ -112,6 +131,8 @@ struct MarkdownTextView: NSViewRepresentable {
             // Publish text immediately so the preview pipeline (which has its
             // own debounce) starts working right away.
             text.wrappedValue = textView.string
+            // Line count / offsets changed — gutter rebuilds its index.
+            ruler?.invalidate()
             // Defer syntax re-highlighting — it's a full AST walk and was
             // running synchronously on every keystroke, blocking the main
             // actor for 50-80ms on doc-size inputs. Cancel-and-reschedule
