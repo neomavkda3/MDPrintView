@@ -64,6 +64,17 @@ struct MDPrintViewApp: App {
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
+            // SwiftUI only auto-injects New/Open into File when a
+            // DocumentGroup is the FIRST scene. Ours isn't — the Welcome
+            // Window scene comes first (so `.defaultLaunchBehavior(.presented)`
+            // works) — so we wire New and Open explicitly through
+            // NSDocumentController.
+            CommandGroup(replacing: .newItem) {
+                Button("New") { NSDocumentController.shared.newDocument(nil) }
+                    .keyboardShortcut("n", modifiers: .command)
+                Button("Open…") { NSDocumentController.shared.openDocument(nil) }
+                    .keyboardShortcut("o", modifiers: .command)
+            }
             CommandGroup(replacing: .printItem) {
                 PrintMenuItem()
                 ExportPDFMenuItem()

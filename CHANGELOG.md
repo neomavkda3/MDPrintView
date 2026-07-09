@@ -6,7 +6,7 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.3.2
+### Planned for v0.3.3
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
@@ -15,6 +15,16 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ### Planned for v0.5.0
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.3.2] — 2026-07-08
+
+### Added
+- **Line-number gutter in the editor.** Always on. Numbers hard source lines (a soft-wrapped paragraph gets one number on its first visual row) — which is the version you want when talking about "line 47." The gutter widens as the digit count grows; the number font scales with the editor font. `NSRulerView` installed as the scroll view's vertical ruler so scroll sync comes free; geometry comes from TextKit 2 layout fragments. 7 new `LineIndex` tests covering UTF-16 offsets (emoji, CJK), trailing newlines, consecutive newlines, past-the-end clamping. Thanks to [@xtreme-andy-shen](https://github.com/xtreme-andy-shen) (PR #5).
+
+### Fixed
+- **File → New (`⌘N`) and File → Open (`⌘O`)** are now wired app-wide. Pre-existing v0.1.0 bug — SwiftUI only auto-injects New/Open into the File menu when a `DocumentGroup` is the first scene, but ours is `Window` (the Welcome scene) so it can present at launch. Wired explicitly through `NSDocumentController`. Reported by [@xtreme-andy-shen](https://github.com/xtreme-andy-shen) while smoke-testing #5.
 
 ---
 
@@ -146,7 +156,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.2
 [0.3.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.1
 [0.3.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.0
 [0.2.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.2.1
