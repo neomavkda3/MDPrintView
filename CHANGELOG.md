@@ -6,6 +6,16 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
+### Added
+- **Text color and preview typography controls.** A new **Aa** button in
+  the preview toolbar opens a popover with theme, font size (12–24 pt),
+  and text color swatches — all live-apply. Settings → Editor gains a
+  matching text-color row. Colors default to `System`, which tracks
+  Light/Dark automatically; the presets are **Warm ink** and
+  **High contrast**, plus a **Custom…** picker for arbitrary values.
+  Preview colors override the reading theme's text color; theme
+  backgrounds stay theme-controlled.
+
 ### Planned for v0.3.3
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
