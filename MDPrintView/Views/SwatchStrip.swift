@@ -36,6 +36,10 @@ struct SwatchStrip: View {
     /// Local mirror of the picked custom color. Its `onChange` is our
     /// signal that NSColorPanel returned a value.
     @State private var customColor: Color = .black
+    /// Set while `syncCustomFromSelection` is writing to `customColor`
+    /// so its `.onChange` handler skips the round-trip back into
+    /// `selection` (which would clobber external updates).
+    @State private var syncingCustom = false
 
     var body: some View {
         HStack(spacing: 8) {
@@ -58,10 +62,28 @@ struct SwatchStrip: View {
             .labelsHidden()
             .accessibilityLabel("Custom color")
             .onChange(of: customColor) { _, new in
+                guard !syncingCustom else { return }
                 let ns = NSColor(new)
                 selection = HexColor.hex(from: ns)
                 onCustomPicked(ns)
             }
+        }
+        .onAppear { syncCustomFromSelection() }
+        .onChange(of: selection) { _, _ in syncCustomFromSelection() }
+    }
+
+    /// Keep the Custom… chip's swatch in sync with the applied color
+    /// so a user reopening the popover after picking a custom hex
+    /// sees a visual echo of what's active (instead of an out-of-date
+    /// .black chip). The `syncingCustom` guard prevents this write
+    /// from triggering the reverse path in `.onChange(of: customColor)`.
+    private func syncCustomFromSelection() {
+        syncingCustom = true
+        defer { syncingCustom = false }
+        if let ns = HexColor.nsColor(from: selection) {
+            customColor = Color(nsColor: ns)
+        } else {
+            customColor = Color(nsColor: .labelColor)
         }
     }
 }
