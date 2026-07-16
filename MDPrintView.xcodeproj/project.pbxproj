@@ -65,6 +65,7 @@
 		EA4917A7DC311E8B46F448D7 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = EF1D9BB6DFC8E8DCB8ADBAC0 /* preview.css */; };
 		EBD8515B1526E7E1256E64EC /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = E2C52EBF2FA6076F3A136D56 /* Markdown */; };
 		F1BE9461F05978A6E6098C23 /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F301EA3F373EB847553B3099 /* MarkdownTextView.swift */; };
+		F5B5CE636B4D9B01BA660C66 /* PreviewAppearancePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C14F9AC2B354FBDA6A3307F /* PreviewAppearancePopover.swift */; };
 		FB6BCC58B12D7779DA3B420D /* EditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D9B0C4667BE382F6390AFF /* EditorToolbar.swift */; };
 		FD9C3BD616569293F39A5B98 /* MDPrintViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E0AE3810A0841B501439BF /* MDPrintViewApp.swift */; };
 /* End PBXBuildFile section */
@@ -100,6 +101,7 @@
 		3ECCBB7FBD871FCB40B7FB35 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		45E451A5E3A2BEC13DDD425F /* EditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorController.swift; sourceTree = "<group>"; };
 		4A57733DA3CD516C894063FE /* DefaultAppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAppCoordinator.swift; sourceTree = "<group>"; };
+		4C14F9AC2B354FBDA6A3307F /* PreviewAppearancePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewAppearancePopover.swift; sourceTree = "<group>"; };
 		4EF8A24DD4071D80780E77C9 /* OutlineSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineSidebar.swift; sourceTree = "<group>"; };
 		5EA6504EC3E48EDE9688BCA2 /* FileDropDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropDelegate.swift; sourceTree = "<group>"; };
 		603C7E459DF74F75B3F8359E /* HTMLSanitizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLSanitizerTests.swift; sourceTree = "<group>"; };
@@ -216,6 +218,7 @@
 				06380D6550EAB74CDA1DB3D2 /* FileDrop.swift */,
 				5EA6504EC3E48EDE9688BCA2 /* FileDropDelegate.swift */,
 				4EF8A24DD4071D80780E77C9 /* OutlineSidebar.swift */,
+				4C14F9AC2B354FBDA6A3307F /* PreviewAppearancePopover.swift */,
 				A5DDC4CB4DB030749806075D /* SwatchStrip.swift */,
 				2386B8F35243E20B18225E83 /* WelcomeView.swift */,
 				BC80F90A6918791755F50F2D /* WindowAccessor.swift */,
@@ -428,6 +431,7 @@
 				A4D3296840CEEC17CB59B32A /* OutlineSidebar.swift in Sources */,
 				C3D5972389D0B84E7A4B0ECE /* PageBreakStore.swift in Sources */,
 				44AFAC518C553148EF23EAD4 /* PinnedDocuments.swift in Sources */,
+				F5B5CE636B4D9B01BA660C66 /* PreviewAppearancePopover.swift in Sources */,
 				471C7FF835D614D190317F10 /* PreviewPrintController.swift in Sources */,
 				9E255AD070086F9FE12A9B66 /* PreviewWebView.swift in Sources */,
 				A079E64F9CD9EE36041C8B3C /* RecentDocument.swift in Sources */,
