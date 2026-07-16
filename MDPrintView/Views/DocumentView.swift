@@ -34,7 +34,8 @@ struct DocumentView: View {
                         controller: editor,
                         mode: editorMode,
                         editorFontSize: CGFloat(settings.editorFontSize),
-                        editorFontFamily: settings.editorFontFamily
+                        editorFontFamily: settings.editorFontFamily,
+                        editorTextColor: settings.editorTextColor
                     )
                     .frame(minWidth: 320)
                 }

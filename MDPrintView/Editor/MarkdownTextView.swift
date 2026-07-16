@@ -7,9 +7,14 @@ struct MarkdownTextView: NSViewRepresentable {
     let mode: EditorMode
     let editorFontSize: CGFloat
     let editorFontFamily: EditorFontFamily
+    let editorTextColor: String?
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, mode: mode, fontSize: editorFontSize, fontFamily: editorFontFamily)
+        Coordinator(text: $text,
+                    mode: mode,
+                    fontSize: editorFontSize,
+                    fontFamily: editorFontFamily,
+                    textColor: HexColor.nsColor(from: editorTextColor))
     }
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -85,9 +90,12 @@ struct MarkdownTextView: NSViewRepresentable {
         let modeChanged = context.coordinator.mode != mode
         let fontSizeChanged = context.coordinator.fontSize != editorFontSize
         let fontFamilyChanged = context.coordinator.fontFamily != editorFontFamily
+        let newTextColor = HexColor.nsColor(from: editorTextColor)
+        let textColorChanged = context.coordinator.textColor != newTextColor
         context.coordinator.mode = mode
         context.coordinator.fontSize = editorFontSize
         context.coordinator.fontFamily = editorFontFamily
+        context.coordinator.textColor = newTextColor
         if textView.string != text {
             textView.string = text
             if let storage = textView.textStorage {
@@ -96,7 +104,7 @@ struct MarkdownTextView: NSViewRepresentable {
             // Programmatic text replacement (external reload) moves lines and
             // does not fire textDidChange.
             context.coordinator.ruler?.invalidate()
-        } else if (modeChanged || fontSizeChanged || fontFamilyChanged), let storage = textView.textStorage {
+        } else if (modeChanged || fontSizeChanged || fontFamilyChanged || textColorChanged), let storage = textView.textStorage {
             // Mode/font changes are user-initiated and rare — apply immediately.
             context.coordinator.applyStylingImmediately(to: storage)
         }
@@ -111,6 +119,7 @@ struct MarkdownTextView: NSViewRepresentable {
         var mode: EditorMode
         var fontSize: CGFloat
         var fontFamily: EditorFontFamily
+        var textColor: NSColor?
 
         private var highlightTask: Task<Void, Never>?
         private let highlightDelay: Duration = .milliseconds(80)
@@ -119,11 +128,16 @@ struct MarkdownTextView: NSViewRepresentable {
         /// extend its life.
         weak var ruler: LineNumberRulerView?
 
-        init(text: Binding<String>, mode: EditorMode, fontSize: CGFloat, fontFamily: EditorFontFamily) {
+        init(text: Binding<String>,
+             mode: EditorMode,
+             fontSize: CGFloat,
+             fontFamily: EditorFontFamily,
+             textColor: NSColor? = nil) {
             self.text = text
             self.mode = mode
             self.fontSize = fontSize
             self.fontFamily = fontFamily
+            self.textColor = textColor
         }
 
         func textDidChange(_ notification: Notification) {
@@ -151,7 +165,7 @@ struct MarkdownTextView: NSViewRepresentable {
         /// Debounced — use during interactive typing.
         func scheduleStyling(for storage: NSTextStorage) {
             highlightTask?.cancel()
-            let captured = (mode, fontSize, fontFamily)
+            let captured = (mode, fontSize, fontFamily, textColor)
             // weak storage: if the NSTextView (and its storage) is torn
             // down mid-debounce, the task must not keep the storage alive
             // or mutate an object the view hierarchy no longer owns.
@@ -159,19 +173,19 @@ struct MarkdownTextView: NSViewRepresentable {
                 try? await Task.sleep(for: self?.highlightDelay ?? .milliseconds(80))
                 guard !Task.isCancelled, self != nil, let storage else { return }
                 // Use the captured values to guard against mode flips mid-debounce.
-                Self.applyStyling(mode: captured.0, fontSize: captured.1, fontFamily: captured.2, to: storage)
+                Self.applyStyling(mode: captured.0, fontSize: captured.1, fontFamily: captured.2, textColor: captured.3, to: storage)
             }
         }
 
         /// Immediate — use on doc load, mode change, font change.
         func applyStylingImmediately(to storage: NSTextStorage) {
             highlightTask?.cancel()
-            Self.applyStyling(mode: mode, fontSize: fontSize, fontFamily: fontFamily, to: storage)
+            Self.applyStyling(mode: mode, fontSize: fontSize, fontFamily: fontFamily, textColor: textColor, to: storage)
         }
 
-        private static func applyStyling(mode: EditorMode, fontSize: CGFloat, fontFamily: EditorFontFamily, to storage: NSTextStorage) {
+        private static func applyStyling(mode: EditorMode, fontSize: CGFloat, fontFamily: EditorFontFamily, textColor: NSColor?, to storage: NSTextStorage) {
             switch mode {
-            case .source: SyntaxHighlighter(baseFontSize: fontSize, fontFamily: fontFamily).apply(to: storage)
+            case .source: SyntaxHighlighter(baseFontSize: fontSize, fontFamily: fontFamily, baseTextColor: textColor).apply(to: storage)
             case .hybrid: LiveFormatStyler().apply(to: storage) // no cursorAt → E2 behavior
             }
         }
