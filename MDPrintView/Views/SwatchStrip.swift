@@ -40,13 +40,13 @@ struct SwatchStrip: View {
     var body: some View {
         HStack(spacing: 8) {
             ForEach(TextColorSwatch.presets) { swatch in
-                SwatchCircle(
-                    swatch: swatch,
-                    isSelected: TextColorSwatch.matching(hex: selection) == swatch
-                )
-                .onTapGesture { selection = swatch.hex }
-                .help(swatch.label)
-                .accessibilityLabel(swatch.label)
+                let isSelected = TextColorSwatch.matching(hex: selection) == swatch
+                SwatchCircle(swatch: swatch, isSelected: isSelected)
+                    .onTapGesture { selection = swatch.hex }
+                    .help(swatch.label)
+                    .accessibilityLabel(swatch.label)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
             // Custom… — a SwiftUI ColorPicker styled as a chip. Opens
             // NSColorPanel under the hood. Labels hidden; we control the
@@ -56,6 +56,7 @@ struct SwatchStrip: View {
                     .font(.caption)
             }
             .labelsHidden()
+            .accessibilityLabel("Custom color")
             .onChange(of: customColor) { _, new in
                 let ns = NSColor(new)
                 selection = HexColor.hex(from: ns)

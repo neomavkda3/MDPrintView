@@ -24,4 +24,9 @@ struct SwatchStripTests {
     func customCase() {
         #expect(TextColorSwatch.matching(hex: "#123456") == nil)
     }
+
+    @Test("high contrast hex matches highContrast preset")
+    func highContrastMatches() {
+        #expect(TextColorSwatch.matching(hex: "#111111") == .highContrast)
+    }
 }
