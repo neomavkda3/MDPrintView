@@ -86,15 +86,28 @@ struct PreviewWebView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.onPageBreakAction = onPageBreakAction
         if context.coordinator.templateReady {
-            Self.inject(html: html, mode: mode, theme: theme,
-                        fontSize: fontSize, textColor: textColor,
-                        into: webView)
+            let heavyChanged = context.coordinator.lastAppliedHTML  != html
+                            || context.coordinator.lastAppliedMode  != mode
+                            || context.coordinator.lastAppliedTheme != theme
+            if heavyChanged {
+                Self.inject(html: html, mode: mode, theme: theme,
+                            fontSize: fontSize, textColor: textColor,
+                            into: webView)
+                context.coordinator.lastAppliedHTML  = html
+                context.coordinator.lastAppliedMode  = mode
+                context.coordinator.lastAppliedTheme = theme
+            } else {
+                // Only font-size or text-color changed — skip the heavy
+                // setBody + KaTeX + Mermaid work.
+                Self.injectStyleOnly(fontSize: fontSize, textColor: textColor,
+                                     into: webView)
+            }
         } else {
-            context.coordinator.pendingHTML = html
-            context.coordinator.pendingMode = mode
-            context.coordinator.pendingTheme = theme
-            context.coordinator.pendingFontSize = fontSize
-            context.coordinator.pendingTextColor = textColor
+            context.coordinator.pendingHTML       = html
+            context.coordinator.pendingMode       = mode
+            context.coordinator.pendingTheme      = theme
+            context.coordinator.pendingFontSize   = fontSize
+            context.coordinator.pendingTextColor  = textColor
         }
     }
 
@@ -190,6 +203,23 @@ struct PreviewWebView: NSViewRepresentable {
         }
     }
 
+    /// Fast path for font-size / text-color slider drags. Skips the
+    /// expensive setBody + KaTeX + Mermaid work when only the inline
+    /// style needs to change.
+    fileprivate static func injectStyleOnly(fontSize: Double, textColor: String?,
+                                            into webView: WKWebView) {
+        let colorClause = textColor.map { ";color:\($0)" } ?? ""
+        let contentStyle = "font-size:\(Int(fontSize))pt\(colorClause)"
+        let setStyleJS = """
+        try {
+            document.getElementById('content').setAttribute('style', '\(contentStyle)');
+        } catch(e) { console.error('style attribute set failed:', e); }
+        """
+        webView.evaluateJavaScript(setStyleJS) { _, error in
+            if let error { print("[MDPrintView] setStyle error:", error) }
+        }
+    }
+
     fileprivate static func escape(_ s: String) -> String {
         s
             .replacingOccurrences(of: "\\", with: "\\\\")
@@ -206,6 +236,13 @@ struct PreviewWebView: NSViewRepresentable {
         var pendingTextColor: String? = nil
         var templateReady: Bool = false
         var onPageBreakAction: ((PageBreakAction) -> Void)?
+
+        // Tracks the {html, mode, theme} last passed through the heavy
+        // inject pipeline so `updateNSView` can take a fast style-only
+        // path when just fontSize / textColor changed.
+        var lastAppliedHTML: String? = nil
+        var lastAppliedMode: PreviewMode? = nil
+        var lastAppliedTheme: PreviewTheme? = nil
 
         // WKScriptMessageHandler delivers on the main thread; Coordinator is
         // @MainActor — no hop needed.
@@ -245,6 +282,12 @@ struct PreviewWebView: NSViewRepresentable {
             PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme,
                                   fontSize: pendingFontSize, textColor: pendingTextColor,
                                   into: webView)
+            // Seed last-applied so the first updateNSView after template
+            // load doesn't spuriously classify as "heavy changed" and
+            // rerun the whole pipeline.
+            lastAppliedHTML  = pendingHTML
+            lastAppliedMode  = pendingMode
+            lastAppliedTheme = pendingTheme
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
