@@ -12,7 +12,6 @@ struct DocumentView: View {
     @State private var editor = EditorController()
     @State private var outline: [OutlineNode] = []
     @State private var previewMode: PreviewMode = .screen
-    @State private var previewTheme: PreviewTheme = .original
     @State private var editorMode: EditorMode = .source
     /// Owned per-document. Recreated when fileURL changes; deallocated
     /// when the view goes away (deinit removes the file presenter).
@@ -52,7 +51,7 @@ struct DocumentView: View {
                             .frame(maxWidth: 200)
 
                             Menu {
-                                Picker("Theme", selection: $previewTheme) {
+                                Picker("Theme", selection: $settings.previewTheme) {
                                     ForEach(PreviewTheme.allCases) { Text($0.label).tag($0) }
                                 }
                             } label: {
@@ -72,7 +71,7 @@ struct DocumentView: View {
                         PreviewWebView(
                             html: render.html,
                             mode: previewMode,
-                            theme: previewTheme,
+                            theme: settings.previewTheme,
                             printController: printController,
                             onPageBreakAction: { action in
                                 switch action {
