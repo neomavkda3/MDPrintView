@@ -84,20 +84,24 @@ private struct ThemeSwatch: View {
             )
     }
 
+    // KEEP IN SYNC with MDPrintView/Preview/Resources/preview.css
+    // (`body.theme-<name>` rules). If you change a theme's palette in
+    // one place, mirror it here so the popover swatch matches what
+    // users actually see in the preview.
     private var bg: Color {
         switch theme {
         case .original: return Color(nsColor: .textBackgroundColor)
-        case .sepia:    return Color(red: 0.957, green: 0.925, blue: 0.847)
-        case .quiet:    return Color(red: 0.961, green: 0.961, blue: 0.941)
-        case .focus:    return Color(red: 0.102, green: 0.102, blue: 0.110)
+        case .sepia:    return Color(red: 0.957, green: 0.925, blue: 0.847)  // #f4ecd8
+        case .quiet:    return Color(red: 0.961, green: 0.961, blue: 0.941)  // #f5f5f0
+        case .focus:    return Color(red: 0.102, green: 0.102, blue: 0.110)  // #1a1a1c
         }
     }
     private var fg: Color {
         switch theme {
         case .original: return Color(nsColor: .labelColor)
-        case .sepia:    return Color(red: 0.357, green: 0.275, blue: 0.212)
-        case .quiet:    return Color(red: 0.180, green: 0.180, blue: 0.180)
-        case .focus:    return Color(red: 0.902, green: 0.902, blue: 0.902)
+        case .sepia:    return Color(red: 0.357, green: 0.275, blue: 0.212)  // #5b4636
+        case .quiet:    return Color(red: 0.180, green: 0.180, blue: 0.180)  // #2e2e2e
+        case .focus:    return Color(red: 0.902, green: 0.902, blue: 0.902)  // #e6e6e6
         }
     }
 }
