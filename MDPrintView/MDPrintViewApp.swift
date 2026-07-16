@@ -279,6 +279,11 @@ private struct SettingsView: View {
                     }
                     .controlSize(.small)
                 }
+                HStack {
+                    Text("Text color")
+                    Spacer()
+                    SwatchStrip(selection: $settings.editorTextColor, onCustomPicked: { _ in })
+                }
             }
             Section("Print") {
                 Picker("Page size", selection: $settings.defaultPageSize) {
@@ -314,7 +319,7 @@ private struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 460, height: 460)
+        .frame(width: 460, height: 490)
         .onAppear {
             autoInstallUpdates = updater.automaticallyDownloadsUpdates
         }
