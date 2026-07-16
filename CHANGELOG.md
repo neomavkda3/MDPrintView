@@ -6,25 +6,30 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Added
-- **Text color and preview typography controls.** A new **Aa** button in
-  the preview toolbar opens a popover with theme, font size (12–24 pt),
-  and text color swatches — all live-apply. Settings → Editor gains a
-  matching text-color row. Colors default to `System`, which tracks
-  Light/Dark automatically; the presets are **Warm ink** and
-  **High contrast**, plus a **Custom…** picker for arbitrary values.
-  Preview colors override the reading theme's text color; theme
-  backgrounds stay theme-controlled.
-
-### Planned for v0.3.3
+### Planned for v0.4.1
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
-### Planned for v0.4.0
-- Word count and reading time in the editor status area
-
 ### Planned for v0.5.0
+- Word count and reading time in the editor status area
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.4.0] — 2026-07-16
+
+Text color and preview typography controls — the biggest UI addition since the initial release.
+
+### Added
+- **Preview Aa popover.** A new **Aa** button in the preview toolbar replaces the paintpalette dropdown and opens a popover consolidating three rows — theme, font size (12–24 pt), and text color. All rows live-apply through settings, no explicit save. Matches the near-universal reading-app pattern (Apple Books, Bear, Reeder) surfaced in a Mobbin audit.
+- **Editor text color.** Settings → Editor gains a matching text-color row, bound to a new `editorTextColor` setting. Reaches the syntax highlighter via a new `baseTextColor` override that recolors prose runs only — code, headings, and links keep their semantic colors so highlighting stays readable. Tooltip notes the setting is Source-mode only (Hybrid mode uses its own inline styling and is out of scope for now).
+- **Shared color swatches.** Both surfaces use the same swatch strip: **System** (default — tracks Light/Dark automatically), **Warm ink** (`#5B4636`), **High contrast** (`#111111`), plus a **Custom…** chip that opens `NSColorPanel` and remembers the picked hex per pane. The System swatch also resets the override; the Custom chip re-syncs to the applied color when the popover reopens.
+
+### Changed
+- **`previewTheme` is now app-level, not per-window.** Previously each document window kept its own theme; now every window shares the same theme and it persists across launches. Accidental per-window drift is gone.
+
+### Performance
+- Dragging the preview font-size slider now uses a fast path that skips the setBody + KaTeX + Mermaid re-render pipeline — only the inline `#content` style attribute is re-set per tick. Docs with math or diagrams no longer stall or flicker mid-drag.
 
 ---
 
@@ -166,7 +171,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.0
 [0.3.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.2
 [0.3.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.1
 [0.3.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.0
