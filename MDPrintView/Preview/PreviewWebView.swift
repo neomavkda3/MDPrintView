@@ -37,6 +37,8 @@ struct PreviewWebView: NSViewRepresentable {
     let html: String
     let mode: PreviewMode
     let theme: PreviewTheme
+    let fontSize: Double
+    let textColor: String?   // hex or nil (nil = theme's CSS color wins)
     let printController: PreviewPrintController
     /// Called on the main actor when the user clicks a page-break affordance.
     var onPageBreakAction: ((PageBreakAction) -> Void)? = nil
@@ -68,6 +70,8 @@ struct PreviewWebView: NSViewRepresentable {
         context.coordinator.pendingHTML = html
         context.coordinator.pendingMode = mode
         context.coordinator.pendingTheme = theme
+        context.coordinator.pendingFontSize = fontSize
+        context.coordinator.pendingTextColor = textColor
         printController.webView = webView
         loadTemplate(in: webView)
 
@@ -82,11 +86,15 @@ struct PreviewWebView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.onPageBreakAction = onPageBreakAction
         if context.coordinator.templateReady {
-            Self.inject(html: html, mode: mode, theme: theme, into: webView)
+            Self.inject(html: html, mode: mode, theme: theme,
+                        fontSize: fontSize, textColor: textColor,
+                        into: webView)
         } else {
             context.coordinator.pendingHTML = html
             context.coordinator.pendingMode = mode
             context.coordinator.pendingTheme = theme
+            context.coordinator.pendingFontSize = fontSize
+            context.coordinator.pendingTextColor = textColor
         }
     }
 
@@ -104,7 +112,9 @@ struct PreviewWebView: NSViewRepresentable {
         }
     }
 
-    fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme, into webView: WKWebView) {
+    fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme,
+                                   fontSize: Double, textColor: String?,
+                                   into webView: WKWebView) {
         let escaped = escape(html)
         let cls = "\(mode.rawValue) theme-\(theme.rawValue)"
 
@@ -119,7 +129,21 @@ struct PreviewWebView: NSViewRepresentable {
             if let error { print("[MDPrintView] setBody evaluateJavaScript error:", error) }
         }
 
-        // Step 2: math + diagram rendering. Independent — even if both fail,
+        // Step 2: inline style on #content. Beats body.theme-* CSS selectors
+        // without needing !important. Empty color → attribute omits the color
+        // clause → theme's CSS wins. That IS the "System default" behavior.
+        let colorClause = textColor.map { ";color:\($0)" } ?? ""
+        let contentStyle = "font-size:\(Int(fontSize))pt\(colorClause)"
+        let setStyleJS = """
+        try {
+            document.getElementById('content').setAttribute('style', '\(contentStyle)');
+        } catch(e) { console.error('style attribute set failed:', e); }
+        """
+        webView.evaluateJavaScript(setStyleJS) { _, error in
+            if let error { print("[MDPrintView] setStyle error:", error) }
+        }
+
+        // Step 3: math + diagram rendering. Independent — even if both fail,
         // the rendered HTML from Step 1 is already on screen.
         let renderJS = """
         if (window.renderMathInElement) {
@@ -171,6 +195,8 @@ struct PreviewWebView: NSViewRepresentable {
         var pendingHTML: String = ""
         var pendingMode: PreviewMode = .screen
         var pendingTheme: PreviewTheme = .original
+        var pendingFontSize: Double = 16
+        var pendingTextColor: String? = nil
         var templateReady: Bool = false
         var onPageBreakAction: ((PageBreakAction) -> Void)?
 
@@ -209,7 +235,9 @@ struct PreviewWebView: NSViewRepresentable {
                 }
                 print("[MDPrintView.preview] #content element present:", result ?? "nil")
             }
-            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme, into: webView)
+            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme,
+                                  fontSize: pendingFontSize, textColor: pendingTextColor,
+                                  into: webView)
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

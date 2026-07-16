@@ -73,6 +73,8 @@ struct DocumentView: View {
                             html: render.html,
                             mode: previewMode,
                             theme: settings.previewTheme,
+                            fontSize: settings.previewFontSize,
+                            textColor: settings.previewTextColor,
                             printController: printController,
                             onPageBreakAction: { action in
                                 switch action {
