@@ -18,6 +18,9 @@ xcuserdata/
 .vscode/
 .idea/
 
+# Git worktrees (feature branches worked on in isolation)
+.worktrees/
+
 # Secrets / signing
 *.p12
 *.cer
