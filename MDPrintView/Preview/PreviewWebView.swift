@@ -37,6 +37,8 @@ struct PreviewWebView: NSViewRepresentable {
     let html: String
     let mode: PreviewMode
     let theme: PreviewTheme
+    let fontSize: Double
+    let textColor: String?   // hex or nil (nil = theme's CSS color wins)
     let printController: PreviewPrintController
     /// Called on the main actor when the user clicks a page-break affordance.
     var onPageBreakAction: ((PageBreakAction) -> Void)? = nil
@@ -68,6 +70,8 @@ struct PreviewWebView: NSViewRepresentable {
         context.coordinator.pendingHTML = html
         context.coordinator.pendingMode = mode
         context.coordinator.pendingTheme = theme
+        context.coordinator.pendingFontSize = fontSize
+        context.coordinator.pendingTextColor = textColor
         printController.webView = webView
         loadTemplate(in: webView)
 
@@ -82,11 +86,28 @@ struct PreviewWebView: NSViewRepresentable {
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.onPageBreakAction = onPageBreakAction
         if context.coordinator.templateReady {
-            Self.inject(html: html, mode: mode, theme: theme, into: webView)
+            let heavyChanged = context.coordinator.lastAppliedHTML  != html
+                            || context.coordinator.lastAppliedMode  != mode
+                            || context.coordinator.lastAppliedTheme != theme
+            if heavyChanged {
+                Self.inject(html: html, mode: mode, theme: theme,
+                            fontSize: fontSize, textColor: textColor,
+                            into: webView)
+                context.coordinator.lastAppliedHTML  = html
+                context.coordinator.lastAppliedMode  = mode
+                context.coordinator.lastAppliedTheme = theme
+            } else {
+                // Only font-size or text-color changed — skip the heavy
+                // setBody + KaTeX + Mermaid work.
+                Self.injectStyleOnly(fontSize: fontSize, textColor: textColor,
+                                     into: webView)
+            }
         } else {
-            context.coordinator.pendingHTML = html
-            context.coordinator.pendingMode = mode
-            context.coordinator.pendingTheme = theme
+            context.coordinator.pendingHTML       = html
+            context.coordinator.pendingMode       = mode
+            context.coordinator.pendingTheme      = theme
+            context.coordinator.pendingFontSize   = fontSize
+            context.coordinator.pendingTextColor  = textColor
         }
     }
 
@@ -104,7 +125,9 @@ struct PreviewWebView: NSViewRepresentable {
         }
     }
 
-    fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme, into webView: WKWebView) {
+    fileprivate static func inject(html: String, mode: PreviewMode, theme: PreviewTheme,
+                                   fontSize: Double, textColor: String?,
+                                   into webView: WKWebView) {
         let escaped = escape(html)
         let cls = "\(mode.rawValue) theme-\(theme.rawValue)"
 
@@ -119,7 +142,28 @@ struct PreviewWebView: NSViewRepresentable {
             if let error { print("[MDPrintView] setBody evaluateJavaScript error:", error) }
         }
 
-        // Step 2: math + diagram rendering. Independent — even if both fail,
+        // Step 2: inline style on #content. Beats body.theme-* CSS selectors
+        // without needing !important. Empty color → attribute omits the color
+        // clause → theme's CSS wins. That IS the "System default" behavior.
+        //
+        // Trusted-input assumption: textColor here is either nil or a
+        // "#RRGGBB" produced by HexColor.hex(from:) — SwatchStrip is the
+        // only writer path. A stray `'` in this value would escape the
+        // single-quoted attribute below and enable JS injection; if a
+        // future writer (import/restore/scripting) bypasses HexColor,
+        // add a hex-regex guard right here.
+        let colorClause = textColor.map { ";color:\($0)" } ?? ""
+        let contentStyle = "font-size:\(Int(fontSize))pt\(colorClause)"
+        let setStyleJS = """
+        try {
+            document.getElementById('content').setAttribute('style', '\(contentStyle)');
+        } catch(e) { console.error('style attribute set failed:', e); }
+        """
+        webView.evaluateJavaScript(setStyleJS) { _, error in
+            if let error { print("[MDPrintView] setStyle error:", error) }
+        }
+
+        // Step 3: math + diagram rendering. Independent — even if both fail,
         // the rendered HTML from Step 1 is already on screen.
         let renderJS = """
         if (window.renderMathInElement) {
@@ -159,6 +203,23 @@ struct PreviewWebView: NSViewRepresentable {
         }
     }
 
+    /// Fast path for font-size / text-color slider drags. Skips the
+    /// expensive setBody + KaTeX + Mermaid work when only the inline
+    /// style needs to change.
+    fileprivate static func injectStyleOnly(fontSize: Double, textColor: String?,
+                                            into webView: WKWebView) {
+        let colorClause = textColor.map { ";color:\($0)" } ?? ""
+        let contentStyle = "font-size:\(Int(fontSize))pt\(colorClause)"
+        let setStyleJS = """
+        try {
+            document.getElementById('content').setAttribute('style', '\(contentStyle)');
+        } catch(e) { console.error('style attribute set failed:', e); }
+        """
+        webView.evaluateJavaScript(setStyleJS) { _, error in
+            if let error { print("[MDPrintView] setStyle error:", error) }
+        }
+    }
+
     fileprivate static func escape(_ s: String) -> String {
         s
             .replacingOccurrences(of: "\\", with: "\\\\")
@@ -171,8 +232,17 @@ struct PreviewWebView: NSViewRepresentable {
         var pendingHTML: String = ""
         var pendingMode: PreviewMode = .screen
         var pendingTheme: PreviewTheme = .original
+        var pendingFontSize: Double = 16
+        var pendingTextColor: String? = nil
         var templateReady: Bool = false
         var onPageBreakAction: ((PageBreakAction) -> Void)?
+
+        // Tracks the {html, mode, theme} last passed through the heavy
+        // inject pipeline so `updateNSView` can take a fast style-only
+        // path when just fontSize / textColor changed.
+        var lastAppliedHTML: String? = nil
+        var lastAppliedMode: PreviewMode? = nil
+        var lastAppliedTheme: PreviewTheme? = nil
 
         // WKScriptMessageHandler delivers on the main thread; Coordinator is
         // @MainActor — no hop needed.
@@ -209,7 +279,15 @@ struct PreviewWebView: NSViewRepresentable {
                 }
                 print("[MDPrintView.preview] #content element present:", result ?? "nil")
             }
-            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme, into: webView)
+            PreviewWebView.inject(html: pendingHTML, mode: pendingMode, theme: pendingTheme,
+                                  fontSize: pendingFontSize, textColor: pendingTextColor,
+                                  into: webView)
+            // Seed last-applied so the first updateNSView after template
+            // load doesn't spuriously classify as "heavy changed" and
+            // rerun the whole pipeline.
+            lastAppliedHTML  = pendingHTML
+            lastAppliedMode  = pendingMode
+            lastAppliedTheme = pendingTheme
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

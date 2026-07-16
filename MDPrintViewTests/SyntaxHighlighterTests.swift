@@ -64,4 +64,24 @@ struct SyntaxHighlighterTests {
         let font = storage.attributes(at: 0, effectiveRange: nil)[.font] as? NSFont
         #expect(font?.fontDescriptor.symbolicTraits.contains(.monoSpace) == false)
     }
+
+    @Test("baseTextColor override applies to plain prose runs")
+    func baseTextColorAppliesToProse() {
+        let storage = NSTextStorage(string: "hello world")
+        SyntaxHighlighter(baseTextColor: .red).apply(to: storage)
+        var range = NSRange()
+        let color = storage.attribute(.foregroundColor, at: 0, effectiveRange: &range) as? NSColor
+        #expect(color == .red)
+    }
+
+    @Test("baseTextColor override does NOT recolor code runs")
+    func baseTextColorSkipsCode() {
+        // "hello `code`" — the code span keeps NSColor.secondaryLabelColor,
+        // NOT the override.
+        let storage = NSTextStorage(string: "hello `code`")
+        SyntaxHighlighter(baseTextColor: .red).apply(to: storage)
+        // Position 7 is inside the code span.
+        let color = storage.attribute(.foregroundColor, at: 7, effectiveRange: nil) as? NSColor
+        #expect(color == .secondaryLabelColor)
+    }
 }

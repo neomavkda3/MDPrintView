@@ -208,6 +208,67 @@ final class AppSettings {
         }
     }
 
+    @ObservationIgnored
+    @AppStorage("previewTheme") private var storedPreviewTheme: String = PreviewTheme.original.rawValue
+
+    /// App-level preview theme. Promoted from per-window `@State` to a
+    /// persisted setting when the Aa popover consolidated all preview
+    /// appearance controls.
+    var previewTheme: PreviewTheme {
+        get {
+            access(keyPath: \.previewTheme)
+            return PreviewTheme(rawValue: storedPreviewTheme) ?? .original
+        }
+        set {
+            withMutation(keyPath: \.previewTheme) { storedPreviewTheme = newValue.rawValue }
+        }
+    }
+
+    @ObservationIgnored
+    @AppStorage("previewFontSize") private var storedPreviewFontSize: Double = 16
+
+    /// 12–24 pt slider on the preview Aa popover.
+    var previewFontSize: Double {
+        get { access(keyPath: \.previewFontSize); return storedPreviewFontSize }
+        set { withMutation(keyPath: \.previewFontSize) { storedPreviewFontSize = newValue } }
+    }
+
+    @ObservationIgnored
+    @AppStorage("previewTextColor") private var storedPreviewTextColor: String = ""
+
+    /// Empty string means "System default — theme CSS wins." Non-empty
+    /// value is a `#RRGGBB` hex. `@AppStorage` doesn't support `String?`
+    /// directly so we use `""` as the sentinel and expose `String?` publicly.
+    var previewTextColor: String? {
+        get {
+            access(keyPath: \.previewTextColor)
+            return storedPreviewTextColor.isEmpty ? nil : storedPreviewTextColor
+        }
+        set {
+            withMutation(keyPath: \.previewTextColor) {
+                storedPreviewTextColor = newValue ?? ""
+            }
+        }
+    }
+
+    @ObservationIgnored
+    @AppStorage("editorTextColor") private var storedEditorTextColor: String = ""
+
+    /// Same "" ↔ nil sentinel as `previewTextColor`. Non-nil value overrides
+    /// the base prose color in `SyntaxHighlighter`; syntax colors (headings,
+    /// code, links) stay untouched.
+    var editorTextColor: String? {
+        get {
+            access(keyPath: \.editorTextColor)
+            return storedEditorTextColor.isEmpty ? nil : storedEditorTextColor
+        }
+        set {
+            withMutation(keyPath: \.editorTextColor) {
+                storedEditorTextColor = newValue ?? ""
+            }
+        }
+    }
+
     /// Called once at launch from AppDelegate so the appearance is applied
     /// before any window comes on screen — otherwise the welcome flashes
     /// in system mode before flipping.

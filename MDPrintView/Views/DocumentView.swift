@@ -12,8 +12,8 @@ struct DocumentView: View {
     @State private var editor = EditorController()
     @State private var outline: [OutlineNode] = []
     @State private var previewMode: PreviewMode = .screen
-    @State private var previewTheme: PreviewTheme = .original
     @State private var editorMode: EditorMode = .source
+    @State private var isAaOpen: Bool = false
     /// Owned per-document. Recreated when fileURL changes; deallocated
     /// when the view goes away (deinit removes the file presenter).
     @State private var fileWatcher: FileWatcher?
@@ -35,7 +35,8 @@ struct DocumentView: View {
                         controller: editor,
                         mode: editorMode,
                         editorFontSize: CGFloat(settings.editorFontSize),
-                        editorFontFamily: settings.editorFontFamily
+                        editorFontFamily: settings.editorFontFamily,
+                        editorTextColor: settings.editorTextColor
                     )
                     .frame(minWidth: 320)
                 }
@@ -51,18 +52,20 @@ struct DocumentView: View {
                             .labelsHidden()
                             .frame(maxWidth: 200)
 
-                            Menu {
-                                Picker("Theme", selection: $previewTheme) {
-                                    ForEach(PreviewTheme.allCases) { Text($0.label).tag($0) }
-                                }
+                            Button {
+                                isAaOpen.toggle()
                             } label: {
-                                Image(systemName: "paintpalette")
+                                Image(systemName: "textformat.size")
                             }
-                            .menuStyle(.borderlessButton)
+                            .buttonStyle(.borderless)
                             .frame(width: 36)
-                            .help("Reading theme")
-                            .accessibilityLabel("Reading theme")
-                            .accessibilityIdentifier("preview.theme")
+                            .help("Preview appearance")
+                            .accessibilityLabel("Preview appearance")
+                            .accessibilityIdentifier("preview.aa")
+                            .popover(isPresented: $isAaOpen, arrowEdge: .top) {
+                                PreviewAppearancePopover()
+                                    .environment(settings)
+                            }
 
                             Spacer(minLength: 0)
                         }
@@ -72,7 +75,9 @@ struct DocumentView: View {
                         PreviewWebView(
                             html: render.html,
                             mode: previewMode,
-                            theme: previewTheme,
+                            theme: settings.previewTheme,
+                            fontSize: settings.previewFontSize,
+                            textColor: settings.previewTextColor,
                             printController: printController,
                             onPageBreakAction: { action in
                                 switch action {
