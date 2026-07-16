@@ -5,10 +5,14 @@ import Markdown
 struct SyntaxHighlighter {
     let baseFontSize: CGFloat
     let fontFamily: EditorFontFamily
+    let baseTextColor: NSColor?
 
-    init(baseFontSize: CGFloat = 14, fontFamily: EditorFontFamily = .systemMono) {
+    init(baseFontSize: CGFloat = 14,
+         fontFamily: EditorFontFamily = .systemMono,
+         baseTextColor: NSColor? = nil) {
         self.baseFontSize = baseFontSize
         self.fontFamily = fontFamily
+        self.baseTextColor = baseTextColor
     }
 
     /// Heading sizes derived from base: h1=+8, h2=+5, h3=+3, h4=+1, h5/h6=base.
@@ -28,7 +32,9 @@ struct SyntaxHighlighter {
         storage.removeAttribute(.font, range: fullRange)
         storage.removeAttribute(.foregroundColor, range: fullRange)
         storage.addAttribute(.font, value: fontFamily.nsFont(size: baseFontSize), range: fullRange)
-        storage.addAttribute(.foregroundColor, value: NSColor.textColor, range: fullRange)
+        storage.addAttribute(.foregroundColor,
+                             value: baseTextColor ?? NSColor.textColor,
+                             range: fullRange)
 
         for markup in document.children {
             apply(markup, to: storage, source: source)
