@@ -132,6 +132,13 @@ struct PreviewWebView: NSViewRepresentable {
         // Step 2: inline style on #content. Beats body.theme-* CSS selectors
         // without needing !important. Empty color → attribute omits the color
         // clause → theme's CSS wins. That IS the "System default" behavior.
+        //
+        // Trusted-input assumption: textColor here is either nil or a
+        // "#RRGGBB" produced by HexColor.hex(from:) — SwatchStrip is the
+        // only writer path. A stray `'` in this value would escape the
+        // single-quoted attribute below and enable JS injection; if a
+        // future writer (import/restore/scripting) bypasses HexColor,
+        // add a hex-regex guard right here.
         let colorClause = textColor.map { ";color:\($0)" } ?? ""
         let contentStyle = "font-size:\(Int(fontSize))pt\(colorClause)"
         let setStyleJS = """
