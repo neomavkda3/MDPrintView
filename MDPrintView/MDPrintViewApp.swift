@@ -283,6 +283,7 @@ private struct SettingsView: View {
                     Text("Text color")
                     Spacer()
                     SwatchStrip(selection: $settings.editorTextColor, onCustomPicked: { _ in })
+                        .help("Source mode only — Hybrid mode uses its own inline styling.")
                 }
             }
             Section("Print") {
