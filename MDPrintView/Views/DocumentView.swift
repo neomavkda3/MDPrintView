@@ -51,22 +51,6 @@ struct DocumentView: View {
                             .pickerStyle(.segmented)
                             .labelsHidden()
                             .frame(maxWidth: 200)
-
-                            Button {
-                                isAaOpen.toggle()
-                            } label: {
-                                Image(systemName: "textformat.size")
-                            }
-                            .buttonStyle(.borderless)
-                            .frame(width: 36)
-                            .help("Preview appearance")
-                            .accessibilityLabel("Preview appearance")
-                            .accessibilityIdentifier("preview.aa")
-                            .popover(isPresented: $isAaOpen, arrowEdge: .top) {
-                                PreviewAppearancePopover()
-                                    .environment(settings)
-                            }
-
                             Spacer(minLength: 0)
                         }
                         .padding(.vertical, 6)
@@ -147,7 +131,10 @@ struct DocumentView: View {
         .focusedSceneValue(\.printPreview, printController.printPreview)
         .focusedSceneValue(\.exportPDF, printController.exportPDF)
         .toolbar {
-            EditorToolbar(controller: editor, mode: $editorMode, layoutMode: $settings.defaultLayoutMode)
+            EditorToolbar(controller: editor,
+                          mode: $editorMode,
+                          layoutMode: $settings.defaultLayoutMode,
+                          isAaOpen: $isAaOpen)
         }
         .sheet(item: Binding(
             get: { editor.editingMermaidBlock },

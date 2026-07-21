@@ -4,6 +4,9 @@ struct EditorToolbar: ToolbarContent {
     let controller: EditorController
     @Binding var mode: EditorMode
     @Binding var layoutMode: LayoutMode
+    /// Owned by DocumentView so the popover survives toolbar rebuilds; passed
+    /// in as a binding so the toolbar can toggle it from the Aa button.
+    @Binding var isAaOpen: Bool
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
@@ -97,6 +100,27 @@ struct EditorToolbar: ToolbarContent {
             .help("Code & diagrams")
             .accessibilityLabel("Code and diagrams")
             .accessibilityIdentifier("toolbar.code")
+        }
+
+        // Preview appearance (theme + font size + text color).
+        // Right-side `.primaryAction` placement puts it well clear of the
+        // source-formatting group in the principal position, matching
+        // Apple Books / Bear / Ulysses conventions. Disabled — not hidden —
+        // in Editor-Only layout so the button stays in the same spot when
+        // the user switches modes.
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                isAaOpen.toggle()
+            } label: {
+                Image(systemName: "textformat.size")
+            }
+            .disabled(!layoutMode.showsPreview)
+            .help("Preview appearance")
+            .accessibilityLabel("Preview appearance")
+            .accessibilityIdentifier("toolbar.aa")
+            .popover(isPresented: $isAaOpen, arrowEdge: .top) {
+                PreviewAppearancePopover()
+            }
         }
     }
 }
