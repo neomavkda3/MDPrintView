@@ -69,6 +69,25 @@ struct EditorToolbar: ToolbarContent {
             .accessibilityLabel("Heading level")
             .accessibilityIdentifier("toolbar.heading")
 
+            // Preview appearance (theme + font size + text color) —
+            // adjacent to the heading menu so the two "text-format"
+            // controls read as a pair rather than living in separate
+            // regions of the toolbar. Disabled — not hidden — in
+            // Editor-Only layout so the button doesn't jump around when
+            // the user switches layouts.
+            Button {
+                isAaOpen.toggle()
+            } label: {
+                Image(systemName: "textformat.size")
+            }
+            .disabled(!layoutMode.showsPreview)
+            .help("Preview appearance")
+            .accessibilityLabel("Preview appearance")
+            .accessibilityIdentifier("toolbar.aa")
+            .popover(isPresented: $isAaOpen, arrowEdge: .top) {
+                PreviewAppearancePopover()
+            }
+
             Button { controller.insertLink() } label: { Image(systemName: "link") }
                 .keyboardShortcut("k", modifiers: .command)
                 .help("Insert link")
@@ -100,27 +119,6 @@ struct EditorToolbar: ToolbarContent {
             .help("Code & diagrams")
             .accessibilityLabel("Code and diagrams")
             .accessibilityIdentifier("toolbar.code")
-        }
-
-        // Preview appearance (theme + font size + text color).
-        // Right-side `.primaryAction` placement puts it well clear of the
-        // source-formatting group in the principal position, matching
-        // Apple Books / Bear / Ulysses conventions. Disabled — not hidden —
-        // in Editor-Only layout so the button stays in the same spot when
-        // the user switches modes.
-        ToolbarItem(placement: .primaryAction) {
-            Button {
-                isAaOpen.toggle()
-            } label: {
-                Image(systemName: "textformat.size")
-            }
-            .disabled(!layoutMode.showsPreview)
-            .help("Preview appearance")
-            .accessibilityLabel("Preview appearance")
-            .accessibilityIdentifier("toolbar.aa")
-            .popover(isPresented: $isAaOpen, arrowEdge: .top) {
-                PreviewAppearancePopover()
-            }
         }
     }
 }
