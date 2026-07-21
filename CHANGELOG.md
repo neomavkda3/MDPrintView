@@ -6,13 +6,20 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.4.1
+### Planned for v0.4.2
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
 ### Planned for v0.5.0
 - Word count and reading time in the editor status area
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.4.1] — 2026-07-21
+
+### Fixed
+- **Heading menu icon** in the top toolbar was `Aa` (`textformat.size`), the same icon the new preview appearance popover uses in v0.4.0. Two identical icons at the top of the doc window with different meanings — one inserts markdown headings, the other adjusts preview font size/theme/color. Mobbin audit of Bear, Obsidian, Squarespace, and Apple Books confirms the convention: `Aa` universally means "adjust display type" in the Apple ecosystem; heading pickers use an "H" glyph. Swapped to `h.square` so the two controls read as distinct.
 
 ---
 
@@ -171,7 +178,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.1
 [0.4.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.0
 [0.3.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.2
 [0.3.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.1
