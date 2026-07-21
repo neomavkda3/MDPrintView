@@ -55,7 +55,12 @@ struct EditorToolbar: ToolbarContent {
                 Button("Heading 3") { controller.toggleHeading(level: 3) }
                     .keyboardShortcut("3", modifiers: .command)
             } label: {
-                Image(systemName: "textformat.size")
+                // `h.square` (an "H" glyph) — was `textformat.size`, which
+                // collided visually with the preview Aa appearance button.
+                // Reading apps universally use `textformat.size`/"Aa" for
+                // display font-size adjustment; heading pickers use an "H"
+                // glyph or literal text (Bear, Obsidian, Squarespace).
+                Image(systemName: "h.square")
             }
             .help("Heading level")
             .accessibilityLabel("Heading level")
