@@ -6,13 +6,20 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.4.2
+### Planned for v0.4.3
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
 ### Planned for v0.5.0
 - Word count and reading time in the editor status area
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.4.2] — 2026-07-21
+
+### Changed
+- **Preview appearance (Aa) button moved into the top toolbar** on the right, next to the source-formatting group (H, Bold, Italic, Link, Lists, Code). Previously lived in the preview-pane strip, which put two "text-adjacent" controls one row apart and made the layout feel split. Disabled — not hidden — in Editor-Only mode so the button doesn't jump around when the user switches layouts. Preview-pane strip now holds only the Screen/Print picker, which is genuinely preview-workflow-specific.
 
 ---
 
@@ -178,7 +185,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.2
 [0.4.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.1
 [0.4.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.0
 [0.3.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.3.2
