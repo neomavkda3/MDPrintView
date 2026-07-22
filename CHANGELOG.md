@@ -6,13 +6,20 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.4.4
+### Planned for v0.4.5
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
 ### Planned for v0.5.0
 - Word count and reading time in the editor status area
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.4.4] — 2026-07-22
+
+### Fixed
+- **Words on adjacent source lines no longer glue together in the preview.** The renderer was silently dropping soft-break nodes (a single newline within a markdown paragraph), so `line one\nline two` rendered as `<p>line oneline two</p>`. Now emits a newline (which the browser collapses to whitespace), matching CommonMark and every other markdown renderer. Also handles hard line breaks (two trailing spaces) as `<br>`. Reported by a user who noticed the same file rendered correctly in Google Docs.
 
 ---
 
@@ -192,7 +199,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.4
 [0.4.3]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.3
 [0.4.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.2
 [0.4.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.1
