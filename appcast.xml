@@ -3,13 +3,13 @@
     <channel>
         <title>MDPrintView</title>
         <item>
-            <title>0.4.3</title>
-            <pubDate>Wed, 22 Jul 2026 02:38:24 +0000</pubDate>
-            <sparkle:version>12</sparkle:version>
-            <sparkle:shortVersionString>0.4.3</sparkle:shortVersionString>
-            <sparkle:releaseNotesLink>https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.3</sparkle:releaseNotesLink>
+            <title>0.4.4</title>
+            <pubDate>Wed, 22 Jul 2026 21:46:07 +0000</pubDate>
+            <sparkle:version>13</sparkle:version>
+            <sparkle:shortVersionString>0.4.4</sparkle:shortVersionString>
+            <sparkle:releaseNotesLink>https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.4</sparkle:releaseNotesLink>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/neomavkda3/MDPrintView/releases/download/v0.4.3/MDPrintView-0.4.3.dmg" length="4855641" type="application/octet-stream" sparkle:edSignature="p04uFDfMSSin/d/H2LQPhGwptF4dvqF/dX8Uhftx9zefjl6yTkseQIusbLqtgwG7jjpiP516T/P+TISFsC0+DA=="/>
+            <enclosure url="https://github.com/neomavkda3/MDPrintView/releases/download/v0.4.4/MDPrintView-0.4.4.dmg" length="4854515" type="application/octet-stream" sparkle:edSignature="pkWHZeMD0CkyxaUOhqTvlBWxYTsdJ4ehgKXZplS7611fTWZ+mvAmMqcTc2JsrL3izZerC8oynSCZEI0CT8sRAQ=="/>
         </item>
     </channel>
 </rss>
