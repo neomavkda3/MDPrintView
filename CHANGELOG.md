@@ -6,13 +6,20 @@ For downloads and Sparkle-signed release artifacts, see [Releases](https://githu
 
 ## [Unreleased]
 
-### Planned for v0.4.3
+### Planned for v0.4.4
 - Find in the preview pane (WKWebView find bar overlay)
 - Custom Find & Replace bar with regex support (replaces the native AppKit find bar in the editor)
 
 ### Planned for v0.5.0
 - Word count and reading time in the editor status area
 - Focus mode + typewriter scrolling
+
+---
+
+## [0.4.3] — 2026-07-21
+
+### Changed
+- **Aa button now sits directly beside the Heading (H) menu** in the top toolbar. Previously (v0.4.2) it lived on the far right via `.primaryAction`, which put the two "text-format" controls at opposite ends of the toolbar and made them hard to associate visually. Both now sit adjacent in the centered principal group — H first (source formatting), then Aa (display appearance).
 
 ---
 
@@ -185,7 +192,8 @@ First public OSS binary release. Signed, notarized, Sparkle auto-updating, GPL-3
 
 ---
 
-[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/neomavkda3/MDPrintView/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.3
 [0.4.2]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.2
 [0.4.1]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.1
 [0.4.0]: https://github.com/neomavkda3/MDPrintView/releases/tag/v0.4.0
