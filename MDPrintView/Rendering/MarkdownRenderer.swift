@@ -144,6 +144,23 @@ private struct HTMLEmitter: MarkupWalker {
         output += HTMLSanitizer.sanitize(inlineHTML.rawHTML)
     }
 
+    // CommonMark: a single newline within a paragraph is a "soft break."
+    // Render it as a newline in the output — browsers collapse HTML
+    // whitespace to a single space, which is exactly what readers expect.
+    // MarkupWalker's default implementation is a no-op, which was the
+    // cause of the "words on adjacent source lines glue together" bug
+    // reported in v0.4.3.
+    mutating func visitSoftBreak(_ softBreak: SoftBreak) {
+        output += "\n"
+    }
+
+    // Hard line break — a line ending preceded by two spaces or a
+    // backslash. Emit an explicit <br> so the paragraph reflow keeps
+    // the intended break.
+    mutating func visitLineBreak(_ lineBreak: LineBreak) {
+        output += "<br>\n"
+    }
+
     mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
         output += "<blockquote>"
         descendInto(blockQuote)

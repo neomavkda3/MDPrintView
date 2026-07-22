@@ -257,4 +257,31 @@ struct PageBreakRenderingTests {
         #expect(!html.contains("break-gap"))
         #expect(!html.contains("page-break"))
     }
+
+    // MARK: soft break / hard break — regression fence for the
+    //        "words on adjacent lines glue together" bug reported
+    //        against v0.4.3.
+
+    @Test("single newline in a paragraph becomes whitespace, not glue")
+    func softBreakBecomesWhitespace() {
+        let out = MarkdownRenderer().renderHTML(from: "hello\nworld")
+        // The two words must NOT be concatenated.
+        #expect(!out.contains("helloworld"))
+        // And they must be separated by either a newline (browser collapses
+        // to a space) or an actual space character.
+        #expect(out.contains("hello\nworld") || out.contains("hello world"))
+    }
+
+    @Test("hard line break (two trailing spaces) becomes <br>")
+    func hardBreakBecomesBr() {
+        let out = MarkdownRenderer().renderHTML(from: "line one  \nline two")
+        #expect(out.contains("<br>"))
+    }
+
+    @Test("three consecutive soft-break lines all get whitespace")
+    func softBreakChain() {
+        let out = MarkdownRenderer().renderHTML(from: "one\ntwo\nthree")
+        #expect(!out.contains("onetwo"))
+        #expect(!out.contains("twothree"))
+    }
 }
